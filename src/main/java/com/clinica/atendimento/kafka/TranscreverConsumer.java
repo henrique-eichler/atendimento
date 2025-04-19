@@ -11,11 +11,13 @@ public class TranscreverConsumer {
 
     private final WhisperService whisperService;
     private final ResumirProducer resumirProducer;
+    private final ExtrairProducer extrairProducer;
     private final WebSocketTranscricaoHandler webSocketTranscricaoHandler;
 
-    public TranscreverConsumer(WhisperService whisperService, ResumirProducer resumirProducer, WebSocketTranscricaoHandler webSocketTranscricaoHandler) {
+    public TranscreverConsumer(WhisperService whisperService, ResumirProducer resumirProducer, ExtrairProducer extrairProducer, WebSocketTranscricaoHandler webSocketTranscricaoHandler) {
         this.whisperService = whisperService;
         this.resumirProducer = resumirProducer;
+        this.extrairProducer = extrairProducer;
         this.webSocketTranscricaoHandler = webSocketTranscricaoHandler;
     }
 
@@ -24,7 +26,8 @@ public class TranscreverConsumer {
         String sessao = record.key();
         byte[] audio = record.value();
         String transcricao = whisperService.transcrever(sessao, audio);
-        resumirProducer.enviarAudio(record.key(), transcricao);
-        webSocketTranscricaoHandler.enviarTranscricao(sessao, transcricao);
+        resumirProducer.enviar(sessao, transcricao);
+        extrairProducer.enviar(sessao, transcricao);
+        webSocketTranscricaoHandler.enviar(sessao, "transcricao", transcricao);
     }
 }

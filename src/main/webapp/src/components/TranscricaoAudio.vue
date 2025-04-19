@@ -36,24 +36,100 @@
         <h2>📝 Resumo</h2>
         <div class="content">{{ resumo }}</div>
       </div>
+
+      <div class="result-card">
+        <h2>📝 Extrato</h2>
+        <div class="content">{{ extrato }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {onUnmounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import SockJS from 'sockjs-client'
 
 const conectado = ref(false)
 const recorder = ref(null)
 const transcricao = ref('Aguardando transcrição...')
 const resumo = ref('Aguardando resumo...')
+const extrato = ref('Aguardando extrato...')
+const reconnectAttempts = ref(0)
+const maxReconnectAttempts = 5
+const reconnectInterval = 3000 // 3 seconds
+const pingInterval = 30000 // 30 seconds
 
-const socket = new SockJS('/ws-transcricao')
-socket.onopen = () => habilitar()
-socket.onmessage = e => processarRetorno(JSON.parse(e.data))
-socket.onclose = () => desabilitar()
-socket.onerror = err => console.error('Socket error', err)
+let socket = null
+let reconnectTimer = null
+let pingTimer = null
+
+const createSocket = () => {
+  if (socket) {
+    // Clean up existing socket if any
+    try {
+      socket.close()
+    } catch (e) {
+      console.error('Error closing existing socket', e)
+    }
+  }
+
+  socket = new SockJS('/ws-transcricao')
+
+  socket.onopen = () => {
+    console.log('WebSocket connection established')
+    habilitar()
+    reconnectAttempts.value = 0
+
+    // Start ping interval
+    clearInterval(pingTimer)
+    pingTimer = setInterval(() => {
+      if (socket && socket.readyState === SockJS.OPEN) {
+        try {
+          socket.send('PING')
+        } catch (e) {
+          console.error('Error sending ping', e)
+        }
+      }
+    }, pingInterval)
+  }
+
+  socket.onmessage = e => {
+    if (e.data === 'PONG') {
+      console.log('Received pong from server')
+      return
+    }
+    try {
+      const data = JSON.parse(e.data)
+      processarRetorno(data)
+    } catch (err) {
+      console.error('Error parsing message', err, e.data)
+    }
+  }
+
+  socket.onclose = (event) => {
+    console.log('WebSocket connection closed', event)
+    desabilitar()
+    clearInterval(pingTimer)
+
+    // Attempt to reconnect if not a normal closure
+    if (event.code !== 1000 && reconnectAttempts.value < maxReconnectAttempts) {
+      reconnectAttempts.value++
+      console.log(`Attempting to reconnect (${reconnectAttempts.value}/${maxReconnectAttempts})...`)
+      clearTimeout(reconnectTimer)
+      reconnectTimer = setTimeout(createSocket, reconnectInterval)
+    } else if (reconnectAttempts.value >= maxReconnectAttempts) {
+      console.error('Max reconnect attempts reached')
+    }
+  }
+
+  socket.onerror = err => {
+    console.error('Socket error', err)
+  }
+}
+
+onMounted(() => {
+  createSocket()
+})
 
 const habilitar = () => {
   conectado.value = true
@@ -80,6 +156,8 @@ const processarRetorno = dado => {
     transcricao.value = dado.conteudo
   } else if (dado.tipo === 'resumo') {
     resumo.value = dado.conteudo
+  } else if (dado.tipo === 'extrato') {
+    extrato.value = dado.conteudo
   }
 }
 
@@ -89,24 +167,67 @@ const pararGravacao = () => {
 }
 
 const enviarAudio = (indice, audio) => {
-  if (socket && conectado.value) {
-    let chunk = {
-      indice,
-      base64: btoa(String.fromCharCode(...new Uint8Array(audio)))
+  if (socket && conectado.value && socket.readyState === SockJS.OPEN) {
+    try {
+      let chunk = {
+        indice,
+        base64: btoa(String.fromCharCode(...new Uint8Array(audio)))
+      }
+      socket.send(JSON.stringify(chunk))
+    } catch (err) {
+      console.error('Error sending audio chunk', err)
+      // If we encounter an error while sending, attempt to reconnect
+      if (reconnectAttempts.value < maxReconnectAttempts) {
+        console.log('Connection issue detected, attempting to reconnect...')
+        clearTimeout(reconnectTimer)
+        reconnectTimer = setTimeout(createSocket, 1000) // Quick reconnect attempt
+      }
     }
-    socket.send(JSON.stringify(chunk))
+  } else if (!socket || socket.readyState !== SockJS.OPEN) {
+    console.warn('Cannot send audio: socket is not open')
+    // Attempt to reconnect if socket is not open
+    if (reconnectAttempts.value < maxReconnectAttempts) {
+      console.log('Socket not open, attempting to reconnect...')
+      clearTimeout(reconnectTimer)
+      reconnectTimer = setTimeout(createSocket, 1000) // Quick reconnect attempt
+    }
   }
 }
 
 const finalizar = () => {
-  if (socket && conectado.value)
-    socket.send('FIM')
+  if (socket && conectado.value && socket.readyState === SockJS.OPEN) {
+    try {
+      socket.send('FIM')
+    } catch (err) {
+      console.error('Error sending FIM message', err)
+    }
+  }
   recorder.value = null;
 }
 
 onUnmounted(() => {
-  if (recorder.value?.state === 'recording')
-    recorder.value.stop()
+  // Stop recording if active
+  if (recorder.value?.state === 'recording') {
+    try {
+      recorder.value.stop()
+    } catch (err) {
+      console.error('Error stopping recorder', err)
+    }
+  }
+
+  // Clear all timers
+  clearInterval(pingTimer)
+  clearTimeout(reconnectTimer)
+
+  // Close socket connection
+  if (socket) {
+    try {
+      socket.close()
+    } catch (err) {
+      console.error('Error closing socket', err)
+    }
+    socket = null
+  }
 })
 
 </script>

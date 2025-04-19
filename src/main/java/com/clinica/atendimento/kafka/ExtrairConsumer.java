@@ -7,12 +7,12 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ResumirConsumer {
+public class ExtrairConsumer {
 
     private final DeepSeekService deepSeekService;
     private final WebSocketTranscricaoHandler webSocketTranscricaoHandler;
 
-    public ResumirConsumer(DeepSeekService deepSeekService, WebSocketTranscricaoHandler webSocketTranscricaoHandler) {
+    public ExtrairConsumer(DeepSeekService deepSeekService, WebSocketTranscricaoHandler webSocketTranscricaoHandler) {
         this.deepSeekService = deepSeekService;
         this.webSocketTranscricaoHandler = webSocketTranscricaoHandler;
     }
@@ -21,7 +21,7 @@ public class ResumirConsumer {
     public void consumir(ConsumerRecord<String, String> record) {
         String sessao = record.key();
         String texto = record.value();
-        String resumo = deepSeekService.resumir(texto);
-        webSocketTranscricaoHandler.enviar(sessao, "resumo", resumo);
+        String extrato = deepSeekService.extrair(texto);
+        webSocketTranscricaoHandler.enviar(sessao, "extrato", extrato);
     }
 }
