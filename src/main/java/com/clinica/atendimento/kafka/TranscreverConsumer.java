@@ -23,15 +23,8 @@ public class TranscreverConsumer {
     public void consumir(ConsumerRecord<String, byte[]> record) {
         String sessao = record.key();
         byte[] audio = record.value();
-
-        webSocketTranscricaoHandler.enviarTranscricao(sessao, "Preparando para transcrever....");
-
-
-        System.out.println("##############> TranscreverConsumer: " + sessao + ": inicio");
         String transcricao = whisperService.transcrever(sessao, audio);
-        System.out.println("##############> TranscreverConsumer: " + sessao + ": transcricao: " + transcricao);
         resumirProducer.enviarAudio(record.key(), transcricao);
         webSocketTranscricaoHandler.enviarTranscricao(sessao, transcricao);
-        System.out.println("##############> TranscreverConsumer: " + sessao + ": fim");
     }
 }

@@ -25,17 +25,14 @@ public class AudioService {
     }
 
     public void iniciarSessao(String sessao) {
-        System.out.println("##############> AudioService: " + sessao + ": iniciarSessao");
         sessoes.put(sessao, new LinkedList<>());
     }
 
     public void receberChunk(String sessao, Chunk chunk) {
-        System.out.println("##############> AudioService: " + sessao + ": receberChunk: indice: " + chunk.getIndice());
         sessoes.get(sessao).add(chunk);
     }
 
     public void finalizarSessao(String sessao) {
-        System.out.println("##############> AudioService: " + sessao + ": finalizarSessao");
         sessoes.remove(sessao)
                 .stream()
                 .sorted((a, b) -> a.indice - b.indice)

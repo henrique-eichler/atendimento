@@ -1,15 +1,41 @@
 <template>
-  <div>
-    <h3>🎙️ Tanscrição de Áudio - {{ conectado ? 'Conectado' : 'Desconectado' }}</h3>
-    <button @click="iniciarGravacao" :disabled="!conectado || recorder">Iniciar Gravação</button>
-    <button @click="pararGravacao" :disabled="!conectado || !recorder">Parar Gravação</button>
-    <div class="transcricao">
-      <h2>🧠 Transcrição</h2>
-      <pre>{{ transcricao }}</pre>
+  <div class="transcricao-container">
+    <div class="header">
+      <h1>🎙️ Transcrição de Áudio</h1>
+      <div class="status-badge" :class="{ 'connected': conectado, 'disconnected': !conectado }">
+        {{ conectado ? 'Conectado' : 'Desconectado' }}
+      </div>
     </div>
-    <div class="transcricao">
-      <h2>🧠 Resumo</h2>
-      <pre>{{ resumo }}</pre>
+
+    <div class="controls">
+      <button 
+        class="btn btn-primary" 
+        @click="iniciarGravacao" 
+        :disabled="!conectado || recorder"
+        :class="{ 'disabled': !conectado || recorder }"
+      >
+        <span class="icon">▶️</span> Iniciar Gravação
+      </button>
+      <button 
+        class="btn btn-danger" 
+        @click="pararGravacao" 
+        :disabled="!conectado || !recorder"
+        :class="{ 'disabled': !conectado || !recorder }"
+      >
+        <span class="icon">⏹️</span> Parar Gravação
+      </button>
+    </div>
+
+    <div class="results-container">
+      <div class="result-card">
+        <h2>🧠 Transcrição</h2>
+        <div class="content">{{ transcricao }}</div>
+      </div>
+
+      <div class="result-card">
+        <h2>📝 Resumo</h2>
+        <div class="content">{{ resumo }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -84,3 +110,146 @@ onUnmounted(() => {
 })
 
 </script>
+
+<style scoped>
+.transcricao-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.connected {
+  background-color: #4caf50;
+  color: white;
+}
+
+.disconnected {
+  background-color: #f44336;
+  color: white;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.btn .icon {
+  margin-right: 8px;
+}
+
+.btn-primary {
+  background-color: #2196f3;
+  color: white;
+}
+
+.btn-primary:hover:not(.disabled) {
+  background-color: #0d8bf2;
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-danger:hover:not(.disabled) {
+  background-color: #e53935;
+}
+
+.btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.results-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.result-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.result-card h2 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.content {
+  white-space: pre-wrap;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #555;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-badge {
+    margin-top: 10px;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+</style>

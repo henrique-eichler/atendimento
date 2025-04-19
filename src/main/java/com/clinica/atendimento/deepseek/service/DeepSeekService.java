@@ -19,10 +19,11 @@ public class DeepSeekService {
     }
 
     public String interpretar(String prompt) {
-        var req = new DeepSeekRequest("deepseek-coder:6.7b-instruct", prompt, false);
+        var texto = "Resuma essa conversa: \n\n\n" + prompt;
+        var deepSeekRequest = new DeepSeekRequest("deepseek-coder:6.7b-instruct", texto, false);
 
         try {
-            var responseEntity = restTemplate.postForEntity(deepseekUrl, req, DeepSeekResponse.class);
+            var responseEntity = restTemplate.postForEntity(deepseekUrl, deepSeekRequest, DeepSeekResponse.class);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 return responseEntity.getBody().getResponse().trim();

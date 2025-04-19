@@ -17,8 +17,6 @@ public class ResumirProducer {
     }
 
     public void enviarAudio(String sessao, String texto) {
-        System.out.println("##############> ResumirProducer: " + sessao + ": texto: " + texto);
         kafkaTemplate.send(new ProducerRecord<>(topico, sessao, texto));
-        System.out.println("##############> ResumirProducer: " + sessao + ": fim");
     }
 }

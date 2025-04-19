@@ -26,7 +26,6 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": conectado");
         audioService.iniciarSessao(session.getId());
         sessions.add(session);
     }
@@ -34,34 +33,28 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
         String sessao = session.getId();
-        System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": inicio");
         if (message instanceof TextMessage textMessage) {
             if ("FIM".equalsIgnoreCase(textMessage.getPayload())) {
-                System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": FIM");
                 audioService.finalizarSessao(sessao);
             } else {
                 String payload = textMessage.getPayload();
-                System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": payload: " + payload);
 
                 try {
                     Chunk chunk = objectMapper.readValue(payload, Chunk.class);
                     byte[] audio = Base64.getDecoder().decode(chunk.getBase64());
                     AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.getIndice(), audio);
-                    System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": audio: " + audio.length + " bytes");
                     audioService.receberChunk(sessao, audioChunk);
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
-        System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": fim");
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         audioService.finalizarSessao(session.getId());
         sessions.remove(session);
-        System.out.println("##############> WebSocketTranscricaoHandler: " + session.getId() + ": desconectado");
     }
 
     @Override

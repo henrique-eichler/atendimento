@@ -21,10 +21,7 @@ public class ResumirConsumer {
     public void consumir(ConsumerRecord<String, String> record) {
         String sessao = record.key();
         String texto = record.value();
-        System.out.println("##############> ResumirConsumer: " + sessao + ": texto: " + texto);
-        String resumo = deepSeekService.interpretar(record.value());
-        System.out.println("##############> ResumirConsumer: " + sessao + ": resumo: " + resumo);
-        webSocketTranscricaoHandler.enviarResumo(record.key(), resumo);
-        System.out.println("##############> ResumirConsumer: " + sessao + ": fim");
+        String resumo = deepSeekService.interpretar(texto);
+        webSocketTranscricaoHandler.enviarResumo(sessao, resumo);
     }
 }

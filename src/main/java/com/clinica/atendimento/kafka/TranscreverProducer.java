@@ -17,8 +17,6 @@ public class TranscreverProducer {
     }
 
     public void enviarAudio(String sessao, byte[] audio) {
-        System.out.println("##############> TranscreverProducer: " + sessao + " audio: " + audio.length + " bytes");
         kafkaTemplate.send(new ProducerRecord<>(topico, sessao, audio));
-        System.out.println("##############> TranscreverProducer: " + sessao + ": fim");
     }
 }
