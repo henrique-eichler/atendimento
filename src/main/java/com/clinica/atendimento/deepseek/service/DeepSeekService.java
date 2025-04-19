@@ -19,19 +19,18 @@ public class DeepSeekService {
     }
 
     public String interpretar(String prompt) {
-        var texto = "Resuma essa conversa: \n\n\n" + prompt;
-        var deepSeekRequest = new DeepSeekRequest("deepseek-coder:6.7b-instruct", texto, false);
+        var texto = "Dado essa transcrição completa de uma sessão: \"" + prompt + "\". Responda: O que foi discutido durante a sessão?";
+        var deepSeekRequest = new DeepSeekRequest(texto);
 
         try {
             var responseEntity = restTemplate.postForEntity(deepseekUrl, deepSeekRequest, DeepSeekResponse.class);
-
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 return responseEntity.getBody().getResponse().trim();
             } else {
-                throw new IllegalStateException("DeepSeek returned " + responseEntity.getStatusCode());
+                return "DeepSeek returned " + responseEntity.getStatusCode();
             }
         } catch (Exception ex) {
-            throw new RuntimeException("Erro ao chamar DeepSeek", ex);
+            return "Erro ao chamar DeepSeek: " + ex.getMessage();
         }
     }
 }

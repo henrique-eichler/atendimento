@@ -8,10 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -25,7 +22,7 @@ public class AudioService {
     }
 
     public void iniciarSessao(String sessao) {
-        sessoes.put(sessao, new LinkedList<>());
+        sessoes.put(sessao, new ArrayList<>());
     }
 
     public void receberChunk(String sessao, Chunk chunk) {
@@ -33,13 +30,14 @@ public class AudioService {
     }
 
     public void finalizarSessao(String sessao) {
-        sessoes.remove(sessao)
-                .stream()
-                .sorted((a, b) -> a.indice - b.indice)
+        List<Chunk> chunks = sessoes.get(sessao);
+        sessoes.put(sessao, new ArrayList<>());
+
+        chunks.stream()
+                .sorted(Comparator.comparingInt(Chunk::getIndice))
                 .map(Chunk::getAudio)
                 .reduce(AudioService::join)
                 .ifPresent(audio -> transcreverProducer.enviarAudio(sessao, audio));
-        iniciarSessao(sessao);
     }
 
     private static byte[] join(byte[] a, byte[] b) {
