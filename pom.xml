@@ -47,9 +47,11 @@
       <artifactId>postgresql</artifactId>
       <version>42.7.2</version>
     </dependency>
+    <!-- Direct Kafka API instead of Spring Kafka -->
     <dependency>
-      <groupId>org.springframework.kafka</groupId>
-      <artifactId>spring-kafka</artifactId>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>3.6.1</version>
     </dependency>
 
     <!-- Spring Messaging (já deve estar, mas vale garantir) -->
