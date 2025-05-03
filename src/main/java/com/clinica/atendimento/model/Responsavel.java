@@ -2,8 +2,12 @@
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.Set;
 
+@Getter
+@Setter
 @Entity
 public class Responsavel {
 
@@ -14,28 +18,4 @@ public class Responsavel {
 
     @ManyToMany(mappedBy = "responsaveis")
     private Set<Paciente> pacientes;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Set<Paciente> getPacientes() {
-        return pacientes;
-    }
-
-    public void setPacientes(Set<Paciente> pacientes) {
-        this.pacientes = pacientes;
-    }
 }

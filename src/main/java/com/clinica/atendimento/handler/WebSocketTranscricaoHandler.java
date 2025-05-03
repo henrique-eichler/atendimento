@@ -1,14 +1,17 @@
 package com.clinica.atendimento.handler;
 
+import com.clinica.atendimento.config.RedisService;
 import com.clinica.atendimento.service.AudioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -16,23 +19,43 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Component
 public class WebSocketTranscricaoHandler implements WebSocketHandler {
 
-    private final AudioService audioService;
     private final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public WebSocketTranscricaoHandler(AudioService audioService) {
+    private final AudioService audioService;
+    private final RedisService redisService;
+
+    public WebSocketTranscricaoHandler(AudioService audioService, RedisService redisService) {
         this.audioService = audioService;
+        this.redisService = redisService;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        audioService.iniciarSessao(session.getId());
+        String sessionId = Optional.ofNullable(session.getUri())
+                .map(uri -> UriComponentsBuilder.fromUri(uri).build().getQueryParams().getFirst("sessionId"))
+                .orElse(session.getId());
+
+        session.getAttributes().put("sessionId", sessionId);
+
+        audioService.iniciarSessao(sessionId);
         sessions.add(session);
+
+        List<String> pendentes = redisService.popAllMessages(sessionId);
+        if (pendentes != null) {
+            for (String msg : pendentes) {
+                try {
+                    session.sendMessage(new TextMessage(msg));
+                } catch (IOException e) {
+                    redisService.pushMessage(sessionId, msg);
+                }
+            }
+        }
     }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) {
-        String sessao = session.getId();
+        String sessionId = session.getAttributes().get("sessionId").toString();
         if (message instanceof TextMessage textMessage) {
             String payload = textMessage.getPayload();
 
@@ -50,16 +73,15 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
             }
 
             if ("FIM".equalsIgnoreCase(payload)) {
-                audioService.finalizarSessao(sessao);
+                audioService.finalizarSessao(sessionId);
             } else {
                 try {
                     Chunk chunk = objectMapper.readValue(payload, Chunk.class);
-                    byte[] audio = Base64.getDecoder().decode(chunk.getBase64());
-                    AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.getIndice(), audio);
-                    audioService.receberChunk(sessao, audioChunk);
+                    byte[] audio = Base64.getDecoder().decode(chunk.base64());
+                    AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.indice(), audio);
+                    audioService.receberChunk(sessionId, audioChunk);
                 } catch (JsonProcessingException e) {
-                    System.err.println("Error processing message for session " + sessao + ": " + e.getMessage());
-                    e.printStackTrace();
+                    System.err.println("Error processing message for session " + sessionId + ": " + e.getMessage());
                     try {
                         // Send error message to client
                         session.sendMessage(new TextMessage("{\"tipo\":\"error\",\"conteudo\":\"Error processing message\"}"));
@@ -69,7 +91,7 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
                     }
                 } catch (IllegalArgumentException e) {
                     // This can happen with Base64 decoding errors
-                    System.err.println("Error decoding base64 data for session " + sessao + ": " + e.getMessage());
+                    System.err.println("Error decoding base64 data for session " + sessionId + ": " + e.getMessage());
                     try {
                         session.sendMessage(new TextMessage("{\"tipo\":\"error\",\"conteudo\":\"Error decoding audio data\"}"));
                     } catch (IOException ioException) {
@@ -81,26 +103,24 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        audioService.finalizarSessao(session.getId());
+    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus status) {
+        String sessionId = session.getAttributes().get("sessionId").toString();
+        audioService.finalizarSessao(sessionId);
         sessions.remove(session);
     }
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
-        System.err.println("WebSocket transport error for session " + session.getId() + ": " + exception.getMessage());
-        exception.printStackTrace();
+        String sessionId = session.getAttributes().get("sessionId").toString();
+        System.err.println("WebSocket transport error for session " + sessionId + ": " + exception.getMessage());
 
         try {
             if (session.isOpen()) {
-                // Try to close the session gracefully
                 session.close(CloseStatus.SERVER_ERROR);
             }
         } catch (IOException e) {
             System.err.println("Error closing WebSocket session after transport error: " + e.getMessage());
         } finally {
-            // Make sure we clean up resources
-            audioService.finalizarSessao(session.getId());
             sessions.remove(session);
         }
     }
@@ -111,12 +131,10 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
     }
 
     private WebSocketSession getSession(String sessao) {
-        for (WebSocketSession session : sessions) {
-            if (session.getId().equalsIgnoreCase(sessao) && session.isOpen()) {
-                return session;
-            }
-        }
-        return null;
+        return sessions
+                .stream()
+                .filter(session -> session.getAttributes().get("sessionId").equals(sessao))
+                .filter(WebSocketSession::isOpen).findFirst().orElse(null);
     }
 
     private void enviar(String sessao, Response response) {
@@ -136,7 +154,6 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
             }
         } catch (Exception exception) {
             System.err.println("Unexpected error sending message to session " + sessao + ": " + exception.getMessage());
-            exception.printStackTrace();
             if (session != null) {
                 handleTransportError(session, exception);
             }
@@ -148,56 +165,9 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
         enviar(sessao, response);
     }
 
-    public static class Response {
-        private String tipo;
-        private String conteudo;
-
-        public Response() {
-        }
-
-        public Response(String tipo, String conteudo) {
-            this.tipo = tipo;
-            this.conteudo = conteudo;
-        }
-
-        public String getTipo() {
-            return tipo;
-        }
-
-        public void setTipo(String tipo) {
-            this.tipo = tipo;
-        }
-
-        public String getConteudo() {
-            return conteudo;
-        }
-
-        public void setConteudo(String conteudo) {
-            this.conteudo = conteudo;
-        }
+    public record Response(String tipo, String conteudo) {
     }
 
-    public static class Chunk {
-        private int indice;
-        private String base64;
-
-        public Chunk() {
-        }
-
-        public int getIndice() {
-            return indice;
-        }
-
-        public void setIndice(int indice) {
-            this.indice = indice;
-        }
-
-        public String getBase64() {
-            return base64;
-        }
-
-        public void setBase64(String base64) {
-            this.base64 = base64;
-        }
+    public record Chunk(int indice, String base64) {
     }
 }

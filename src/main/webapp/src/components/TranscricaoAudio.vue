@@ -49,6 +49,7 @@
 import {onMounted, onUnmounted, ref} from 'vue'
 import SockJS from 'sockjs-client'
 
+const sessionId = crypto.randomUUID()
 const conectado = ref(false)
 const recorder = ref(null)
 const transcricao = ref('Aguardando transcrição...')
@@ -73,7 +74,7 @@ const createSocket = () => {
     }
   }
 
-  socket = new SockJS('/ws-transcricao')
+  socket = new SockJS(`/ws-transcricao?sessionId=${sessionId}`)
 
   socket.onopen = () => {
     console.log('WebSocket connection established')
@@ -145,7 +146,7 @@ const iniciarGravacao = async () => {
         let indice = 1
         recorder.value = new MediaRecorder(stream)
         recorder.value.ondataavailable = event => event.data.arrayBuffer().then(buffer => enviarAudio(indice++, buffer))
-        recorder.value.onstop = event => finalizar()
+        recorder.value.onstop = _ => finalizar()
         recorder.value.start(250)
       })
       .catch(err => console.error('mic error', err))
