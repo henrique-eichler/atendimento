@@ -74,4 +74,4 @@ application-*.yml
 .env.production.local
 
 
-src/main/resources/static
+src/main/resources/static/*

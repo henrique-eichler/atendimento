@@ -37,8 +37,8 @@ public class TranscreverConsumer implements InitializingBean, DisposableBean {
                               ResumirProducer resumirProducer, 
                               ExtrairProducer extrairProducer, 
                               WebSocketTranscricaoHandler webSocketTranscricaoHandler,
-                              @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
-                              @Value("${app.kafka.topico.transcrever}") String topico) {
+                              @Value("${kafka.url}") String bootstrapServers,
+                              @Value("${kafka.topico.transcrever}") String topico) {
         this.whisperService = whisperService;
         this.resumirProducer = resumirProducer;
         this.extrairProducer = extrairProducer;
@@ -70,7 +70,7 @@ public class TranscreverConsumer implements InitializingBean, DisposableBean {
                 records.forEach(record -> {
                     String sessao = record.key();
                     byte[] audio = record.value();
-                    String transcricao = whisperService.transcrever(sessao, audio);
+                    String transcricao = whisperService.transcrever(audio);
                     resumirProducer.enviar(sessao, transcricao);
                     extrairProducer.enviar(sessao, transcricao);
                     webSocketTranscricaoHandler.enviar(sessao, "transcricao", transcricao);

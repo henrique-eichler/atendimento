@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -14,10 +13,10 @@ public class WhisperService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${whisper.api.url:http://192.168.122.153:5001/transcrever}")
+    @Value("${whisper.url}")
     private String whisperApiUrl;
 
-    public String transcrever(String sessao, byte[] audio) {
+    public String transcrever(byte[] audio) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 

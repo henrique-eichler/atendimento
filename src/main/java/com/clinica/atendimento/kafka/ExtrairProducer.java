@@ -17,8 +17,8 @@ public class ExtrairProducer implements DisposableBean {
     private final Producer<String, String> producer;
     private final String topico;
 
-    public ExtrairProducer(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers, 
-                          @Value("${app.kafka.topico.extrair}") String topico) {
+    public ExtrairProducer(@Value("${kafka.url}") String bootstrapServers,
+                          @Value("${kafka.topico.extrair}") String topico) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());

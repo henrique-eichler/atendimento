@@ -17,8 +17,8 @@ public class ResumirProducer implements DisposableBean {
     private final Producer<String, String> producer;
     private final String topico;
 
-    public ResumirProducer(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers, 
-                          @Value("${app.kafka.topico.resumir}") String topico) {
+    public ResumirProducer(@Value("${kafka.url}") String bootstrapServers,
+                          @Value("${kafka.topico.resumir}") String topico) {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());

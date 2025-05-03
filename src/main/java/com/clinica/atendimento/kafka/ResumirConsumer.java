@@ -32,8 +32,8 @@ public class ResumirConsumer implements InitializingBean, DisposableBean {
 
     public ResumirConsumer(DeepSeekService deepSeekService, 
                           WebSocketTranscricaoHandler webSocketTranscricaoHandler,
-                          @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
-                          @Value("${app.kafka.topico.resumir}") String topico) {
+                          @Value("${kafka.url}") String bootstrapServers,
+                          @Value("${kafka.topico.resumir}") String topico) {
         this.deepSeekService = deepSeekService;
         this.webSocketTranscricaoHandler = webSocketTranscricaoHandler;
         this.bootstrapServers = bootstrapServers;
