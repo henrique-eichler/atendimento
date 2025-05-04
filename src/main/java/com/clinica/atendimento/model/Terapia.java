@@ -1,41 +1,65 @@
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "terapia", uniqueConstraints = {
         @UniqueConstraint(name = "uk_terapia_nome", columnNames = {"nome"})
 })
-public record Terapia(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(fluent = true)
+public class Terapia {
     @Id
-    @Column(name = "id", nullable = false)
-    Long id,
+    @SequenceGenerator(name = "terapia_seq", sequenceName = "terapia_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "terapia_seq")
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "nome", nullable = false)
-    String nome,
+    private String nome;
 
     @OneToMany(mappedBy = "terapia")
-    Set<ProfissionalTerapia> profissionais,
+    @Builder.Default
+    private Set<ProfissionalTerapia> profissionais = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "terapia")
-    Set<TerapiaConvenio> convenios,
+    @Builder.Default
+    private Set<TerapiaConvenio> convenios = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "terapia")
-    Set<TerapiaSala> salas
-) {
-    // Custom constructor to initialize collections
-    public Terapia {
-        profissionais = profissionais != null ? Collections.unmodifiableSet(profissionais) : Collections.emptySet();
-        convenios = convenios != null ? Collections.unmodifiableSet(convenios) : Collections.emptySet();
-        salas = salas != null ? Collections.unmodifiableSet(salas) : Collections.emptySet();
+    @Builder.Default
+    private Set<TerapiaSala> salas = new LinkedHashSet<>();
+
+    // Constructor for backward compatibility with DTOs
+    public Terapia(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
     }
 
-    // Constructor for JPA
-    public Terapia(Long id, String nome) {
-        this(id, nome, new LinkedHashSet<>(), new LinkedHashSet<>(), new LinkedHashSet<>());
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Terapia terapia = (Terapia) o;
+        return id != null && Objects.equals(id, terapia.id);
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

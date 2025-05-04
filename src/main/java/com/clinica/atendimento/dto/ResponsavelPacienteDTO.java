@@ -16,11 +16,11 @@ public record ResponsavelPacienteDTO(
         if (responsavelPaciente == null) {
             return null;
         }
-        
+
         return new ResponsavelPacienteDTO(
             responsavelPaciente.id(),
             ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()),
-            responsavelPaciente.paciente().id(),
+            responsavelPaciente.paciente().pessoa().id(),
             responsavelPaciente.grauParentesco()
         );
     }
@@ -28,14 +28,14 @@ public record ResponsavelPacienteDTO(
     // Method to convert from DTO to entity
     public ResponsavelPaciente toEntity(Paciente paciente) {
         Responsavel responsavelEntity = responsavel != null ? responsavel.toEntity() : null;
-        return new ResponsavelPaciente(
-            id,
-            responsavelEntity,
-            paciente,
-            grauParentesco
-        );
+        return ResponsavelPaciente.builder()
+            .id(id)
+            .responsavel(responsavelEntity)
+            .paciente(paciente)
+            .grauParentesco(grauParentesco)
+            .build();
     }
-    
+
     // Overloaded method for use in PacienteDTO
     public ResponsavelPaciente toEntity() {
         throw new UnsupportedOperationException("Cannot convert ResponsavelPacienteDTO to entity without a Paciente instance");

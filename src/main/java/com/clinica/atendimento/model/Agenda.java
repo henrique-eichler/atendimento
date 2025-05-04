@@ -1,45 +1,67 @@
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "agenda")
-public record Agenda(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(fluent = true)
+public class Agenda {
     @Id
-    @Column(name = "id", nullable = false)
-    Long id,
+    @SequenceGenerator(name = "agenda_seq", sequenceName = "agenda_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "agenda_seq")
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "data_agenda", nullable = false)
-    LocalDate dataAgenda,
+    private LocalDate dataAgenda;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "cronograma", nullable = false)
-    Cronograma cronograma,
+    private Cronograma cronograma;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "paciente", nullable = false)
-    Paciente paciente,
+    private Paciente paciente;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "terapia", nullable = false)
-    Terapia terapia,
+    private Terapia terapia;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "convenio", nullable = false)
-    Convenio convenio,
+    private Convenio convenio;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "profissional", nullable = false)
-    Profissional profissional,
+    private Profissional profissional;
 
     @OneToOne(mappedBy = "agenda")
-    Sessao sessao
-) {
-    // Constructor for JPA
-    public Agenda(Long id, LocalDate dataAgenda, Cronograma cronograma, Paciente paciente, 
-                 Terapia terapia, Convenio convenio, Profissional profissional) {
-        this(id, dataAgenda, cronograma, paciente, terapia, convenio, profissional, null);
+    private Sessao sessao;
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Agenda agenda = (Agenda) o;
+        return id != null && Objects.equals(id, agenda.id);
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

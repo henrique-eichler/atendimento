@@ -20,7 +20,7 @@ public record SessaoDTO(
         if (sessao == null) {
             return null;
         }
-        
+
         return new SessaoDTO(
             sessao.id(),
             AgendaDTO.fromEntity(sessao.agenda()),
@@ -36,14 +36,14 @@ public record SessaoDTO(
         Agenda agendaEntity = agenda != null ? agenda.toEntity() : null;
         Sala salaEntity = sala != null ? sala.toEntity() : null;
         Paciente pacienteEntity = paciente != null ? paciente.toEntity() : null;
-        
-        return new Sessao(
-            id,
-            agendaEntity,
-            dataInicio,
-            dataTermino,
-            salaEntity,
-            pacienteEntity
-        );
+
+        return Sessao.builder()
+            .id(id)
+            .agenda(agendaEntity)
+            .dataInicio(dataInicio)
+            .dataTermino(dataTermino)
+            .sala(salaEntity)
+            .paciente(pacienteEntity)
+            .build();
     }
 }

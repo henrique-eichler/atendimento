@@ -17,7 +17,7 @@ public record PessoaDTO(
         if (pessoa == null) {
             return null;
         }
-        
+
         return new PessoaDTO(
             pessoa.id(),
             pessoa.nome(),
@@ -29,12 +29,12 @@ public record PessoaDTO(
 
     // Method to convert from DTO to entity
     public Pessoa toEntity() {
-        return new Pessoa(
-            id,
-            nome,
-            email,
-            dataNascimento,
-            sexo
-        );
+        return Pessoa.builder()
+            .id(id)
+            .nome(nome)
+            .email(email)
+            .dataNascimento(dataNascimento)
+            .sexo(sexo)
+            .build();
     }
 }

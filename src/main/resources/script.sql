@@ -1,30 +1,53 @@
-drop table pessoa;
-drop table profissional;
-drop table terapia;
-drop table profissional_terapia;
-drop table sala;
-drop table cronograma;
-drop table terapia_sala;
-drop table paciente;
-drop table responsavel;
-drop table responsavel_paciente;
-drop table convenio;
-drop table convenio_paciente;
-drop table terapia_convenio;
-drop table agenda;
 drop table sessao;
-drop table grupo;
-drop table usuario;
+drop table agenda;
+drop table terapia_convenio;
+drop table convenio_paciente;
+drop table convenio;
+drop table responsavel_paciente;
+drop table responsavel;
+drop table paciente;
+drop table recurso_sala;
 drop table recurso;
-drop table grupo_recurso;
-drop table grupo_usuario;
-drop table gestao;
-drop table tipo_documento;
-drop table documento;
-drop table gestao_documento;
+drop table terapia_sala;
+drop table cronograma;
+drop table sala;
+drop table profissional_terapia;
+drop table terapia;
+drop table profissional;
+drop table pessoa;
+
+drop sequence sessao_seq;
+drop sequence agenda_seq;
+drop sequence terapia_convenio_seq;
+drop sequence convenio_paciente_seq;
+drop sequence convenio_seq;
+drop sequence responsavel_paciente_seq;
+drop sequence recurso_sala_seq;
+drop sequence recurso_seq;
+drop sequence terapia_sala_seq;
+drop sequence cronograma_seq;
+drop sequence sala_seq;
+drop sequence profissional_terapia_seq;
+drop sequence terapia_seq;
+drop sequence pessoa_seq;
+
+create sequence sessao_seq;
+create sequence agenda_seq;
+create sequence terapia_convenio_seq;
+create sequence convenio_paciente_seq;
+create sequence convenio_seq;
+create sequence responsavel_paciente_seq;
+create sequence recurso_sala_seq;
+create sequence recurso_seq;
+create sequence terapia_sala_seq;
+create sequence cronograma_seq;
+create sequence sala_seq;
+create sequence profissional_terapia_seq;
+create sequence terapia_seq;
+create sequence pessoa_seq;
 
 create table pessoa (
-    id bigint not null constraint pk_pessoa primary key,
+    id bigint default nextval('pessoa_seq') constraint pk_pessoa primary key,
     nome varchar(255) not null,
     email varchar(255) null constraint uk_usuario_email unique,
     data_nascimento date null,
@@ -32,16 +55,16 @@ create table pessoa (
 );
 
 create table profissional (
-    id bigint not null constraint pk_profissional primary key constraint fk_profissional_pessoa references pessoa
+    id bigint constraint pk_profissional primary key constraint fk_profissional_pessoa references pessoa
 );
 
 create table terapia (
-    id bigint constraint pk_terapia primary key,
+    id bigint default nextval('terapia_seq') constraint pk_terapia primary key,
     nome varchar(255) not null constraint uk_terapia_nome unique
 );
 
 create table profissional_terapia (
-    id bigint not null constraint pk_profissional_terapia primary key,
+    id bigint default nextval('profissional_terapia_seq') constraint pk_profissional_terapia primary key,
     profissional bigint not null constraint fk_profissional_terapia_profissional references profissional,
     terapia bigint not null constraint fk_profissional_terapia_terapia references terapia,
     data_validade date not null,
@@ -49,12 +72,12 @@ create table profissional_terapia (
 );
 
 create table sala (
-    id bigint not null constraint pk_sala primary key,
+    id bigint default nextval('sala_seq') constraint pk_sala primary key,
     numero bigint not null constraint uk_sala_numvero unique
 );
 
 create table cronograma (
-    id bigint not null constraint pk_cronograma primary key,
+    id bigint default nextval('cronograma_seq') constraint pk_cronograma primary key,
     sala bigint not null constraint fk_cronograma_sala references sala,
     dia_semana char(1) not null constraint ck_cronograma_dia_seamana check ( dia_semana in ('D', '2', '3', '4', '5', '6', 'S') ),
     hora_inicio timestamp not null,
@@ -63,22 +86,35 @@ create table cronograma (
 );
 
 create table terapia_sala (
-    id bigint not null constraint pk_terapia_sala primary key,
+    id bigint default nextval('terapia_sala_seq') constraint pk_terapia_sala primary key,
     terapia bigint not null constraint fk_terapia_sala_terapia references terapia,
     sala bigint not null constraint fk_terapia_sala_sala references sala,
     constraint uk_terapia_sala unique (terapia, sala)
 );
 
+create table recurso (
+    id bigint default nextval('recurso_seq') constraint pk_recurso primary key,
+    nome varchar(255) not null constraint uk_recurso_descricao unique,
+    descricao varchar(255) null,
+    numero_propriedade int not null constraint uk_resuro_numero_propriedade unique
+);
+
+create table recurso_sala (
+    id bigint default nextval('recurso_sala_seq') constraint pk_recurso_sala primary key,
+    recurso bigint not null constraint fk_recurso_sala_recurso references recurso,
+    sala bigint not null constraint fk_recurso_sala_sala references sala
+);
+
 create table paciente (
-    id bigint not null constraint pk_paciente primary key constraint fk_paciente_pessoa references pessoa
+    id bigint constraint pk_paciente primary key constraint fk_paciente_pessoa references pessoa
 );
 
 create table responsavel (
-    id bigint not null constraint pk_responsavel primary key constraint fk_responsavel_pessoa references pessoa
+    id bigint constraint pk_responsavel primary key constraint fk_responsavel_pessoa references pessoa
 );
 
 create table responsavel_paciente (
-    id bigint not null constraint pk_reponsavel_paciente primary key,
+    id bigint generated always as identity constraint pk_reponsavel_paciente primary key,
     responsavel bigint not null constraint fk_reponsavel_paciente_responsavel references responsavel,
     paciente bigint not null constraint fk_responsavel_paciente_paciente references paciente,
     grau_parentesco char(1) not null constraint ck_responsavel_paciente_grau_parentesco check (  grau_parentesco in ('P', 'M', 'O')),
@@ -86,12 +122,12 @@ create table responsavel_paciente (
 );
 
 create table convenio (
-    id bigint not null constraint pk_convenio primary key,
+    id bigint generated always as identity constraint pk_convenio primary key,
     nome varchar(255) not null constraint uk_covenio_nome unique
 );
 
 create table convenio_paciente (
-    id bigint not null constraint pk_convenio_paciente primary key,
+    id bigint generated always as identity constraint pk_convenio_paciente primary key,
     convenio bigint not null constraint fk_covnenio_paciente_convenio references convenio,
     paciente bigint not null constraint fk_convenio_paciente_paciente references paciente,
     numero varchar(100) not null,
@@ -100,7 +136,7 @@ create table convenio_paciente (
 );
 
 create table terapia_convenio (
-    id bigint not null constraint pk_terapia_convenio primary key,
+    id bigint generated always as identity constraint pk_terapia_convenio primary key,
     terapia bigint not null constraint fk_terapia_convenio_terapia references terapia,
     convenio bigint not null constraint fk_terapia_convenio_convenio references convenio,
     valor_terapia float4 not null,
@@ -109,7 +145,7 @@ create table terapia_convenio (
 );
 
 create table agenda (
-    id bigint not null constraint pk_agenda primary key,
+    id bigint generated always as identity constraint pk_agenda primary key,
     data_agenda date not null,
     cronograma bigint not null constraint fk_agenda_cronograma references cronograma,
     paciente bigint not null constraint fk_agenda_paciente references paciente,
@@ -119,70 +155,9 @@ create table agenda (
 );
 
 create table sessao (
-    id bigint not null constraint pk_sessao primary key constraint fk_sessao_agenda references agenda,
+    id bigint generated always as identity constraint pk_sessao primary key constraint fk_sessao_agenda references agenda,
     data_inicio timestamp not null,
     data_termino timestamp null,
     sala bigint not null constraint fk_sessao_sala references sala,
     paciente bigint not null constraint fk_sessao_paciente references paciente
-);
-
-create table grupo (
-    id bigint not null constraint pk_grupo primary key,
-    nome varchar(100) not null constraint uk_grupo_nome unique,
-    grupo_pai bigint null constraint fk_grupo_grupo_pai references grupo
-);
-
-create table usuario (
-    id bigint not null constraint pk_usuario primary key constraint fk_usuario_pessoa references pessoa,
-    senha varchar(255) not null
-);
-
-create table recurso (
-    id bigint not null constraint pk_recurso primary key,
-    descricao varchar(100) not null,
-    tipo char(1) not null constraint ck_recurso_tipo check ( tipo in ('M', 'A', 'O') ),
-    recurso_pai bigint null constraint fk_recurso_recurso_pai references recurso,
-    constraint uk_recurso unique (descricao, tipo)
-);
-
-create table grupo_recurso (
-    id bigint not null constraint pk_grupo_recurso primary key,
-    grupo bigint not null constraint fk_grupo_recurso_grupo references grupo,
-    recurso bigint not null constraint fk_grupo_recurso_recurso references recurso,
-    tipo char(1) not null constraint ck_grupo_recurso_tipo check ( tipo in ('A', 'D') ),
-    constraint uk_grupo_recurso unique (grupo, recurso)
-);
-
-create table grupo_usuario (
-    id bigint not null constraint pk_grupo_usuario primary key,
-    grupo bigint not null constraint fk_grupo_usuario_grupo references grupo,
-    usuario bigint not null constraint fk_grupo_usuario_usuario references usuario,
-    tipo char(1) not null constraint ck_grupo_usuario_tipo check ( tipo in ('A', 'D') ),
-    constraint uk_grupo_usuario unique (grupo, usuario)
-);
-
-create table gestao (
-    id bigint not null constraint pk_gestao primary key,
-    descricao varchar(255) not null,
-    gestao_pai bigint null constraint fk_gestao_gestao_pai references gestao,
-    constraint uk_gestao unique (descricao, gestao_pai)
-);
-
-create table tipo_documento (
-    id bigint not null constraint pk_tipo_documento primary key,
-    descricao varchar(255) not null,
-    mimetype varchar(255) not null
-);
-
-create table documento (
-    id bigint not null constraint pk_documento primary key,
-    nome varchar(255) not null,
-    tipo_documento bigint not null constraint fk_documento_tipo_documento references tipo_documento,
-    conteudo bytea not null
-);
-
-create table gestao_documento (
-    id bigint not null constraint pk_gestao_documento primary key,
-    gestao bigint not null constraint fk_gestao_documento_gestao references gestao,
-    documento bigint not null constraint fk_gestao_documento_documento references documento
 );

@@ -3,50 +3,77 @@ package com.clinica.atendimento.model;
 import com.clinica.atendimento.model.converters.SexoConverter;
 import com.clinica.atendimento.model.enums.Sexo;
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "pessoa", uniqueConstraints = {
         @UniqueConstraint(name = "uk_usuario_email", columnNames = {"email"})
 })
-public record Pessoa(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(fluent = true)
+public class Pessoa {
+
     @Id
-    @Column(name = "id", nullable = false)
-    Long id,
+    @SequenceGenerator(name = "pessoa_seq", sequenceName = "pessoa_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pessoa_seq")
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "nome", nullable = false)
-    String nome,
+    private String nome;
 
     @Column(name = "email")
-    String email,
+    private String email;
 
     @Column(name = "data_nascimento")
-    LocalDate dataNascimento,
+    private LocalDate dataNascimento;
 
     @Column(name = "sexo", length = 1)
     @Convert(converter = SexoConverter.class)
-    Sexo sexo,
+    private Sexo sexo;
 
     @OneToOne(mappedBy = "pessoa")
-    Paciente paciente,
+    private Paciente paciente;
 
     @OneToOne(mappedBy = "pessoa")
-    Profissional profissional,
+    private Profissional profissional;
 
     @OneToOne(mappedBy = "pessoa")
-    Responsavel responsavel,
+    private Responsavel responsavel;
 
-    @OneToOne(mappedBy = "pessoa")
-    Usuario usuario
-) {
-    // Constructor for JPA
-    public Pessoa(Long id, String nome, String email, LocalDate dataNascimento, Sexo sexo) {
-        this(id, nome, email, dataNascimento, sexo, null, null, null, null);
+    // Static factory method for backward compatibility
+    public static Pessoa fromSexoCodigo(Long id, String nome, String email, LocalDate dataNascimento, String sexoCodigo) {
+        return Pessoa.builder()
+                .id(id)
+                .nome(nome)
+                .email(email)
+                .dataNascimento(dataNascimento)
+                .sexo(sexoCodigo != null ? Sexo.fromCodigo(sexoCodigo) : null)
+                .build();
     }
 
-    // Constructor for backward compatibility
-    public Pessoa(Long id, String nome, String email, LocalDate dataNascimento, String sexoCodigo) {
-        this(id, nome, email, dataNascimento, sexoCodigo != null ? Sexo.fromCodigo(sexoCodigo) : null, null, null, null, null);
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Pessoa pessoa = (Pessoa) o;
+        return id != null && Objects.equals(id, pessoa.id);
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

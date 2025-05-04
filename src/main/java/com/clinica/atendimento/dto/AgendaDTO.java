@@ -18,7 +18,7 @@ public record AgendaDTO(
         if (agenda == null) {
             return null;
         }
-        
+
         return new AgendaDTO(
             agenda.id(),
             agenda.dataAgenda(),
@@ -37,15 +37,15 @@ public record AgendaDTO(
         Terapia terapiaEntity = terapia != null ? terapia.toEntity() : null;
         Convenio convenioEntity = convenio != null ? convenio.toEntity() : null;
         Profissional profissionalEntity = profissional != null ? profissional.toEntity() : null;
-        
-        return new Agenda(
-            id,
-            dataAgenda,
-            cronogramaEntity,
-            pacienteEntity,
-            terapiaEntity,
-            convenioEntity,
-            profissionalEntity
-        );
+
+        return Agenda.builder()
+            .id(id)
+            .dataAgenda(dataAgenda)
+            .cronograma(cronogramaEntity)
+            .paciente(pacienteEntity)
+            .terapia(terapiaEntity)
+            .convenio(convenioEntity)
+            .profissional(profissionalEntity)
+            .build();
     }
 }

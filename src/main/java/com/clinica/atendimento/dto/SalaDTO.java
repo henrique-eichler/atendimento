@@ -11,7 +11,7 @@ public record SalaDTO(
         if (sala == null) {
             return null;
         }
-        
+
         return new SalaDTO(
             sala.id(),
             sala.numero()
@@ -20,9 +20,15 @@ public record SalaDTO(
 
     // Method to convert from DTO to entity
     public Sala toEntity() {
-        return new Sala(
-            id,
-            numero
-        );
+        Sala.SalaBuilder builder = Sala.builder();
+
+        // Only set ID if it's not null
+        if (id != null) {
+            builder.id(id);
+        }
+
+        return builder
+            .numero(numero)
+            .build();
     }
 }

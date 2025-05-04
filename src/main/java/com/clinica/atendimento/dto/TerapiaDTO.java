@@ -11,7 +11,7 @@ public record TerapiaDTO(
         if (terapia == null) {
             return null;
         }
-        
+
         return new TerapiaDTO(
             terapia.id(),
             terapia.nome()
@@ -20,9 +20,19 @@ public record TerapiaDTO(
 
     // Method to convert from DTO to entity
     public Terapia toEntity() {
-        return new Terapia(
-            id,
-            nome
-        );
+        // Using the constructor for backward compatibility
+        // return new Terapia(id, nome);
+
+        // Using the builder pattern
+        Terapia.TerapiaBuilder builder = Terapia.builder();
+
+        // Only set ID if it's not null
+        if (id != null) {
+            builder.id(id);
+        }
+
+        return builder
+            .nome(nome)
+            .build();
     }
 }

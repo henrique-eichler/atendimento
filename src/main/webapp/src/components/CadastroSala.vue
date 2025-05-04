@@ -1,7 +1,7 @@
 <template>
   <div class="cadastro-container">
     <div class="header">
-      <h1>👤 Cadastro de Paciente</h1>
+      <h1>🏢 Cadastro de Sala</h1>
     </div>
 
     <div class="form-container" v-if="isEditing">
@@ -9,20 +9,22 @@
         <h2>✏️ Formulário</h2>
         <div class="form-content">
           <div class="form-group">
-            <label>Nome</label>
-            <input v-model="nome" placeholder="Nome" required/>
+            <label>Número da Sala</label>
+            <input v-model="numero" placeholder="Número da Sala" required type="number"/>
           </div>
           <div class="form-group">
-            <label>Data de Nascimento</label>
-            <input v-model="dataNascimento" type="date" required/>
-          </div>
-          <div class="form-group">
-            <label>Sexo</label>
-            <select v-model="sexo" required>
-              <option disabled value="">Selecione</option>
-              <option value="MASCULINO">Masculino</option>
-              <option value="FEMININO">Feminino</option>
+            <label>Terapias</label>
+            <select v-model="selectedTerapias" multiple class="multi-select">
+              <option v-for="terapia in terapias" :key="terapia.id" :value="terapia">
+                {{ terapia.nome }}
+              </option>
             </select>
+            <div class="selected-items">
+              <div v-for="terapia in selectedTerapias" :key="terapia.id" class="selected-item">
+                {{ terapia.nome }}
+                <button @click="removeTerapia(terapia)" class="remove-btn">×</button>
+              </div>
+            </div>
           </div>
           <div class="controls">
             <button class="btn btn-primary" @click="salvar()">
@@ -38,32 +40,37 @@
 
     <div class="results-container">
       <div class="result-card">
-        <h2>📋 Lista de Pacientes</h2>
+        <h2>📋 Lista de Salas</h2>
         <div class="content">
           <div class="table-controls">
             <button class="btn btn-primary" @click="novo()">
-              <span class="icon">📄</span> Novo Paciente
+              <span class="icon">📄</span> Nova Sala
             </button>
           </div>
           <table class="data-table">
             <thead>
               <tr>
-                <th>Nome</th>
-                <th>Data de Nascimento</th>
-                <th>Sexo</th>
+                <th>Número</th>
+                <th>Terapias</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="paciente in pacientes" :key="paciente.id">
-                <td>{{ paciente.nome }}</td>
-                <td>{{ paciente.dataNascimento }}</td>
-                <td>{{ paciente.sexo === 'MASCULINO' ? 'Masculino' : 'Feminino' }}</td>
+              <tr v-for="sala in salas" :key="sala.id">
+                <td>{{ sala.numero }}</td>
+                <td>
+                  <div class="terapias-list">
+                    <span v-if="!sala.terapias || sala.terapias.length === 0" class="no-terapias">Nenhuma terapia associada</span>
+                    <div v-else class="terapia-tag" v-for="terapia in sala.terapias" :key="terapia.id">
+                      {{ terapia.nome }}
+                    </div>
+                  </div>
+                </td>
                 <td class="actions">
-                  <button class="btn-icon" @click="editar(paciente)">
+                  <button class="btn-icon" @click="editar(sala)">
                     <span class="icon">📝</span>
                   </button>
-                  <button class="btn-icon" @click="remover(paciente.id)">
+                  <button class="btn-icon" @click="remover(sala.id)">
                     <span class="icon">🗑️</span>
                   </button>
                 </td>
@@ -81,12 +88,12 @@ import {onMounted, onUnmounted, ref} from "vue"
 import SockJS from "sockjs-client"
 import {Client} from "@stomp/stompjs"
 
-const pacientes = ref([])
+const salas = ref([])
+const terapias = ref([])
+const selectedTerapias = ref([])
 const isEditing = ref(false)
 const id = ref(null)
-const nome = ref("")
-const dataNascimento = ref("")
-const sexo = ref("")
+const numero = ref("")
 
 const stomp = new Client({
   webSocketFactory: () => new SockJS("/ws-cadastro"),
@@ -94,29 +101,35 @@ const stomp = new Client({
 })
 
 stomp.onConnect = () => {
-  stomp.subscribe("/topic/paciente/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/paciente/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/paciente/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/paciente/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+  stomp.subscribe("/topic/sala/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+  stomp.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+  stomp.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+  stomp.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+  stomp.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(JSON.parse(msg.body)))
 
-  stomp.publish({destination: "/app/paciente/listar"})
+  stomp.publish({destination: "/app/sala/listar"})
+  stomp.publish({destination: "/app/terapia/listar"})
 }
 
 const retornoListar = lista => {
-  pacientes.value = lista
+  salas.value = lista
 }
 
-const retornoSalvar = paciente => {
-  pacientes.value.push(paciente)
+const retornoSalvar = sala => {
+  salas.value.push(sala)
 }
 
-const retornoEditar = paciente => {
-  const i = pacientes.value.findIndex(p => p.id === paciente.id)
-  if (i >= 0) pacientes.value.splice(i, 1, paciente)
+const retornoEditar = sala => {
+  const i = salas.value.findIndex(p => p.id === sala.id)
+  if (i >= 0) salas.value.splice(i, 1, sala)
 }
 
 const retornoExcluir = id => {
-  pacientes.value = pacientes.value.filter(p => p.id !== id)
+  salas.value = salas.value.filter(p => p.id !== id)
+}
+
+const retornoListarTerapias = lista => {
+  terapias.value = lista
 }
 
 const novo = () => {
@@ -124,24 +137,23 @@ const novo = () => {
   isEditing.value = true;
 }
 
-const editar = paciente => {
-  id.value = paciente.id;
-  nome.value = paciente.nome;
-  dataNascimento.value = paciente.dataNascimento;
-  sexo.value = paciente.sexo;
+const editar = sala => {
+  id.value = sala.id;
+  numero.value = sala.numero;
+  // If the sala has terapias property, load it
+  selectedTerapias.value = sala.terapias || [];
   isEditing.value = true;
 }
 
 const salvar = () => {
-  const pacienteData = {
+  const salaData = {
     id: id.value,
-    nome: nome.value,
-    dataNascimento: dataNascimento.value,
-    sexo: sexo.value
+    numero: parseInt(numero.value),
+    terapias: selectedTerapias.value
   };
   stomp.publish({
-    destination: "/app/paciente/salvar",
-    body: JSON.stringify(pacienteData)
+    destination: "/app/sala/salvar",
+    body: JSON.stringify(salaData)
   })
   reset();
 }
@@ -149,7 +161,7 @@ const salvar = () => {
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
     stomp.publish({
-      destination: "/app/paciente/excluir",
+      destination: "/app/sala/excluir",
       body: JSON.stringify(idToRemove)
     })
   }
@@ -159,12 +171,15 @@ const cancelar = () => {
   reset()
 }
 
+const removeTerapia = (terapia) => {
+  selectedTerapias.value = selectedTerapias.value.filter(t => t.id !== terapia.id);
+}
+
 const reset = () => {
   isEditing.value = false
   id.value = null;
-  nome.value = "";
-  dataNascimento.value = "";
-  sexo.value = "";
+  numero.value = "";
+  selectedTerapias.value = [];
 }
 
 onMounted(() => {
@@ -362,6 +377,65 @@ onUnmounted(() => {
 
 .btn-icon:hover {
   background-color: #f0f0f0;
+}
+
+.multi-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-height: 100px;
+}
+
+.selected-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  background-color: #e3f2fd;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #f44336;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.remove-btn:hover {
+  color: #d32f2f;
+}
+
+.terapias-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.terapia-tag {
+  background-color: #e3f2fd;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.no-terapias {
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {

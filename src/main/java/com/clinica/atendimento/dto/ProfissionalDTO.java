@@ -12,9 +12,9 @@ public record ProfissionalDTO(
         if (profissional == null) {
             return null;
         }
-        
+
         return new ProfissionalDTO(
-            profissional.id(),
+            profissional.pessoa().id(),
             PessoaDTO.fromEntity(profissional.pessoa())
         );
     }
@@ -22,9 +22,14 @@ public record ProfissionalDTO(
     // Method to convert from DTO to entity
     public Profissional toEntity() {
         Pessoa pessoaEntity = pessoa != null ? pessoa.toEntity() : null;
-        return new Profissional(
-            id,
-            pessoaEntity
-        );
+
+        // Set the ID on the Pessoa entity
+        if (pessoaEntity != null && id != null) {
+            pessoaEntity.id(id);
+        }
+
+        return Profissional.builder()
+            .pessoa(pessoaEntity)
+            .build();
     }
 }

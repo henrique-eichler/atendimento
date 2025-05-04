@@ -1,37 +1,53 @@
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "paciente")
-public record Paciente(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(fluent = true)
+public class Paciente {
+
     @Id
-    @Column(name = "id", nullable = false)
-    Long id,
+    private Long id;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id", nullable = false)
-    Pessoa pessoa,
+    private Pessoa pessoa;
 
     @OneToMany(mappedBy = "paciente")
-    Set<ConvenioPaciente> convenios,
+    @Builder.Default
+    private Set<ConvenioPaciente> convenios = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "paciente")
-    Set<ResponsavelPaciente> responsaveis
-) {
-    // Custom constructor to initialize collections
-    public Paciente {
-        convenios = convenios != null ? Collections.unmodifiableSet(convenios) : Collections.emptySet();
-        responsaveis = responsaveis != null ? Collections.unmodifiableSet(responsaveis) : Collections.emptySet();
+    @Builder.Default
+    private Set<ResponsavelPaciente> responsaveis = new LinkedHashSet<>();
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Paciente paciente = (Paciente) o;
+        return id != null && Objects.equals(id, paciente.id);
     }
 
-    // Constructor for JPA
-    public Paciente(Long id, Pessoa pessoa) {
-        this(id, pessoa, new LinkedHashSet<>(), new LinkedHashSet<>());
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

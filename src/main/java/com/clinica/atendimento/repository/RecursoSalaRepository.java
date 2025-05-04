@@ -1,9 +1,9 @@
 package com.clinica.atendimento.repository;
 
-import com.clinica.atendimento.model.GrupoUsuario;
+import com.clinica.atendimento.model.RecursoSala;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GrupoUsuarioRepository extends JpaRepository<GrupoUsuario, Long> {
+public interface RecursoSalaRepository extends JpaRepository<RecursoSala, Long> {
 }

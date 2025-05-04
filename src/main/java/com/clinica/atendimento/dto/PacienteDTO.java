@@ -26,7 +26,7 @@ public record PacienteDTO(
         }
 
         return new PacienteDTO(
-            paciente.id(),
+            paciente.pessoa().id(),
             PessoaDTO.fromEntity(paciente.pessoa()),
             paciente.convenios().stream()
                 .map(ConvenioPacienteDTO::fromEntity)
@@ -41,8 +41,15 @@ public record PacienteDTO(
     public Paciente toEntity() {
         Pessoa pessoaEntity = pessoa != null ? pessoa.toEntity() : null;
 
+        // Set the ID on the Pessoa entity
+        if (pessoaEntity != null && id != null) {
+            pessoaEntity.id(id);
+        }
+
         // We need to create the Paciente first, then create the relationships
         // This is because of the circular dependency between Paciente and its relationships
-        return new Paciente(id, pessoaEntity);
+        return Paciente.builder()
+            .pessoa(pessoaEntity)
+            .build();
     }
 }

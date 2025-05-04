@@ -21,4 +21,10 @@ public class DeepSeekRequest {
         this();
         this.prompt = prompt;
     }
+
+    public DeepSeekRequest(String model, String prompt, boolean stream) {
+        this.model = model;
+        this.prompt = prompt;
+        this.stream = stream;
+    }
 }

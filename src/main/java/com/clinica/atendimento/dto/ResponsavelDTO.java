@@ -12,9 +12,9 @@ public record ResponsavelDTO(
         if (responsavel == null) {
             return null;
         }
-        
+
         return new ResponsavelDTO(
-            responsavel.id(),
+            responsavel.pessoa().id(),
             PessoaDTO.fromEntity(responsavel.pessoa())
         );
     }
@@ -22,9 +22,14 @@ public record ResponsavelDTO(
     // Method to convert from DTO to entity
     public Responsavel toEntity() {
         Pessoa pessoaEntity = pessoa != null ? pessoa.toEntity() : null;
-        return new Responsavel(
-            id,
-            pessoaEntity
-        );
+
+        // Set the ID on the Pessoa entity
+        if (pessoaEntity != null && id != null) {
+            pessoaEntity.id(id);
+        }
+
+        return Responsavel.builder()
+            .pessoa(pessoaEntity)
+            .build();
     }
 }

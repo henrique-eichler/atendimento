@@ -7,11 +7,8 @@ const app = createApp({
     <div>
       <h1>📋 Sistema de Atendimento Clínico</h1>
       <nav class="main-nav">
-        <router-link to="/pacientes">Pacientes</router-link> |
-        <router-link to="/responsaveis">Responsáveis</router-link> |
         <router-link to="/terapias">Terapias</router-link> |
-        <router-link to="/profissionais">Profissionais</router-link> |
-        <router-link to="/agenda">Agenda</router-link> |
+        <router-link to="/salas">Salas</router-link> |
         <router-link to="/transcricao">Transcrição</router-link> |
       </nav>
       <div class="content">

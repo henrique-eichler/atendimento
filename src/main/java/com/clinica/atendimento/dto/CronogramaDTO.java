@@ -18,7 +18,7 @@ public record CronogramaDTO(
         if (cronograma == null) {
             return null;
         }
-        
+
         return new CronogramaDTO(
             cronograma.id(),
             SalaDTO.fromEntity(cronograma.sala()),
@@ -31,12 +31,13 @@ public record CronogramaDTO(
     // Method to convert from DTO to entity
     public Cronograma toEntity() {
         Sala salaEntity = sala != null ? sala.toEntity() : null;
-        return new Cronograma(
-            id,
-            salaEntity,
-            diaSemana,
-            horaInicio,
-            horaTermino
-        );
+
+        return Cronograma.builder()
+            .id(id)
+            .sala(salaEntity)
+            .diaSemana(diaSemana)
+            .horaInicio(horaInicio)
+            .horaTermino(horaTermino)
+            .build();
     }
 }

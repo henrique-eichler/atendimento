@@ -15,11 +15,11 @@ public record ConvenioPacienteDTO(
         if (convenioPaciente == null) {
             return null;
         }
-        
+
         return new ConvenioPacienteDTO(
             convenioPaciente.id(),
             ConvenioDTO.fromEntity(convenioPaciente.convenio()),
-            convenioPaciente.paciente().id(),
+            convenioPaciente.paciente().pessoa().id(),
             convenioPaciente.numero()
         );
     }
@@ -27,14 +27,14 @@ public record ConvenioPacienteDTO(
     // Method to convert from DTO to entity
     public ConvenioPaciente toEntity(Paciente paciente) {
         Convenio convenioEntity = convenio != null ? convenio.toEntity() : null;
-        return new ConvenioPaciente(
-            id,
-            convenioEntity,
-            paciente,
-            numero
-        );
+        return ConvenioPaciente.builder()
+            .id(id)
+            .convenio(convenioEntity)
+            .paciente(paciente)
+            .numero(numero)
+            .build();
     }
-    
+
     // Overloaded method for use in PacienteDTO
     public ConvenioPaciente toEntity() {
         throw new UnsupportedOperationException("Cannot convert ConvenioPacienteDTO to entity without a Paciente instance");
