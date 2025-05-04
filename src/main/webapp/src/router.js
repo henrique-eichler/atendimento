@@ -1,7 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import CadastroPaciente from './components/CadastroPaciente.vue'
 import CadastroResponsavel from './components/CadastroResponsavel.vue'
-import CadastroProfissao from './components/CadastroProfissao.vue'
+import CadastroTerapia from './components/CadastroTerapia.vue'
 import CadastroProfissional from './components/CadastroProfissional.vue'
 import CadastroAgenda from './components/CadastroAgenda.vue'
 import TranscricaoAudio from './components/TranscricaoAudio.vue'
@@ -22,9 +22,9 @@ const routes = [
         component: CadastroResponsavel
     },
     {
-        path: '/profissoes',
-        name: 'Profissões',
-        component: CadastroProfissao
+        path: '/terapias',
+        name: 'Terapias',
+        component: CadastroTerapia
     },
     {
         path: '/profissionais',

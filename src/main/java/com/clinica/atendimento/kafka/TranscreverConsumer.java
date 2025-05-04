@@ -1,7 +1,7 @@
 package com.clinica.atendimento.kafka;
 
 import com.clinica.atendimento.handler.WebSocketTranscricaoHandler;
-import com.clinica.atendimento.whisper.service.WhisperService;
+import com.clinica.atendimento.service.whisper.WhisperService;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;

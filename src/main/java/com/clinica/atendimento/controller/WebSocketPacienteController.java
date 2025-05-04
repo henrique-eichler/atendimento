@@ -17,7 +17,7 @@ public class WebSocketPacienteController {
 
     @MessageMapping("/paciente/listar")
     public void listarPacientes() {
-        var todos = pacienteRepository.findAllWithResponsaveis()
+        var todos = pacienteRepository.findAll()
             .stream()
             .map(PacienteDTO::fromEntity)
             .collect(Collectors.toList());
@@ -26,7 +26,7 @@ public class WebSocketPacienteController {
 
     @MessageMapping("/paciente/salvar")
     public void cadastrarPaciente(@Payload PacienteDTO pacienteDTO) {
-        boolean novo = pacienteDTO.getId() == null;
+        boolean novo = pacienteDTO.id() == null;
         Paciente paciente = pacienteDTO.toEntity();
         var salvo = pacienteRepository.save(paciente);
         messagingTemplate.convertAndSend(novo ? "/topic/paciente/retorno/salvar" : "/topic/paciente/retorno/editar", PacienteDTO.fromEntity(salvo));

@@ -1,64 +1,51 @@
 package com.clinica.atendimento.dto;
 
-import com.clinica.atendimento.model.Agenda;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import com.clinica.atendimento.model.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class AgendaDTO {
-
-    private Long id;
-    private Long pacienteId;
-    private String pacienteNome;
-    private Long responsavelId;
-    private String responsavelNome;
-    private Long profissionalId;
-    private String profissionalNome;
-    private LocalDateTime dataHora;
-    private SessaoDTO sessao;
-
+public record AgendaDTO(
+    Long id,
+    LocalDate dataAgenda,
+    CronogramaDTO cronograma,
+    PacienteDTO paciente,
+    TerapiaDTO terapia,
+    ConvenioDTO convenio,
+    ProfissionalDTO profissional
+) {
+    // Static method to convert from entity to DTO
     public static AgendaDTO fromEntity(Agenda agenda) {
         if (agenda == null) {
             return null;
         }
         
-        AgendaDTO dto = new AgendaDTO();
-        dto.setId(agenda.getId());
-        dto.setDataHora(agenda.getDataHora());
-        
-        if (agenda.getPaciente() != null) {
-            dto.setPacienteId(agenda.getPaciente().getId());
-            dto.setPacienteNome(agenda.getPaciente().getNome());
-        }
-        
-        if (agenda.getResponsavel() != null) {
-            dto.setResponsavelId(agenda.getResponsavel().getId());
-            dto.setResponsavelNome(agenda.getResponsavel().getNome());
-        }
-        
-        if (agenda.getProfissional() != null) {
-            dto.setProfissionalId(agenda.getProfissional().getId());
-            dto.setProfissionalNome(agenda.getProfissional().getNome());
-        }
-        
-        if (agenda.getSessao() != null) {
-            dto.setSessao(SessaoDTO.fromEntity(agenda.getSessao()));
-        }
-        
-        return dto;
+        return new AgendaDTO(
+            agenda.id(),
+            agenda.dataAgenda(),
+            CronogramaDTO.fromEntity(agenda.cronograma()),
+            PacienteDTO.fromEntity(agenda.paciente()),
+            TerapiaDTO.fromEntity(agenda.terapia()),
+            ConvenioDTO.fromEntity(agenda.convenio()),
+            ProfissionalDTO.fromEntity(agenda.profissional())
+        );
     }
 
+    // Method to convert from DTO to entity
     public Agenda toEntity() {
-        Agenda agenda = new Agenda();
-        agenda.setId(this.id);
-        agenda.setDataHora(this.dataHora);
-        return agenda;
+        Cronograma cronogramaEntity = cronograma != null ? cronograma.toEntity() : null;
+        Paciente pacienteEntity = paciente != null ? paciente.toEntity() : null;
+        Terapia terapiaEntity = terapia != null ? terapia.toEntity() : null;
+        Convenio convenioEntity = convenio != null ? convenio.toEntity() : null;
+        Profissional profissionalEntity = profissional != null ? profissional.toEntity() : null;
+        
+        return new Agenda(
+            id,
+            dataAgenda,
+            cronogramaEntity,
+            pacienteEntity,
+            terapiaEntity,
+            convenioEntity,
+            profissionalEntity
+        );
     }
 }

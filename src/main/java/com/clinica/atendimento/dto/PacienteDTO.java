@@ -1,54 +1,48 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Paciente;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import com.clinica.atendimento.model.Pessoa;
 
-import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class PacienteDTO {
-
-    private Long id;
-    private String nome;
-    private LocalDate dataNascimento;
-    private String sexo;
-    private Set<Long> responsaveisIds = new HashSet<>();
-
-    public static PacienteDTO fromEntity(Paciente paciente) {
-        PacienteDTO dto = new PacienteDTO();
-        dto.setId(paciente.getId());
-        dto.setNome(paciente.getNome());
-        dto.setDataNascimento(paciente.getDataNascimento());
-        dto.setSexo(paciente.getSexo() != null ? paciente.getSexo().name() : null);
-        
-        if (paciente.getResponsaveis() != null) {
-            dto.setResponsaveisIds(paciente.getResponsaveis().stream()
-                .map(responsavel -> responsavel.getId())
-                .collect(Collectors.toSet()));
-        }
-        
-        return dto;
+public record PacienteDTO(
+    Long id,
+    PessoaDTO pessoa,
+    Set<ConvenioPacienteDTO> convenios,
+    Set<ResponsavelPacienteDTO> responsaveis
+) {
+    // Constructor with default values for collections
+    public PacienteDTO {
+        convenios = convenios != null ? convenios : Collections.emptySet();
+        responsaveis = responsaveis != null ? responsaveis : Collections.emptySet();
     }
 
-    public Paciente toEntity() {
-        Paciente paciente = new Paciente();
-        paciente.setId(this.id);
-        paciente.setNome(this.nome);
-        paciente.setDataNascimento(this.dataNascimento);
-        
-        if (this.sexo != null) {
-            paciente.setSexo(Paciente.Sexo.valueOf(this.sexo));
+    // Static method to convert from entity to DTO
+    public static PacienteDTO fromEntity(Paciente paciente) {
+        if (paciente == null) {
+            return null;
         }
-        
-        return paciente;
+
+        return new PacienteDTO(
+            paciente.id(),
+            PessoaDTO.fromEntity(paciente.pessoa()),
+            paciente.convenios().stream()
+                .map(ConvenioPacienteDTO::fromEntity)
+                .collect(Collectors.toSet()),
+            paciente.responsaveis().stream()
+                .map(ResponsavelPacienteDTO::fromEntity)
+                .collect(Collectors.toSet())
+        );
+    }
+
+    // Method to convert from DTO to entity
+    public Paciente toEntity() {
+        Pessoa pessoaEntity = pessoa != null ? pessoa.toEntity() : null;
+
+        // We need to create the Paciente first, then create the relationships
+        // This is because of the circular dependency between Paciente and its relationships
+        return new Paciente(id, pessoaEntity);
     }
 }

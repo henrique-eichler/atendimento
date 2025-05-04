@@ -18,7 +18,9 @@ public class WebSocketConfig implements WebSocketConfigurer, WebSocketMessageBro
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketTranscricaoHandler, "/ws-transcricao").setAllowedOriginPatterns("*").withSockJS();
+        registry.addHandler(webSocketTranscricaoHandler, "/ws-transcricao")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override

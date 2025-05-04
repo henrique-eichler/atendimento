@@ -1,32 +1,45 @@
-
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Getter
-@Setter
 @Entity
-public class Agenda {
+@Table(name = "agenda")
+public record Agenda(
+    @Id
+    @Column(name = "id", nullable = false)
+    Long id,
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "data_agenda", nullable = false)
+    LocalDate dataAgenda,
 
-    @ManyToOne
-    private Paciente paciente;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "cronograma", nullable = false)
+    Cronograma cronograma,
 
-    @ManyToOne
-    private Responsavel responsavel;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "paciente", nullable = false)
+    Paciente paciente,
 
-    @ManyToOne
-    private Profissional profissional;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "terapia", nullable = false)
+    Terapia terapia,
 
-    private LocalDateTime dataHora;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "convenio", nullable = false)
+    Convenio convenio,
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Sessao sessao;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "profissional", nullable = false)
+    Profissional profissional,
 
+    @OneToOne(mappedBy = "agenda")
+    Sessao sessao
+) {
+    // Constructor for JPA
+    public Agenda(Long id, LocalDate dataAgenda, Cronograma cronograma, Paciente paciente, 
+                 Terapia terapia, Convenio convenio, Profissional profissional) {
+        this(id, dataAgenda, cronograma, paciente, terapia, convenio, profissional, null);
+    }
 }

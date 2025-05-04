@@ -1,30 +1,33 @@
-
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.Instant;
 
-@Getter
-@Setter
 @Entity
-public class Sessao {
+@Table(name = "sessao")
+public record Sessao(
+    @Id
+    @Column(name = "id", nullable = false)
+    Long id,
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id", nullable = false)
+    Agenda agenda,
 
-    private String textoOriginal;
+    @Column(name = "data_inicio", nullable = false)
+    Instant dataInicio,
 
-    @Column(columnDefinition = "TEXT")
-    private String transcricao;
+    @Column(name = "data_termino")
+    Instant dataTermino,
 
-    private String interpretacao;
-    private LocalDateTime registradaEm;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "sala", nullable = false)
+    Sala sala,
 
-    @OneToMany(mappedBy = "sessao", cascade = CascadeType.ALL)
-    private List<Audio> audios;
-
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "paciente", nullable = false)
+    Paciente paciente
+) {
 }

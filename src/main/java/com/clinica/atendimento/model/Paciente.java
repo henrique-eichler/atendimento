@@ -1,32 +1,37 @@
-
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Getter
-@Setter
 @Entity
-public class Paciente {
+@Table(name = "paciente")
+public record Paciente(
+    @Id
+    @Column(name = "id", nullable = false)
+    Long id,
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id", nullable = false)
+    Pessoa pessoa,
 
-    private String nome;
-    private LocalDate dataNascimento;
-    private Sexo sexo;
+    @OneToMany(mappedBy = "paciente")
+    Set<ConvenioPaciente> convenios,
 
-    @ManyToMany
-    @JoinTable(name = "paciente_responsavel",
-        joinColumns = @JoinColumn(name = "paciente_id"),
-        inverseJoinColumns = @JoinColumn(name = "responsavel_id"))
-    private Set<Responsavel> responsaveis;
+    @OneToMany(mappedBy = "paciente")
+    Set<ResponsavelPaciente> responsaveis
+) {
+    // Custom constructor to initialize collections
+    public Paciente {
+        convenios = convenios != null ? Collections.unmodifiableSet(convenios) : Collections.emptySet();
+        responsaveis = responsaveis != null ? Collections.unmodifiableSet(responsaveis) : Collections.emptySet();
+    }
 
-    public static enum Sexo {
-        MASCULINO, FEMININO;
+    // Constructor for JPA
+    public Paciente(Long id, Pessoa pessoa) {
+        this(id, pessoa, new LinkedHashSet<>(), new LinkedHashSet<>());
     }
 }

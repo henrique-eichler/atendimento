@@ -1,57 +1,49 @@
 package com.clinica.atendimento.dto;
 
+import com.clinica.atendimento.model.Agenda;
+import com.clinica.atendimento.model.Paciente;
+import com.clinica.atendimento.model.Sala;
 import com.clinica.atendimento.model.Sessao;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.Instant;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class SessaoDTO {
-
-    private Long id;
-    private String textoOriginal;
-    private String transcricao;
-    private String interpretacao;
-    private LocalDateTime registradaEm;
-    private List<AudioDTO> audios = new ArrayList<>();
-
+public record SessaoDTO(
+    Long id,
+    AgendaDTO agenda,
+    Instant dataInicio,
+    Instant dataTermino,
+    SalaDTO sala,
+    PacienteDTO paciente
+) {
+    // Static method to convert from entity to DTO
     public static SessaoDTO fromEntity(Sessao sessao) {
         if (sessao == null) {
             return null;
         }
         
-        SessaoDTO dto = new SessaoDTO();
-        dto.setId(sessao.getId());
-        dto.setTextoOriginal(sessao.getTextoOriginal());
-        dto.setTranscricao(sessao.getTranscricao());
-        dto.setInterpretacao(sessao.getInterpretacao());
-        dto.setRegistradaEm(sessao.getRegistradaEm());
-        
-        if (sessao.getAudios() != null) {
-            dto.setAudios(sessao.getAudios().stream()
-                .map(AudioDTO::fromEntity)
-                .collect(Collectors.toList()));
-        }
-        
-        return dto;
+        return new SessaoDTO(
+            sessao.id(),
+            AgendaDTO.fromEntity(sessao.agenda()),
+            sessao.dataInicio(),
+            sessao.dataTermino(),
+            SalaDTO.fromEntity(sessao.sala()),
+            PacienteDTO.fromEntity(sessao.paciente())
+        );
     }
 
+    // Method to convert from DTO to entity
     public Sessao toEntity() {
-        Sessao sessao = new Sessao();
-        sessao.setId(this.id);
-        sessao.setTextoOriginal(this.textoOriginal);
-        sessao.setTranscricao(this.transcricao);
-        sessao.setInterpretacao(this.interpretacao);
-        sessao.setRegistradaEm(this.registradaEm);
-        return sessao;
+        Agenda agendaEntity = agenda != null ? agenda.toEntity() : null;
+        Sala salaEntity = sala != null ? sala.toEntity() : null;
+        Paciente pacienteEntity = paciente != null ? paciente.toEntity() : null;
+        
+        return new Sessao(
+            id,
+            agendaEntity,
+            dataInicio,
+            dataTermino,
+            salaEntity,
+            pacienteEntity
+        );
     }
 }

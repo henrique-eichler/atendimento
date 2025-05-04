@@ -1,7 +1,9 @@
-
 package com.clinica.atendimento.repository;
 
 import com.clinica.atendimento.model.Profissional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ProfissionalRepository extends JpaRepository<Profissional, Long> {}
+@Repository
+public interface ProfissionalRepository extends JpaRepository<Profissional, Long> {
+}

@@ -1,6 +1,6 @@
 package com.clinica.atendimento.kafka;
 
-import com.clinica.atendimento.deepseek.service.DeepSeekService;
+import com.clinica.atendimento.service.deepseek.DeepSeekService;
 import com.clinica.atendimento.handler.WebSocketTranscricaoHandler;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

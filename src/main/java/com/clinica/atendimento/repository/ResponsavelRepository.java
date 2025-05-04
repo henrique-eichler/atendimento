@@ -1,7 +1,9 @@
-
 package com.clinica.atendimento.repository;
 
 import com.clinica.atendimento.model.Responsavel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ResponsavelRepository extends JpaRepository<Responsavel, Long> {}
+@Repository
+public interface ResponsavelRepository extends JpaRepository<Responsavel, Long> {
+}
