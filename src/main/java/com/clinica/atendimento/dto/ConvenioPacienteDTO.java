@@ -3,25 +3,33 @@ package com.clinica.atendimento.dto;
 import com.clinica.atendimento.model.ConvenioPaciente;
 import com.clinica.atendimento.model.Convenio;
 import com.clinica.atendimento.model.Paciente;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ConvenioPacienteDTO(
-    Long id,
-    ConvenioDTO convenio,
-    Long pacienteId,
-    String numero
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ConvenioPacienteDTO {
+    private Long id;
+    private ConvenioDTO convenio;
+    private Long pacienteId;
+    private String numero;
+
     // Static method to convert from entity to DTO
     public static ConvenioPacienteDTO fromEntity(ConvenioPaciente convenioPaciente) {
         if (convenioPaciente == null) {
             return null;
         }
 
-        return new ConvenioPacienteDTO(
-            convenioPaciente.id(),
-            ConvenioDTO.fromEntity(convenioPaciente.convenio()),
-            convenioPaciente.paciente().pessoa().id(),
-            convenioPaciente.numero()
-        );
+        return ConvenioPacienteDTO.builder()
+            .id(convenioPaciente.id())
+            .convenio(ConvenioDTO.fromEntity(convenioPaciente.convenio()))
+            .pacienteId(convenioPaciente.paciente().pessoa().id())
+            .numero(convenioPaciente.numero())
+            .build();
     }
 
     // Method to convert from DTO to entity

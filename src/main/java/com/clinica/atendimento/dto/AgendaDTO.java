@@ -1,33 +1,41 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-public record AgendaDTO(
-    Long id,
-    LocalDate dataAgenda,
-    CronogramaDTO cronograma,
-    PacienteDTO paciente,
-    TerapiaDTO terapia,
-    ConvenioDTO convenio,
-    ProfissionalDTO profissional
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AgendaDTO {
+    private Long id;
+    private LocalDate dataAgenda;
+    private CronogramaDTO cronograma;
+    private PacienteDTO paciente;
+    private TerapiaDTO terapia;
+    private ConvenioDTO convenio;
+    private ProfissionalDTO profissional;
+
     // Static method to convert from entity to DTO
     public static AgendaDTO fromEntity(Agenda agenda) {
         if (agenda == null) {
             return null;
         }
 
-        return new AgendaDTO(
-            agenda.id(),
-            agenda.dataAgenda(),
-            CronogramaDTO.fromEntity(agenda.cronograma()),
-            PacienteDTO.fromEntity(agenda.paciente()),
-            TerapiaDTO.fromEntity(agenda.terapia()),
-            ConvenioDTO.fromEntity(agenda.convenio()),
-            ProfissionalDTO.fromEntity(agenda.profissional())
-        );
+        return AgendaDTO.builder()
+            .id(agenda.id())
+            .dataAgenda(agenda.dataAgenda())
+            .cronograma(CronogramaDTO.fromEntity(agenda.cronograma()))
+            .paciente(PacienteDTO.fromEntity(agenda.paciente()))
+            .terapia(TerapiaDTO.fromEntity(agenda.terapia()))
+            .convenio(ConvenioDTO.fromEntity(agenda.convenio()))
+            .profissional(ProfissionalDTO.fromEntity(agenda.profissional()))
+            .build();
     }
 
     // Method to convert from DTO to entity

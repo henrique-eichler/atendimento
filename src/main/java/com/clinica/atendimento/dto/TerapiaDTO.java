@@ -1,21 +1,29 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Terapia;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record TerapiaDTO(
-    Long id,
-    String nome
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class TerapiaDTO {
+    private Long id;
+    private String nome;
+
     // Static method to convert from entity to DTO
     public static TerapiaDTO fromEntity(Terapia terapia) {
         if (terapia == null) {
             return null;
         }
 
-        return new TerapiaDTO(
-            terapia.id(),
-            terapia.nome()
-        );
+        return TerapiaDTO.builder()
+            .id(terapia.id())
+            .nome(terapia.nome())
+            .build();
     }
 
     // Method to convert from DTO to entity

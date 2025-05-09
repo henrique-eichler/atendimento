@@ -4,7 +4,10 @@ import com.clinica.atendimento.config.RedisService;
 import com.clinica.atendimento.service.AudioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -77,8 +80,8 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
             } else {
                 try {
                     Chunk chunk = objectMapper.readValue(payload, Chunk.class);
-                    byte[] audio = Base64.getDecoder().decode(chunk.base64());
-                    AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.indice(), audio);
+                    byte[] audio = Base64.getDecoder().decode(chunk.getBase64());
+                    AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.getIndice(), audio);
                     audioService.receberChunk(sessionId, audioChunk);
                 } catch (JsonProcessingException e) {
                     System.err.println("Error processing message for session " + sessionId + ": " + e.getMessage());
@@ -165,9 +168,29 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
         enviar(sessao, response);
     }
 
-    public record Response(String tipo, String conteudo) {
+    @Getter
+    @EqualsAndHashCode
+    @ToString
+    public static class Response {
+        private final String tipo;
+        private final String conteudo;
+
+        public Response(String tipo, String conteudo) {
+            this.tipo = tipo;
+            this.conteudo = conteudo;
+        }
     }
 
-    public record Chunk(int indice, String base64) {
+    @Getter
+    @EqualsAndHashCode
+    @ToString
+    public static class Chunk {
+        private final int indice;
+        private final String base64;
+
+        public Chunk(int indice, String base64) {
+            this.indice = indice;
+            this.base64 = base64;
+        }
     }
 }

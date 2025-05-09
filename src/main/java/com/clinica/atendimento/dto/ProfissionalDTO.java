@@ -2,21 +2,29 @@ package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Pessoa;
 import com.clinica.atendimento.model.Profissional;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ProfissionalDTO(
-    Long id,
-    PessoaDTO pessoa
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ProfissionalDTO {
+    private Long id;
+    private PessoaDTO pessoa;
+
     // Static method to convert from entity to DTO
     public static ProfissionalDTO fromEntity(Profissional profissional) {
         if (profissional == null) {
             return null;
         }
 
-        return new ProfissionalDTO(
-            profissional.pessoa().id(),
-            PessoaDTO.fromEntity(profissional.pessoa())
-        );
+        return ProfissionalDTO.builder()
+            .id(profissional.pessoa().id())
+            .pessoa(PessoaDTO.fromEntity(profissional.pessoa()))
+            .build();
     }
 
     // Method to convert from DTO to entity

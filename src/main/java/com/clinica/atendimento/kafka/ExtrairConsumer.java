@@ -33,7 +33,7 @@ public class ExtrairConsumer implements InitializingBean, DisposableBean {
     public ExtrairConsumer(DeepSeekService deepSeekService, 
                           WebSocketTranscricaoHandler webSocketTranscricaoHandler,
                           @Value("${kafka.url}") String bootstrapServers,
-                          @Value("${kafka.topico.resumir}") String topico) {
+                          @Value("${kafka.topico.extrair}") String topico) {
         this.deepSeekService = deepSeekService;
         this.webSocketTranscricaoHandler = webSocketTranscricaoHandler;
         this.bootstrapServers = bootstrapServers;
@@ -64,7 +64,7 @@ public class ExtrairConsumer implements InitializingBean, DisposableBean {
                     String sessao = record.key();
                     String texto = record.value();
                     String extrato = deepSeekService.extrair(texto);
-                    webSocketTranscricaoHandler.enviar(sessao, "extrato", extrato);
+                    webSocketTranscricaoHandler.enviar(sessao, "resumo", extrato);
                 });
             }
         } finally {

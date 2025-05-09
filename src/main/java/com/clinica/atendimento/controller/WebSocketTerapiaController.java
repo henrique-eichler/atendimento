@@ -30,7 +30,7 @@ public class WebSocketTerapiaController {
 
     @MessageMapping("/terapia/salvar")
     public void cadastrarTerapia(@Payload TerapiaDTO terapiaDTO) {
-        boolean novo = terapiaDTO.id() == null;
+        boolean novo = terapiaDTO.getId() == null;
         Terapia terapia = terapiaDTO.toEntity();
         var salvo = terapiaRepository.save(terapia);
         messagingTemplate.convertAndSend(novo ? "/topic/terapia/retorno/salvar" : "/topic/terapia/retorno/editar", TerapiaDTO.fromEntity(salvo));

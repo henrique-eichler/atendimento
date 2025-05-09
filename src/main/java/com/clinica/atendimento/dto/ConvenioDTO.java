@@ -1,21 +1,29 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Convenio;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ConvenioDTO(
-    Long id,
-    String nome
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ConvenioDTO {
+    private Long id;
+    private String nome;
+
     // Static method to convert from entity to DTO
     public static ConvenioDTO fromEntity(Convenio convenio) {
         if (convenio == null) {
             return null;
         }
 
-        return new ConvenioDTO(
-            convenio.id(),
-            convenio.nome()
-        );
+        return ConvenioDTO.builder()
+            .id(convenio.id())
+            .nome(convenio.nome())
+            .build();
     }
 
     // Method to convert from DTO to entity

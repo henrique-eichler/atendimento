@@ -2,29 +2,36 @@ package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Pessoa;
 import com.clinica.atendimento.model.enums.Sexo;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-public record PessoaDTO(
-        Long id,
-        String nome,
-        String email,
-        LocalDate dataNascimento,
-        Sexo sexo
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PessoaDTO {
+    private Long id;
+    private String nome;
+    private String email;
+    private LocalDate dataNascimento;
+    private Sexo sexo;
     // Static method to convert from entity to DTO
     public static PessoaDTO fromEntity(Pessoa pessoa) {
         if (pessoa == null) {
             return null;
         }
 
-        return new PessoaDTO(
-            pessoa.id(),
-            pessoa.nome(),
-            pessoa.email(),
-            pessoa.dataNascimento(),
-            pessoa.sexo()
-        );
+        return PessoaDTO.builder()
+            .id(pessoa.id())
+            .nome(pessoa.nome())
+            .email(pessoa.email())
+            .dataNascimento(pessoa.dataNascimento())
+            .sexo(pessoa.sexo())
+            .build();
     }
 
     // Method to convert from DTO to entity

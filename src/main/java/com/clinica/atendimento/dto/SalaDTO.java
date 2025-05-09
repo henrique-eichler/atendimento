@@ -1,21 +1,40 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Sala;
+import com.clinica.atendimento.model.TerapiaSala;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record SalaDTO(
-    Long id,
-    Long numero
-) {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SalaDTO {
+    private Long id;
+    private Long numero;
+    private List<TerapiaDTO> terapias;
+
     // Static method to convert from entity to DTO
     public static SalaDTO fromEntity(Sala sala) {
         if (sala == null) {
             return null;
         }
 
-        return new SalaDTO(
-            sala.id(),
-            sala.numero()
-        );
+        List<TerapiaDTO> terapiaDTOs = sala.terapias().stream()
+                .map(terapiaSala -> TerapiaDTO.fromEntity(terapiaSala.terapia()))
+                .collect(Collectors.toList());
+
+        return SalaDTO.builder()
+            .id(sala.id())
+            .numero(sala.numero())
+            .terapias(terapiaDTOs)
+            .build();
     }
 
     // Method to convert from DTO to entity

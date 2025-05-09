@@ -4,31 +4,39 @@ import com.clinica.atendimento.model.Agenda;
 import com.clinica.atendimento.model.Paciente;
 import com.clinica.atendimento.model.Sala;
 import com.clinica.atendimento.model.Sessao;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-public record SessaoDTO(
-    Long id,
-    AgendaDTO agenda,
-    Instant dataInicio,
-    Instant dataTermino,
-    SalaDTO sala,
-    PacienteDTO paciente
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SessaoDTO {
+    private Long id;
+    private AgendaDTO agenda;
+    private Instant dataInicio;
+    private Instant dataTermino;
+    private SalaDTO sala;
+    private PacienteDTO paciente;
+
     // Static method to convert from entity to DTO
     public static SessaoDTO fromEntity(Sessao sessao) {
         if (sessao == null) {
             return null;
         }
 
-        return new SessaoDTO(
-            sessao.id(),
-            AgendaDTO.fromEntity(sessao.agenda()),
-            sessao.dataInicio(),
-            sessao.dataTermino(),
-            SalaDTO.fromEntity(sessao.sala()),
-            PacienteDTO.fromEntity(sessao.paciente())
-        );
+        return SessaoDTO.builder()
+            .id(sessao.id())
+            .agenda(AgendaDTO.fromEntity(sessao.agenda()))
+            .dataInicio(sessao.dataInicio())
+            .dataTermino(sessao.dataTermino())
+            .sala(SalaDTO.fromEntity(sessao.sala()))
+            .paciente(PacienteDTO.fromEntity(sessao.paciente()))
+            .build();
     }
 
     // Method to convert from DTO to entity

@@ -140,7 +140,7 @@ const novo = () => {
 const editar = sala => {
   id.value = sala.id;
   numero.value = sala.numero;
-  // If the sala has terapias property, load it
+  // Load the sala's terapias (backend now always includes this)
   selectedTerapias.value = sala.terapias || [];
   isEditing.value = true;
 }

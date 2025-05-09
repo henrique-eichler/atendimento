@@ -4,25 +4,33 @@ import com.clinica.atendimento.model.Paciente;
 import com.clinica.atendimento.model.Responsavel;
 import com.clinica.atendimento.model.ResponsavelPaciente;
 import com.clinica.atendimento.model.enums.GrauParentesco;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record ResponsavelPacienteDTO(
-        Long id,
-        ResponsavelDTO responsavel,
-        Long pacienteId,
-        GrauParentesco grauParentesco
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ResponsavelPacienteDTO {
+    private Long id;
+    private ResponsavelDTO responsavel;
+    private Long pacienteId;
+    private GrauParentesco grauParentesco;
+
     // Static method to convert from entity to DTO
     public static ResponsavelPacienteDTO fromEntity(ResponsavelPaciente responsavelPaciente) {
         if (responsavelPaciente == null) {
             return null;
         }
 
-        return new ResponsavelPacienteDTO(
-            responsavelPaciente.id(),
-            ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()),
-            responsavelPaciente.paciente().pessoa().id(),
-            responsavelPaciente.grauParentesco()
-        );
+        return ResponsavelPacienteDTO.builder()
+            .id(responsavelPaciente.id())
+            .responsavel(ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()))
+            .pacienteId(responsavelPaciente.paciente().pessoa().id())
+            .grauParentesco(responsavelPaciente.grauParentesco())
+            .build();
     }
 
     // Method to convert from DTO to entity
