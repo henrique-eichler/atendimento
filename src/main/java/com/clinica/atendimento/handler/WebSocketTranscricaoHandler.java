@@ -4,10 +4,7 @@ import com.clinica.atendimento.config.RedisService;
 import com.clinica.atendimento.service.AudioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -168,29 +165,19 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
         enviar(sessao, response);
     }
 
-    @Getter
-    @EqualsAndHashCode
-    @ToString
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Response {
-        private final String tipo;
-        private final String conteudo;
-
-        public Response(String tipo, String conteudo) {
-            this.tipo = tipo;
-            this.conteudo = conteudo;
-        }
+        private String tipo;
+        private String conteudo;
     }
 
-    @Getter
-    @EqualsAndHashCode
-    @ToString
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Chunk {
-        private final int indice;
-        private final String base64;
-
-        public Chunk(int indice, String base64) {
-            this.indice = indice;
-            this.base64 = base64;
-        }
+        private int indice;
+        private String base64;
     }
 }

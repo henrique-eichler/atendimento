@@ -1,9 +1,10 @@
 package com.clinica.atendimento.service;
 
-import com.clinica.atendimento.kafka.TranscreverProducer;
+import com.clinica.atendimento.service.producer.TranscreverProducer;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +27,7 @@ public class AudioService {
     }
 
     public void receberChunk(String sessao, Chunk chunk) {
-        sessoes.get(sessao).add(chunk);
+        sessoes.putIfAbsent(sessao, new ArrayList<>()).add(chunk);
     }
 
     public void finalizarSessao(String sessao) {
@@ -37,7 +38,7 @@ public class AudioService {
                 .sorted(Comparator.comparingInt(Chunk::getIndice))
                 .map(Chunk::getAudio)
                 .reduce(AudioService::join)
-                .ifPresent(audio -> transcreverProducer.enviarAudio(sessao, audio));
+                .ifPresent(audio -> transcreverProducer.enviar(sessao, audio));
     }
 
     private static byte[] join(byte[] a, byte[] b) {
@@ -55,32 +56,11 @@ public class AudioService {
         sessoes.clear();
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Chunk {
         private int indice;
         private byte[] audio;
-
-        public Chunk() {
-        }
-
-        public Chunk(int indice, byte[] audio) {
-            this.indice = indice;
-            this.audio = audio;
-        }
-
-        public int getIndice() {
-            return indice;
-        }
-
-        public void setIndice(int indice) {
-            this.indice = indice;
-        }
-
-        public byte[] getAudio() {
-            return audio;
-        }
-
-        public void setAudio(byte[] audio) {
-            this.audio = audio;
-        }
     }
 }
