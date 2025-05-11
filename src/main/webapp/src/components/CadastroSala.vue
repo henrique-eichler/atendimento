@@ -4,43 +4,31 @@
       <h1>🏢 Cadastro de Sala</h1>
     </div>
 
-    <div class="form-container" v-if="isEditing">
-      <div class="form-card">
-        <div class="form-card-header">
-          <h2>✏️ Formulário</h2>
-          <div class="form-card-buttons">
-            <button class="btn btn-primary" @click="salvar()">
-              <span class="icon">💾</span> Salvar
-            </button>
-            <button class="btn btn-danger" @click="cancelar()">
-              <span class="icon">❌</span> Cancelar
-            </button>
-          </div>
+    <ModalForm :isOpen="isEditing" title="Cadastro de Sala" @close="cancelar">
+      <div class="form-content">
+        <!-- Basic Information (Fixed) -->
+        <div class="form-group">
+          <label>Número da Sala</label>
+          <input v-model="numero" placeholder="Número da Sala" required type="number"/>
         </div>
-        <div class="form-content">
-          <!-- Basic Information (Fixed) -->
-          <div class="form-group">
-            <label>Número da Sala</label>
-            <input v-model="numero" placeholder="Número da Sala" required type="number"/>
-          </div>
 
-          <!-- Tab Navigation -->
-          <div class="tab-navigation">
-            <button 
-              class="tab-button" 
-              :class="{ active: activeTab === 'terapias' }" 
-              @click="activeTab = 'terapias'"
-            >
-              Terapias
-            </button>
-            <button 
-              class="tab-button" 
-              :class="{ active: activeTab === 'recursos' }" 
-              @click="activeTab = 'recursos'"
-            >
-              Recursos
-            </button>
-          </div>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button 
+            class="tab-button" 
+            :class="{ active: activeTab === 'terapias' }" 
+            @click="activeTab = 'terapias'"
+          >
+            Terapias
+          </button>
+          <button 
+            class="tab-button" 
+            :class="{ active: activeTab === 'recursos' }" 
+            @click="activeTab = 'recursos'"
+          >
+            Recursos
+          </button>
+        </div>
 
           <!-- Tab Content -->
           <div class="tab-content">
@@ -235,8 +223,18 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+
+      <template #footer>
+        <div class="form-card-buttons">
+          <button class="btn btn-primary" @click="salvar()">
+            <span class="icon">💾</span> Salvar
+          </button>
+          <button class="btn btn-danger" @click="cancelar()">
+            <span class="icon">❌</span> Cancelar
+          </button>
+        </div>
+      </template>
+    </ModalForm>
 
     <div class="results-container">
       <div class="result-card">
@@ -300,6 +298,7 @@
 <script setup>
 import {onMounted, onUnmounted, ref, computed} from "vue"
 import WebSocketService from '../services/WebSocketService'
+import ModalForm from './ModalForm.vue'
 
 const salas = ref([])
 const terapias = ref([])
@@ -797,32 +796,12 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.form-container {
-  margin-bottom: 25px;
-}
-
-.form-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .form-card h2 {
   font-size: 18px;
   color: #2c3e50;
   margin: 0;
   padding: 0;
   border-bottom: none;
-}
-
-.form-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 10px;
 }
 
 .form-card-buttons {

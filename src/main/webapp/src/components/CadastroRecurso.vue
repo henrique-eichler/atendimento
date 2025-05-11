@@ -4,35 +4,32 @@
       <h1>🏢 Cadastro de Recurso</h1>
     </div>
 
-    <div class="form-container" v-if="isEditing">
-      <div class="form-card">
-        <div class="form-card-header">
-          <h2>✏️ Formulário</h2>
-          <div class="form-card-buttons">
-            <button class="btn btn-primary" @click="salvar()">
-              <span class="icon">💾</span> Salvar
-            </button>
-            <button class="btn btn-danger" @click="cancelar()">
-              <span class="icon">❌</span> Cancelar
-            </button>
-          </div>
+    <ModalForm :isOpen="isEditing" title="Cadastro de Recurso" @close="cancelar">
+      <div class="form-content">
+        <div class="form-group">
+          <label>Nome do Recurso</label>
+          <input v-model="nome" placeholder="Nome do Recurso" required/>
         </div>
-        <div class="form-content">
-          <div class="form-group">
-            <label>Nome do Recurso</label>
-            <input v-model="nome" placeholder="Nome do Recurso" required/>
-          </div>
-          <div class="form-group">
-            <label>Descrição</label>
-            <input v-model="descricao" placeholder="Descrição do Recurso"/>
-          </div>
-          <div class="form-group">
-            <label>Número de Propriedade</label>
-            <input v-model="numeroPropriedade" type="number" placeholder="Número de Propriedade" required/>
-          </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <input v-model="descricao" placeholder="Descrição do Recurso"/>
+        </div>
+        <div class="form-group">
+          <label>Número de Propriedade</label>
+          <input v-model="numeroPropriedade" type="number" placeholder="Número de Propriedade" required/>
         </div>
       </div>
-    </div>
+      <template #footer>
+        <div class="form-card-buttons">
+          <button class="btn btn-primary" @click="salvar()">
+            <span class="icon">💾</span> Salvar
+          </button>
+          <button class="btn btn-danger" @click="cancelar()">
+            <span class="icon">❌</span> Cancelar
+          </button>
+        </div>
+      </template>
+    </ModalForm>
 
     <div class="results-container">
       <div class="result-card">
@@ -82,6 +79,7 @@
 <script setup>
 import {onMounted, onUnmounted, ref, computed} from "vue"
 import WebSocketService from '../services/WebSocketService'
+import ModalForm from './ModalForm.vue'
 
 const recursos = ref([])
 const isEditing = ref(false)
@@ -244,32 +242,12 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.form-container {
-  margin-bottom: 25px;
-}
-
-.form-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .form-card h2 {
   font-size: 18px;
   color: #2c3e50;
   margin: 0;
   padding: 0;
   border-bottom: none;
-}
-
-.form-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 10px;
 }
 
 .form-card-buttons {
