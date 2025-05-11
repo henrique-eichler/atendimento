@@ -1,16 +1,17 @@
 package com.clinica.atendimento.controller;
 
 import com.clinica.atendimento.dto.SalaDTO;
-import com.clinica.atendimento.dto.TerapiaDTO;
 import com.clinica.atendimento.model.Sala;
 import com.clinica.atendimento.model.Terapia;
 import com.clinica.atendimento.model.TerapiaSala;
 import com.clinica.atendimento.repository.SalaRepository;
 import com.clinica.atendimento.repository.TerapiaSalaRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,9 +22,9 @@ public class WebSocketSalaController {
     private final TerapiaSalaRepository terapiaSalaRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public WebSocketSalaController(SalaRepository salaRepository, 
-                                  TerapiaSalaRepository terapiaSalaRepository,
-                                  SimpMessagingTemplate messagingTemplate) {
+    public WebSocketSalaController(SalaRepository salaRepository,
+                                   TerapiaSalaRepository terapiaSalaRepository,
+                                   SimpMessagingTemplate messagingTemplate) {
         this.salaRepository = salaRepository;
         this.terapiaSalaRepository = terapiaSalaRepository;
         this.messagingTemplate = messagingTemplate;
@@ -31,7 +32,7 @@ public class WebSocketSalaController {
 
     @MessageMapping("/sala/listar")
     public void listarSalas() {
-        var todos = salaRepository.findAll()
+        var todos = salaRepository.findAllSalas()
                 .stream()
                 .map(SalaDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -53,14 +54,14 @@ public class WebSocketSalaController {
         // Create new terapia associations
         if (salaDTO.getTerapias() != null) {
             List<TerapiaSala> terapiaSalas = salaDTO.getTerapias().stream()
-                .map(terapiaDTO -> {
-                    Terapia terapia = terapiaDTO.toEntity();
-                    return TerapiaSala.builder()
-                        .sala(salvo)
-                        .terapia(terapia)
-                        .build();
-                })
-                .collect(Collectors.toList());
+                    .map(terapiaDTO -> {
+                        Terapia terapia = terapiaDTO.toEntity();
+                        return TerapiaSala.builder()
+                                .sala(salvo)
+                                .terapia(terapia)
+                                .build();
+                    })
+                    .collect(Collectors.toList());
 
             terapiaSalaRepository.saveAll(terapiaSalas);
         }
@@ -74,10 +75,7 @@ public class WebSocketSalaController {
     @Transactional
     public void deletarSala(@Payload Long id) {
         // Delete all terapia associations first
-        Sala sala = salaRepository.findById(id).orElse(null);
-        if (sala != null) {
-            terapiaSalaRepository.deleteBySala(sala);
-        }
+        salaRepository.findById(id).ifPresent(terapiaSalaRepository::deleteBySala);
 
         salaRepository.deleteById(id);
         messagingTemplate.convertAndSend("/topic/sala/retorno/excluir", id);

@@ -1,6 +1,6 @@
 package com.clinica.atendimento.service.consumer;
 
-import com.clinica.atendimento.handler.WebSocketTranscricaoHandler;
+import com.clinica.atendimento.controller.WebSocketTranscricaoController;
 import com.clinica.atendimento.service.deepseek.DeepSeekService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 public class ExtrairConsumer extends AbstractConsumer<String, String> {
 
     private final DeepSeekService deepSeekService;
-    private final WebSocketTranscricaoHandler webSocketTranscricaoHandler;
+    private final WebSocketTranscricaoController webSocketTranscricaoController;
 
     public ExtrairConsumer(DeepSeekService deepSeekService,
-                           WebSocketTranscricaoHandler webSocketTranscricaoHandler,
+                           WebSocketTranscricaoController webSocketTranscricaoController,
                            @Value("${kafka.url}") String bootstrapServer,
                            @Value("${kafka.topico.extrair}") String topico) {
         super(bootstrapServer, topico, StringDeserializer.class, StringDeserializer.class);
         this.deepSeekService = deepSeekService;
-        this.webSocketTranscricaoHandler = webSocketTranscricaoHandler;
+        this.webSocketTranscricaoController = webSocketTranscricaoController;
     }
 
     @Override
@@ -27,6 +27,6 @@ public class ExtrairConsumer extends AbstractConsumer<String, String> {
         String sessao = record.key();
         String texto = record.value();
         String extrato = deepSeekService.extrair(texto);
-        webSocketTranscricaoHandler.enviar(sessao, "extrato", extrato);
+        webSocketTranscricaoController.enviar(sessao, "extrato", extrato);
     }
 }

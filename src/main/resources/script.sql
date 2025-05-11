@@ -73,7 +73,7 @@ create table profissional_terapia (
 
 create table sala (
     id bigint default nextval('sala_seq') constraint pk_sala primary key,
-    numero bigint not null constraint uk_sala_numvero unique
+    numero bigint not null constraint uk_sala_numero unique
 );
 
 create table cronograma (

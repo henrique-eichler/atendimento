@@ -2,9 +2,6 @@
   <div class="transcricao-container">
     <div class="header">
       <h1>🎙️ Transcrição de Áudio</h1>
-      <div class="status-badge" :class="{ 'connected': conectado, 'disconnected': !conectado }">
-        {{ conectado ? 'Conectado' : 'Desconectado' }}
-      </div>
     </div>
 
     <div class="controls">
@@ -46,99 +43,48 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue'
-import SockJS from 'sockjs-client'
+import {onMounted, onUnmounted, ref, computed} from 'vue'
+import WebSocketService from '../services/WebSocketService'
 
-const sessionId = crypto.randomUUID()
-const conectado = ref(false)
 const recorder = ref(null)
 const transcricao = ref('Aguardando transcrição...')
 const resumo = ref('Aguardando resumo...')
 const extrato = ref('Aguardando extrato...')
-const reconnectAttempts = ref(0)
-const maxReconnectAttempts = 5
-const reconnectInterval = 3000 // 3 seconds
-const pingInterval = 30000 // 30 seconds
 
-let socket = null
-let reconnectTimer = null
-let pingTimer = null
+// Get the connection status from the WebSocket service
+const conectado = computed(() => WebSocketService.connected)
 
-const createSocket = () => {
-  if (socket) {
-    // Clean up existing socket if any
-    try {
-      socket.close()
-    } catch (e) {
-      console.error('Error closing existing socket', e)
-    }
-  }
-
-  socket = new SockJS(`/ws-transcricao?sessionId=${sessionId}`)
-
-  socket.onopen = () => {
-    console.log('WebSocket connection established')
-    habilitar()
-    reconnectAttempts.value = 0
-
-    // Start ping interval
-    clearInterval(pingTimer)
-    pingTimer = setInterval(() => {
-      if (socket && socket.readyState === SockJS.OPEN) {
-        try {
-          socket.send('PING')
-        } catch (e) {
-          console.error('Error sending ping', e)
-        }
-      }
-    }, pingInterval)
-  }
-
-  socket.onmessage = e => {
-    if (e.data === 'PONG') {
-      console.log('Received pong from server')
-      return
-    }
-    try {
-      const data = JSON.parse(e.data)
-      processarRetorno(data)
-    } catch (err) {
-      console.error('Error parsing message', err, e.data)
-    }
-  }
-
-  socket.onclose = (event) => {
-    console.log('WebSocket connection closed', event)
-    desabilitar()
-    clearInterval(pingTimer)
-
-    // Attempt to reconnect if not a normal closure
-    if (event.code !== 1000 && reconnectAttempts.value < maxReconnectAttempts) {
-      reconnectAttempts.value++
-      console.log(`Attempting to reconnect (${reconnectAttempts.value}/${maxReconnectAttempts})...`)
-      clearTimeout(reconnectTimer)
-      reconnectTimer = setTimeout(createSocket, reconnectInterval)
-    } else if (reconnectAttempts.value >= maxReconnectAttempts) {
-      console.error('Max reconnect attempts reached')
-    }
-  }
-
-  socket.onerror = err => {
-    console.error('Socket error', err)
-  }
-}
+// Subscriptions
+let subscriptions = []
 
 onMounted(() => {
-  createSocket()
+  // Subscribe to user-specific destinations
+  subscriptions.push(
+    WebSocketService.subscribe('/user/queue/transcricao/resultado', msg => {
+      try {
+        const data = JSON.parse(msg.body)
+        processarRetorno(data)
+      } catch (err) {
+        console.error('Error parsing message', err, msg.body)
+      }
+    })
+  )
+
+  subscriptions.push(
+    WebSocketService.subscribe('/user/queue/transcricao/error', msg => {
+      console.error('Error from server:', msg.body)
+    })
+  )
+
+  subscriptions.push(
+    WebSocketService.subscribe('/user/queue/transcricao/pong', _ => {
+      console.log('Received pong from server')
+    })
+  )
+
+  // Send initialization message
+  WebSocketService.publish("/app/transcricao/iniciar")
 })
-
-const habilitar = () => {
-  conectado.value = true
-}
-
-const desabilitar = () => {
-  conectado.value = false
-}
 
 const iniciarGravacao = async () => {
   navigator.mediaDevices.getUserMedia({audio: true})
@@ -168,39 +114,27 @@ const pararGravacao = () => {
 }
 
 const enviarAudio = (indice, audio) => {
-  if (socket && conectado.value && socket.readyState === SockJS.OPEN) {
+  if (conectado.value) {
     try {
       let chunk = {
         indice,
         base64: btoa(String.fromCharCode(...new Uint8Array(audio)))
       }
-      socket.send(JSON.stringify(chunk))
+      WebSocketService.publish("/app/transcricao/chunk", chunk)
     } catch (err) {
       console.error('Error sending audio chunk', err)
-      // If we encounter an error while sending, attempt to reconnect
-      if (reconnectAttempts.value < maxReconnectAttempts) {
-        console.log('Connection issue detected, attempting to reconnect...')
-        clearTimeout(reconnectTimer)
-        reconnectTimer = setTimeout(createSocket, 1000) // Quick reconnect attempt
-      }
     }
-  } else if (!socket || socket.readyState !== SockJS.OPEN) {
-    console.warn('Cannot send audio: socket is not open')
-    // Attempt to reconnect if socket is not open
-    if (reconnectAttempts.value < maxReconnectAttempts) {
-      console.log('Socket not open, attempting to reconnect...')
-      clearTimeout(reconnectTimer)
-      reconnectTimer = setTimeout(createSocket, 1000) // Quick reconnect attempt
-    }
+  } else {
+    console.warn('Cannot send audio: WebSocket is not connected')
   }
 }
 
 const finalizar = () => {
-  if (socket && conectado.value && socket.readyState === SockJS.OPEN) {
+  if (conectado.value) {
     try {
-      socket.send('FIM')
+      WebSocketService.publish("/app/transcricao/finalizar")
     } catch (err) {
-      console.error('Error sending FIM message', err)
+      console.error('Error sending finalizar message', err)
     }
   }
   recorder.value = null;
@@ -216,19 +150,17 @@ onUnmounted(() => {
     }
   }
 
-  // Clear all timers
-  clearInterval(pingTimer)
-  clearTimeout(reconnectTimer)
-
-  // Close socket connection
-  if (socket) {
-    try {
-      socket.close()
-    } catch (err) {
-      console.error('Error closing socket', err)
+  // Unsubscribe from all subscriptions
+  subscriptions.forEach(subscription => {
+    if (subscription) {
+      try {
+        subscription.unsubscribe()
+      } catch (err) {
+        console.error('Error unsubscribing', err)
+      }
     }
-    socket = null
-  }
+  })
+  subscriptions = []
 })
 
 </script>
@@ -258,23 +190,6 @@ onUnmounted(() => {
   font-size: 24px;
   margin: 0;
   color: #2c3e50;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.connected {
-  background-color: #4caf50;
-  color: white;
-}
-
-.disconnected {
-  background-color: #f44336;
-  color: white;
 }
 
 .controls {
@@ -360,10 +275,6 @@ onUnmounted(() => {
   .header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .status-badge {
-    margin-top: 10px;
   }
 
   .controls {

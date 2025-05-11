@@ -61,28 +61,41 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref} from "vue"
-import SockJS from "sockjs-client"
-import {Client} from "@stomp/stompjs"
+import {onMounted, onUnmounted, ref, computed} from "vue"
+import WebSocketService from '../services/WebSocketService'
 
 const terapias = ref([])
 const isEditing = ref(false)
 const id = ref(null)
 const nome = ref("")
 
-const stomp = new Client({
-  webSocketFactory: () => new SockJS("/ws-cadastro"),
-  reconnectDelay: 5000,
+// Get the connection status from the WebSocket service
+const conectado = computed(() => WebSocketService.connected)
+
+// Subscriptions
+let subscriptions = []
+
+onMounted(() => {
+  // Subscribe to topics
+  subscriptions.push(
+    WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+  )
+
+  subscriptions.push(
+    WebSocketService.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+  )
+
+  subscriptions.push(
+    WebSocketService.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+  )
+
+  subscriptions.push(
+    WebSocketService.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+  )
+
+  // Send initialization message
+  WebSocketService.publish("/app/terapia/listar")
 })
-
-stomp.onConnect = () => {
-  stomp.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
-  stomp.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
-
-  stomp.publish({destination: "/app/terapia/listar"})
-}
 
 const retornoListar = lista => {
   terapias.value = lista
@@ -117,19 +130,13 @@ const salvar = () => {
     id: id.value,
     nome: nome.value
   };
-  stomp.publish({
-    destination: "/app/terapia/salvar",
-    body: JSON.stringify(terapiaData)
-  })
+  WebSocketService.publish("/app/terapia/salvar", terapiaData)
   reset();
 }
 
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
-    stomp.publish({
-      destination: "/app/terapia/excluir",
-      body: JSON.stringify(idToRemove)
-    })
+    WebSocketService.publish("/app/terapia/excluir", idToRemove)
   }
 }
 
@@ -143,12 +150,18 @@ const reset = () => {
   nome.value = "";
 }
 
-onMounted(() => {
-  stomp.activate()
-})
-
 onUnmounted(() => {
-  stomp.deactivate()
+  // Unsubscribe from all subscriptions
+  subscriptions.forEach(subscription => {
+    if (subscription) {
+      try {
+        subscription.unsubscribe()
+      } catch (err) {
+        console.error('Error unsubscribing', err)
+      }
+    }
+  })
+  subscriptions = []
 })
 
 </script>
