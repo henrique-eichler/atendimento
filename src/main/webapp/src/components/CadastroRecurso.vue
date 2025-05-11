@@ -1,7 +1,7 @@
 <template>
   <div class="cadastro-container">
     <div class="header">
-      <h1>🏢 Cadastro de Terapia</h1>
+      <h1>🏢 Cadastro de Recurso</h1>
     </div>
 
     <div class="form-container" v-if="isEditing">
@@ -19,8 +19,16 @@
         </div>
         <div class="form-content">
           <div class="form-group">
-            <label>Nome da Terapia</label>
-            <input v-model="nome" placeholder="Nome da Terapia" required/>
+            <label>Nome do Recurso</label>
+            <input v-model="nome" placeholder="Nome do Recurso" required/>
+          </div>
+          <div class="form-group">
+            <label>Descrição</label>
+            <input v-model="descricao" placeholder="Descrição do Recurso"/>
+          </div>
+          <div class="form-group">
+            <label>Número de Propriedade</label>
+            <input v-model="numeroPropriedade" type="number" placeholder="Número de Propriedade" required/>
           </div>
         </div>
       </div>
@@ -29,13 +37,13 @@
     <div class="results-container">
       <div class="result-card">
         <div class="card-header">
-          <h2>📋 Lista de Terapias</h2>
+          <h2>📋 Lista de Recursos</h2>
           <div class="card-buttons">
-            <button class="btn btn-primary" @click="listarTerapias()">
+            <button class="btn btn-primary" @click="listarRecursos()">
               <span class="icon">🔄</span> Atualizar
             </button>
             <button class="btn btn-primary" @click="novo()">
-              <span class="icon">📄</span> Nova Terapia
+              <span class="icon">📄</span> Novo Recurso
             </button>
           </div>
         </div>
@@ -44,17 +52,21 @@
             <thead>
               <tr>
                 <th>Nome</th>
+                <th>Descrição</th>
+                <th>Número de Propriedade</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="terapia in terapias" :key="terapia.id">
-                <td>{{ terapia.nome }}</td>
+              <tr v-for="recurso in recursos" :key="recurso.id">
+                <td>{{ recurso.nome }}</td>
+                <td>{{ recurso.descricao }}</td>
+                <td>{{ recurso.numeroPropriedade }}</td>
                 <td class="actions">
-                  <button class="btn-icon" @click="editar(terapia)">
+                  <button class="btn-icon" @click="editar(recurso)">
                     <span class="icon">📝</span>
                   </button>
-                  <button class="btn-icon" @click="remover(terapia.id)">
+                  <button class="btn-icon" @click="remover(recurso.id)">
                     <span class="icon">🗑️</span>
                   </button>
                 </td>
@@ -71,10 +83,12 @@
 import {onMounted, onUnmounted, ref, computed} from "vue"
 import WebSocketService from '../services/WebSocketService'
 
-const terapias = ref([])
+const recursos = ref([])
 const isEditing = ref(false)
 const id = ref(null)
 const nome = ref("")
+const descricao = ref("")
+const numeroPropriedade = ref(null)
 
 // Get the connection status from the WebSocket service
 const conectado = computed(() => WebSocketService.connected)
@@ -85,44 +99,44 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
   )
 
   // Send initialization message
-  WebSocketService.publish("/app/terapia/listar")
+  WebSocketService.publish("/app/recurso/listar")
 })
 
 const retornoListar = lista => {
-  terapias.value = lista
+  recursos.value = lista
 }
 
-const listarTerapias = () => {
-  WebSocketService.publish("/app/terapia/listar")
+const listarRecursos = () => {
+  WebSocketService.publish("/app/recurso/listar")
 }
 
-const retornoSalvar = terapia => {
-  terapias.value.push(terapia)
+const retornoSalvar = recurso => {
+  recursos.value.push(recurso)
 }
 
-const retornoEditar = terapia => {
-  const i = terapias.value.findIndex(p => p.id === terapia.id)
-  if (i >= 0) terapias.value.splice(i, 1, terapia)
+const retornoEditar = recurso => {
+  const i = recursos.value.findIndex(p => p.id === recurso.id)
+  if (i >= 0) recursos.value.splice(i, 1, recurso)
 }
 
 const retornoExcluir = id => {
-  terapias.value = terapias.value.filter(p => p.id !== id)
+  recursos.value = recursos.value.filter(p => p.id !== id)
 }
 
 const novo = () => {
@@ -130,24 +144,28 @@ const novo = () => {
   isEditing.value = true;
 }
 
-const editar = terapia => {
-  id.value = terapia.id;
-  nome.value = terapia.nome;
+const editar = recurso => {
+  id.value = recurso.id;
+  nome.value = recurso.nome;
+  descricao.value = recurso.descricao;
+  numeroPropriedade.value = recurso.numeroPropriedade;
   isEditing.value = true;
 }
 
 const salvar = () => {
-  const terapiaData = {
+  const recursoData = {
     id: id.value,
-    nome: nome.value
+    nome: nome.value,
+    descricao: descricao.value,
+    numeroPropriedade: numeroPropriedade.value
   };
-  WebSocketService.publish("/app/terapia/salvar", terapiaData)
+  WebSocketService.publish("/app/recurso/salvar", recursoData)
   reset();
 }
 
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
-    WebSocketService.publish("/app/terapia/excluir", idToRemove)
+    WebSocketService.publish("/app/recurso/excluir", idToRemove)
   }
 }
 
@@ -159,6 +177,8 @@ const reset = () => {
   isEditing.value = false
   id.value = null;
   nome.value = "";
+  descricao.value = "";
+  numeroPropriedade.value = null;
 }
 
 onUnmounted(() => {

@@ -23,50 +23,57 @@ public class WebSocketTranscricaoController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /**
+     * Extract client UUID from headers or fallback to session ID
+     * @param headerAccessor the message headers
+     * @return client UUID or session ID as fallback
+     */
+    private String getClientIdentifier(SimpMessageHeaderAccessor headerAccessor) {
+        // Try to get the client UUID from the connection headers
+        String clientUuid = null;
+        if (headerAccessor.getSessionAttributes() != null) {
+            clientUuid = (String) headerAccessor.getSessionAttributes().get("clientUuid");
+        }
+
+        // If client UUID is not available, fall back to session ID
+        if (clientUuid == null || clientUuid.isEmpty()) {
+            clientUuid = headerAccessor.getSessionId();
+        }
+
+        return clientUuid;
+    }
+
     @MessageMapping("/transcricao/iniciar")
     public void iniciarSessao(SimpMessageHeaderAccessor headerAccessor) {
-        String sessionId = headerAccessor.getSessionId();
-        audioService.iniciarSessao(sessionId);
+        String clientId = getClientIdentifier(headerAccessor);
+        audioService.iniciarSessao(clientId);
     }
 
     @MessageMapping("/transcricao/chunk")
     public void receberChunk(@Payload Chunk chunk, SimpMessageHeaderAccessor headerAccessor) {
-        String sessionId = headerAccessor.getSessionId();
+        String clientId = getClientIdentifier(headerAccessor);
         try {
             byte[] audio = Base64.getDecoder().decode(chunk.getBase64());
             AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.getIndice(), audio);
-            audioService.receberChunk(sessionId, audioChunk);
+            audioService.receberChunk(clientId, audioChunk);
         } catch (IllegalArgumentException e) {
             // Handle base64 decoding error
-            messagingTemplate.convertAndSendToUser(
-                    sessionId,
-                    "/queue/transcricao/error",
-                    new Response("error", "Error decoding audio data")
-            );
+            messagingTemplate.convertAndSendToUser(clientId, "/queue/transcricao/error", new Response("error", "Error decoding audio data"));
         }
     }
 
     @MessageMapping("/transcricao/finalizar")
     public void finalizarSessao(SimpMessageHeaderAccessor headerAccessor) {
-        String sessionId = headerAccessor.getSessionId();
-        audioService.finalizarSessao(sessionId);
+        String clientId = getClientIdentifier(headerAccessor);
+        audioService.finalizarSessao(clientId);
     }
 
-    @MessageMapping("/transcricao/ping")
-    public void ping(SimpMessageHeaderAccessor headerAccessor) {
-        String sessionId = headerAccessor.getSessionId();
-        messagingTemplate.convertAndSendToUser(
-                sessionId,
-                "/queue/transcricao/pong",
-                "PONG"
-        );
-    }
 
     // Method to be called by consumer services
-    public void enviar(String sessao, String tipo, String conteudo) {
+    public void enviar(String clientId, String tipo, String conteudo) {
         Response response = new Response(tipo, conteudo);
         messagingTemplate.convertAndSendToUser(
-                sessao,
+                clientId,
                 "/queue/transcricao/resultado",
                 response
         );

@@ -1,9 +1,10 @@
 package com.clinica.atendimento.controller;
 
 import com.clinica.atendimento.dto.SalaDTO;
+import com.clinica.atendimento.model.RecursoSala;
 import com.clinica.atendimento.model.Sala;
-import com.clinica.atendimento.model.Terapia;
 import com.clinica.atendimento.model.TerapiaSala;
+import com.clinica.atendimento.repository.RecursoSalaRepository;
 import com.clinica.atendimento.repository.SalaRepository;
 import com.clinica.atendimento.repository.TerapiaSalaRepository;
 import jakarta.transaction.Transactional;
@@ -12,7 +13,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
@@ -20,13 +20,16 @@ public class WebSocketSalaController {
 
     private final SalaRepository salaRepository;
     private final TerapiaSalaRepository terapiaSalaRepository;
+    private final RecursoSalaRepository recursoSalaRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     public WebSocketSalaController(SalaRepository salaRepository,
                                    TerapiaSalaRepository terapiaSalaRepository,
+                                   RecursoSalaRepository recursoSalaRepository,
                                    SimpMessagingTemplate messagingTemplate) {
         this.salaRepository = salaRepository;
         this.terapiaSalaRepository = terapiaSalaRepository;
+        this.recursoSalaRepository = recursoSalaRepository;
         this.messagingTemplate = messagingTemplate;
     }
 
@@ -46,27 +49,30 @@ public class WebSocketSalaController {
         Sala sala = salaDTO.toEntity();
         var salvo = salaRepository.save(sala);
 
-        // If it's an existing sala, delete all existing terapia associations
         if (!novo) {
             terapiaSalaRepository.deleteBySala(salvo);
+            recursoSalaRepository.deleteBySala(salvo);
         }
 
-        // Create new terapia associations
         if (salaDTO.getTerapias() != null) {
-            List<TerapiaSala> terapiaSalas = salaDTO.getTerapias().stream()
-                    .map(terapiaDTO -> {
-                        Terapia terapia = terapiaDTO.toEntity();
-                        return TerapiaSala.builder()
-                                .sala(salvo)
-                                .terapia(terapia)
-                                .build();
-                    })
-                    .collect(Collectors.toList());
-
-            terapiaSalaRepository.saveAll(terapiaSalas);
+            salaDTO.getTerapias()
+                    .stream()
+                    .map(terapiaDTO -> TerapiaSala.builder().sala(salvo).terapia(terapiaDTO.toEntity()).build())
+                    .forEach(terapiaSalaRepository::save);
         }
 
-        // Reload the sala to get the updated terapias
+        if (salaDTO.getRecursos() != null) {
+            salaDTO.getRecursos()
+                    .stream()
+                    .map(recursoDTO -> {
+                        RecursoSala recursoSala = new RecursoSala();
+                        recursoSala.setSala(salvo);
+                        recursoSala.setRecurso(recursoDTO.toEntity());
+                        return recursoSala;
+                    })
+                    .forEach(recursoSalaRepository::save);
+        }
+
         Sala reloaded = salaRepository.findById(salvo.id()).orElse(salvo);
         messagingTemplate.convertAndSend(novo ? "/topic/sala/retorno/salvar" : "/topic/sala/retorno/editar", SalaDTO.fromEntity(reloaded));
     }
@@ -74,8 +80,10 @@ public class WebSocketSalaController {
     @MessageMapping("/sala/excluir")
     @Transactional
     public void deletarSala(@Payload Long id) {
-        // Delete all terapia associations first
-        salaRepository.findById(id).ifPresent(terapiaSalaRepository::deleteBySala);
+        salaRepository.findById(id).ifPresent(sala -> {
+            terapiaSalaRepository.deleteBySala(sala);
+            recursoSalaRepository.deleteBySala(sala);
+        });
 
         salaRepository.deleteById(id);
         messagingTemplate.convertAndSend("/topic/sala/retorno/excluir", id);

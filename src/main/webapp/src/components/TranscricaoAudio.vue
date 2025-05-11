@@ -2,6 +2,7 @@
   <div class="transcricao-container">
     <div class="header">
       <h1>🎙️ Transcrição de Áudio</h1>
+      <div class="client-id">ID do Cliente: {{ clientUuid }}</div>
     </div>
 
     <div class="controls">
@@ -54,6 +55,9 @@ const extrato = ref('Aguardando extrato...')
 // Get the connection status from the WebSocket service
 const conectado = computed(() => WebSocketService.connected)
 
+// Get the client UUID from the WebSocket service
+const clientUuid = computed(() => WebSocketService.clientUuid)
+
 // Subscriptions
 let subscriptions = []
 
@@ -76,11 +80,6 @@ onMounted(() => {
     })
   )
 
-  subscriptions.push(
-    WebSocketService.subscribe('/user/queue/transcricao/pong', _ => {
-      console.log('Received pong from server')
-    })
-  )
 
   // Send initialization message
   WebSocketService.publish("/app/transcricao/iniciar")
@@ -190,6 +189,15 @@ onUnmounted(() => {
   font-size: 24px;
   margin: 0;
   color: #2c3e50;
+}
+
+.client-id {
+  font-size: 12px;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 5px;
 }
 
 .controls {
