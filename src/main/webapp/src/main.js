@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import router from './router'
 import './style.css'
+import './components.css'
 import WebSocketService from './services/WebSocketService'
 import ConnectionStatus from './components/ConnectionStatus.vue'
 
