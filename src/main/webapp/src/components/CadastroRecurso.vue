@@ -94,19 +94,19 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-    WebSocketService.subscribe("/app/recurso/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/app/recurso/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/app/recurso/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/app/recurso/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+    WebSocketService.subscribe("/topic/recurso/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
   )
 
   // Send initialization message
