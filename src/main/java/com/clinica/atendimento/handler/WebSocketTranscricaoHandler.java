@@ -4,7 +4,10 @@ import com.clinica.atendimento.config.RedisService;
 import com.clinica.atendimento.service.AudioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -59,19 +62,6 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
         if (message instanceof TextMessage textMessage) {
             String payload = textMessage.getPayload();
 
-            // Handle ping message to keep connection alive
-            if ("PING".equalsIgnoreCase(payload)) {
-                try {
-                    session.sendMessage(new TextMessage("PONG"));
-                    return;
-                } catch (IOException e) {
-                    System.err.println("Error sending PONG response: " + e.getMessage());
-                    // Continue with normal error handling
-                    handleTransportError(session, e);
-                    return;
-                }
-            }
-
             if ("FIM".equalsIgnoreCase(payload)) {
                 audioService.finalizarSessao(sessionId);
             } else {
@@ -81,7 +71,6 @@ public class WebSocketTranscricaoHandler implements WebSocketHandler {
                     AudioService.Chunk audioChunk = new AudioService.Chunk(chunk.getIndice(), audio);
                     audioService.receberChunk(sessionId, audioChunk);
                 } catch (JsonProcessingException e) {
-                    System.err.println("Error processing message for session " + sessionId + ": " + e.getMessage());
                     try {
                         // Send error message to client
                         session.sendMessage(new TextMessage("{\"tipo\":\"error\",\"conteudo\":\"Error processing message\"}"));

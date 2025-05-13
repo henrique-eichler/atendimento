@@ -14,208 +14,207 @@
 
         <!-- Tab Navigation -->
         <div class="tab-navigation">
-          <button 
-            class="tab-button" 
-            :class="{ active: activeTab === 'terapias' }" 
-            @click="activeTab = 'terapias'"
+          <button
+              :class="{ active: activeTab === 'terapias' }"
+              class="tab-button"
+              @click="activeTab = 'terapias'"
           >
             Terapias
           </button>
-          <button 
-            class="tab-button" 
-            :class="{ active: activeTab === 'recursos' }" 
-            @click="activeTab = 'recursos'"
+          <button
+              :class="{ active: activeTab === 'recursos' }"
+              class="tab-button"
+              @click="activeTab = 'recursos'"
           >
             Recursos
           </button>
         </div>
 
-          <!-- Tab Content -->
-          <div class="tab-content">
-            <!-- Terapias Tab -->
-            <div v-if="activeTab === 'terapias'" class="tab-pane">
-              <div class="form-group">
-                <label>Terapias</label>
-                <div class="dual-list-container">
-                  <div class="list-box">
-                    <div class="list-header">
-                      <h3>Terapias Disponíveis</h3>
-                      <input 
-                        v-model="availableTerapiaSearch" 
-                        placeholder="Buscar..." 
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Terapias Tab -->
+          <div v-if="activeTab === 'terapias'" class="tab-pane">
+            <div class="form-group">
+              <label>Terapias</label>
+              <div class="dual-list-container">
+                <div class="list-box">
+                  <div class="list-header">
+                    <h3>Terapias Disponíveis</h3>
+                    <input
+                        v-model="availableTerapiaSearch"
                         class="search-input"
+                        placeholder="Buscar..."
                         @input="filterAvailableTerapias"
-                      />
-                    </div>
-                    <div class="list-content" ref="availableListRef">
-                      <div 
-                        v-for="terapia in filteredAvailableTerapias" 
-                        :key="terapia.id" 
+                    />
+                  </div>
+                  <div ref="availableListRef" class="list-content">
+                    <div
+                        v-for="terapia in filteredAvailableTerapias"
+                        :key="terapia.id"
                         class="list-item"
                         draggable="true"
-                        @dragstart="dragStart($event, terapia.id, 'available')"
-                        @dragover.prevent
-                        @drop="drop($event, 'available')"
                         @click="moveToSelected(terapia.id)"
-                      >
-                        {{ terapia.nome }}
-                      </div>
+                        @dragstart="dragStart($event, terapia.id, 'available')"
+                        @drop="drop($event, 'available')"
+                        @dragover.prevent
+                    >
+                      {{ terapia.nome }}
                     </div>
                   </div>
+                </div>
 
-                  <div class="list-controls">
-                    <button 
-                      class="control-btn" 
-                      @click="moveAllToSelected()" 
+                <div class="list-controls">
+                  <button
                       :disabled="availableTerapias.length === 0"
+                      class="control-btn"
                       title="Mover todos para selecionados"
-                    >
-                      ≫
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveSelectedToSelected()" 
+                      @click="moveAllToSelected()"
+                  >
+                    ≫
+                  </button>
+                  <button
                       :disabled="selectedAvailableIds.length === 0"
+                      class="control-btn"
                       title="Mover selecionados para selecionados"
-                    >
-                      &gt;
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveSelectedToAvailable()" 
+                      @click="moveSelectedToSelected()"
+                  >
+                    &gt;
+                  </button>
+                  <button
                       :disabled="selectedSelectedIds.length === 0"
+                      class="control-btn"
                       title="Mover selecionados para disponíveis"
-                    >
-                      &lt;
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveAllToAvailable()" 
+                      @click="moveSelectedToAvailable()"
+                  >
+                    &lt;
+                  </button>
+                  <button
                       :disabled="selectedTerapiaIds.length === 0"
+                      class="control-btn"
                       title="Mover todos para disponíveis"
-                    >
-                      ≪
-                    </button>
-                  </div>
+                      @click="moveAllToAvailable()"
+                  >
+                    ≪
+                  </button>
+                </div>
 
-                  <div class="list-box">
-                    <div class="list-header">
-                      <h3>Terapias Selecionadas</h3>
-                      <input 
-                        v-model="selectedTerapiaSearch" 
-                        placeholder="Buscar..." 
+                <div class="list-box">
+                  <div class="list-header">
+                    <h3>Terapias Selecionadas</h3>
+                    <input
+                        v-model="selectedTerapiaSearch"
                         class="search-input"
+                        placeholder="Buscar..."
                         @input="filterSelectedTerapias"
-                      />
-                    </div>
-                    <div class="list-content" ref="selectedListRef">
-                      <div 
-                        v-for="terapiaId in filteredSelectedTerapiaIds" 
-                        :key="terapiaId" 
+                    />
+                  </div>
+                  <div ref="selectedListRef" class="list-content">
+                    <div
+                        v-for="terapiaId in filteredSelectedTerapiaIds"
+                        :key="terapiaId"
                         class="list-item"
                         draggable="true"
-                        @dragstart="dragStart($event, terapiaId, 'selected')"
-                        @dragover.prevent
-                        @drop="drop($event, 'selected')"
                         @click="moveToAvailable(terapiaId)"
-                      >
-                        {{ getTerapiaNomeById(terapiaId) }}
-                      </div>
+                        @dragstart="dragStart($event, terapiaId, 'selected')"
+                        @drop="drop($event, 'selected')"
+                        @dragover.prevent
+                    >
+                      {{ getTerapiaNomeById(terapiaId) }}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Recursos Tab -->
-            <div v-if="activeTab === 'recursos'" class="tab-pane">
-              <div class="form-group">
-                <label>Recursos</label>
-                <div class="dual-list-container">
-                  <div class="list-box">
-                    <div class="list-header">
-                      <h3>Recursos Disponíveis</h3>
-                      <input 
-                        v-model="availableRecursoSearch" 
-                        placeholder="Buscar..." 
+          <!-- Recursos Tab -->
+          <div v-if="activeTab === 'recursos'" class="tab-pane">
+            <div class="form-group">
+              <label>Recursos</label>
+              <div class="dual-list-container">
+                <div class="list-box">
+                  <div class="list-header">
+                    <h3>Recursos Disponíveis</h3>
+                    <input
+                        v-model="availableRecursoSearch"
                         class="search-input"
+                        placeholder="Buscar..."
                         @input="filterAvailableRecursos"
-                      />
-                    </div>
-                    <div class="list-content" ref="availableRecursosListRef">
-                      <div 
-                        v-for="recurso in filteredAvailableRecursos" 
-                        :key="recurso.id" 
+                    />
+                  </div>
+                  <div ref="availableRecursosListRef" class="list-content">
+                    <div
+                        v-for="recurso in filteredAvailableRecursos"
+                        :key="recurso.id"
                         class="list-item"
                         draggable="true"
-                        @dragstart="dragStartRecurso($event, recurso.id, 'availableRecurso')"
-                        @dragover.prevent
-                        @drop="dropRecurso($event, 'availableRecurso')"
                         @click="moveToSelectedRecurso(recurso.id)"
-                      >
-                        {{ recurso.nome }}
-                      </div>
+                        @dragstart="dragStartRecurso($event, recurso.id, 'availableRecurso')"
+                        @drop="dropRecurso($event, 'availableRecurso')"
+                        @dragover.prevent
+                    >
+                      {{ recurso.nome }}
                     </div>
                   </div>
+                </div>
 
-                  <div class="list-controls">
-                    <button 
-                      class="control-btn" 
-                      @click="moveAllToSelectedRecurso()" 
+                <div class="list-controls">
+                  <button
                       :disabled="availableRecursos.length === 0"
+                      class="control-btn"
                       title="Mover todos para selecionados"
-                    >
-                      ≫
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveSelectedToSelectedRecurso()" 
+                      @click="moveAllToSelectedRecurso()"
+                  >
+                    ≫
+                  </button>
+                  <button
                       :disabled="selectedAvailableRecursoIds.length === 0"
+                      class="control-btn"
                       title="Mover selecionados para selecionados"
-                    >
-                      &gt;
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveSelectedToAvailableRecurso()" 
+                      @click="moveSelectedToSelectedRecurso()"
+                  >
+                    &gt;
+                  </button>
+                  <button
                       :disabled="selectedSelectedRecursoIds.length === 0"
+                      class="control-btn"
                       title="Mover selecionados para disponíveis"
-                    >
-                      &lt;
-                    </button>
-                    <button 
-                      class="control-btn" 
-                      @click="moveAllToAvailableRecurso()" 
+                      @click="moveSelectedToAvailableRecurso()"
+                  >
+                    &lt;
+                  </button>
+                  <button
                       :disabled="selectedRecursoIds.length === 0"
+                      class="control-btn"
                       title="Mover todos para disponíveis"
-                    >
-                      ≪
-                    </button>
-                  </div>
+                      @click="moveAllToAvailableRecurso()"
+                  >
+                    ≪
+                  </button>
+                </div>
 
-                  <div class="list-box">
-                    <div class="list-header">
-                      <h3>Recursos Selecionados</h3>
-                      <input 
-                        v-model="selectedRecursoSearch" 
-                        placeholder="Buscar..." 
+                <div class="list-box">
+                  <div class="list-header">
+                    <h3>Recursos Selecionados</h3>
+                    <input
+                        v-model="selectedRecursoSearch"
                         class="search-input"
+                        placeholder="Buscar..."
                         @input="filterSelectedRecursos"
-                      />
-                    </div>
-                    <div class="list-content" ref="selectedRecursosListRef">
-                      <div 
-                        v-for="recursoId in filteredSelectedRecursoIds" 
-                        :key="recursoId" 
+                    />
+                  </div>
+                  <div ref="selectedRecursosListRef" class="list-content">
+                    <div
+                        v-for="recursoId in filteredSelectedRecursoIds"
+                        :key="recursoId"
                         class="list-item"
                         draggable="true"
-                        @dragstart="dragStartRecurso($event, recursoId, 'selectedRecurso')"
-                        @dragover.prevent
-                        @drop="dropRecurso($event, 'selectedRecurso')"
                         @click="moveToAvailableRecurso(recursoId)"
-                      >
-                        {{ getRecursoNomeById(recursoId) }}
-                      </div>
+                        @dragstart="dragStartRecurso($event, recursoId, 'selectedRecurso')"
+                        @drop="dropRecurso($event, 'selectedRecurso')"
+                        @dragover.prevent
+                    >
+                      {{ getRecursoNomeById(recursoId) }}
                     </div>
                   </div>
                 </div>
@@ -223,6 +222,7 @@
             </div>
           </div>
         </div>
+      </div>
 
       <template #footer>
         <div class="form-card-buttons">
@@ -249,41 +249,41 @@
         <div class="content">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Número</th>
-                <th>Terapias</th>
-                <th>Recursos</th>
-                <th>Ações</th>
-              </tr>
+            <tr>
+              <th>Número</th>
+              <th>Terapias</th>
+              <th>Recursos</th>
+              <th>Ações</th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="sala in salas" :key="sala.id">
-                <td>{{ sala.numero }}</td>
-                <td>
-                  <div class="terapias-list">
-                    <span v-if="!sala.terapias || sala.terapias.length === 0" class="no-terapias">Nenhuma terapia associada</span>
-                    <div v-else class="terapia-tag" v-for="terapia in sala.terapias" :key="terapia.id">
-                      {{ terapia.nome }}
-                    </div>
+            <tr v-for="sala in salas" :key="sala.id">
+              <td>{{ sala.numero }}</td>
+              <td>
+                <div class="terapias-list">
+                  <span v-if="!sala.terapias || sala.terapias.length === 0" class="no-terapias">Nenhuma terapia associada</span>
+                  <div v-for="terapia in sala.terapias" v-else :key="terapia.id" class="terapia-tag">
+                    {{ terapia.nome }}
                   </div>
-                </td>
-                <td>
-                  <div class="recursos-list">
-                    <span v-if="!sala.recursos || sala.recursos.length === 0" class="no-recursos">Nenhum recurso associado</span>
-                    <div v-else class="recurso-tag" v-for="recurso in sala.recursos" :key="recurso.id">
-                      {{ recurso.nome }}
-                    </div>
+                </div>
+              </td>
+              <td>
+                <div class="recursos-list">
+                  <span v-if="!sala.recursos || sala.recursos.length === 0" class="no-recursos">Nenhum recurso associado</span>
+                  <div v-for="recurso in sala.recursos" v-else :key="recurso.id" class="recurso-tag">
+                    {{ recurso.nome }}
                   </div>
-                </td>
-                <td class="actions">
-                  <button class="btn-icon" @click="editar(sala)">
-                    <span class="icon">📝</span>
-                  </button>
-                  <button class="btn-icon" @click="remover(sala.id)">
-                    <span class="icon">🗑️</span>
-                  </button>
-                </td>
-              </tr>
+                </div>
+              </td>
+              <td class="actions">
+                <button class="btn-icon" @click="editar(sala)">
+                  <span class="icon">📝</span>
+                </button>
+                <button class="btn-icon" @click="remover(sala.id)">
+                  <span class="icon">🗑️</span>
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -293,7 +293,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed} from "vue"
+import {computed, onMounted, onUnmounted, ref} from "vue"
 import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
@@ -342,27 +342,27 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-    WebSocketService.subscribe("/topic/sala/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListarRecursos(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListarRecursos(JSON.parse(msg.body)))
   )
 
   // Send initialization messages
@@ -423,10 +423,10 @@ const editar = sala => {
 
 const salvar = () => {
   // Convert terapia IDs to terapia objects with only id property
-  const terapiaObjects = selectedTerapiaIds.value.map(id => ({ id }));
+  const terapiaObjects = selectedTerapiaIds.value.map(id => ({id}));
 
   // Convert recurso IDs to recurso objects with only id property
-  const recursoObjects = selectedRecursoIds.value.map(id => ({ id }));
+  const recursoObjects = selectedRecursoIds.value.map(id => ({id}));
 
   const salaData = {
     id: id.value,
@@ -468,8 +468,8 @@ const removeRecursoById = (recursoId) => {
 
 // Update available terapias list (terapias not in selectedTerapiaIds)
 const updateAvailableTerapias = () => {
-  availableTerapias.value = terapias.value.filter(terapia => 
-    !selectedTerapiaIds.value.includes(terapia.id)
+  availableTerapias.value = terapias.value.filter(terapia =>
+      !selectedTerapiaIds.value.includes(terapia.id)
   );
   filterAvailableTerapias();
 }
@@ -480,8 +480,8 @@ const filterAvailableTerapias = () => {
     filteredAvailableTerapias.value = availableTerapias.value;
   } else {
     const searchTerm = availableTerapiaSearch.value.toLowerCase();
-    filteredAvailableTerapias.value = availableTerapias.value.filter(terapia => 
-      terapia.nome.toLowerCase().includes(searchTerm)
+    filteredAvailableTerapias.value = availableTerapias.value.filter(terapia =>
+        terapia.nome.toLowerCase().includes(searchTerm)
     );
   }
 }
@@ -501,8 +501,8 @@ const filterSelectedTerapias = () => {
 
 // Update available recursos list (recursos not in selectedRecursoIds)
 const updateAvailableRecursos = () => {
-  availableRecursos.value = recursos.value.filter(recurso => 
-    !selectedRecursoIds.value.includes(recurso.id)
+  availableRecursos.value = recursos.value.filter(recurso =>
+      !selectedRecursoIds.value.includes(recurso.id)
   );
   filterAvailableRecursos();
 }
@@ -513,8 +513,8 @@ const filterAvailableRecursos = () => {
     filteredAvailableRecursos.value = availableRecursos.value;
   } else {
     const searchTerm = availableRecursoSearch.value.toLowerCase();
-    filteredAvailableRecursos.value = availableRecursos.value.filter(recurso => 
-      recurso.nome.toLowerCase().includes(searchTerm)
+    filteredAvailableRecursos.value = availableRecursos.value.filter(recurso =>
+        recurso.nome.toLowerCase().includes(searchTerm)
     );
   }
 }

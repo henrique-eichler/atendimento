@@ -23,11 +23,11 @@ public class RecursoDTO {
         }
 
         return RecursoDTO.builder()
-            .id(recurso.getId())
-            .nome(recurso.getNome())
-            .descricao(recurso.getDescricao())
-            .numeroPropriedade(recurso.getNumeroPropriedade())
-            .build();
+                .id(recurso.getId())
+                .nome(recurso.getNome())
+                .descricao(recurso.getDescricao())
+                .numeroPropriedade(recurso.getNumeroPropriedade())
+                .build();
     }
 
     // Method to convert from DTO to entity

@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface TerapiaSalaRepository extends JpaRepository<TerapiaSala, Long> {
     List<TerapiaSala> findBySala(Sala sala);
+
     void deleteBySala(Sala sala);
 }

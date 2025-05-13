@@ -9,6 +9,7 @@ O Sistema de Atendimento Clínico é uma aplicação web completa para gerenciam
 ## Tecnologias Utilizadas
 
 ### Backend
+
 - **Java 17** com **Spring Boot**
 - **Spring Data JPA** para persistência de dados
 - **PostgreSQL** como banco de dados relacional
@@ -17,6 +18,7 @@ O Sistema de Atendimento Clínico é uma aplicação web completa para gerenciam
 - **DeepSeek API** para processamento de linguagem natural e transcrição
 
 ### Frontend
+
 - **Vue.js** para interface de usuário
 - **WebSockets** para comunicação em tempo real com o backend
 - **HTML/CSS** para estilização
@@ -56,6 +58,7 @@ O Sistema de Atendimento Clínico é uma aplicação web completa para gerenciam
 ## Configuração e Instalação
 
 ### Pré-requisitos
+
 - Java 17 ou superior
 - Maven
 - PostgreSQL
@@ -63,24 +66,30 @@ O Sistema de Atendimento Clínico é uma aplicação web completa para gerenciam
 - Node.js e npm (para desenvolvimento frontend)
 
 ### Configuração do Banco de Dados
+
 1. Crie um banco de dados PostgreSQL chamado `clinica`
 2. Atualize as configurações de conexão em `application.properties`
 
 ### Configuração do Kafka
+
 1. Instale e configure o Apache Kafka
 2. Atualize o endereço do servidor Kafka em `application.properties`
 
 ### Configuração da API DeepSeek
+
 1. Configure o endpoint da API DeepSeek em `application.properties`
 
 ### Executando a Aplicação
+
 1. Clone o repositório
 2. Compile o projeto: `mvn clean install`
 3. Execute a aplicação: `mvn spring-boot:run`
 4. Acesse a aplicação em: `http://localhost:8080`
 
 ### Usando Docker
+
 Alternativamente, você pode usar Docker para executar a aplicação:
+
 ```
 docker build -t clinica-atendimento .
 docker run -p 8080:8080 clinica-atendimento
@@ -89,6 +98,7 @@ docker run -p 8080:8080 clinica-atendimento
 ## Desenvolvimento Frontend
 
 Para desenvolvimento do frontend:
+
 1. Navegue até a pasta `src/main/webapp`
 2. Instale as dependências: `npm install`
 3. Execute o servidor de desenvolvimento: `npm run dev`

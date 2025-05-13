@@ -17,7 +17,7 @@ public enum Sexo {
         if (codigo == null) {
             return null;
         }
-        
+
         for (Sexo sexo : Sexo.values()) {
             if (sexo.getCodigo().equals(codigo)) {
                 return sexo;

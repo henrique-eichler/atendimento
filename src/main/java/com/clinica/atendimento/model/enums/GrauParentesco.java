@@ -18,7 +18,7 @@ public enum GrauParentesco {
         if (codigo == null) {
             return null;
         }
-        
+
         for (GrauParentesco grauParentesco : GrauParentesco.values()) {
             if (grauParentesco.getCodigo().equals(codigo)) {
                 return grauParentesco;

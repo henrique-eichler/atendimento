@@ -19,6 +19,7 @@ public class PessoaDTO {
     private String email;
     private LocalDate dataNascimento;
     private Sexo sexo;
+
     // Static method to convert from entity to DTO
     public static PessoaDTO fromEntity(Pessoa pessoa) {
         if (pessoa == null) {
@@ -26,22 +27,22 @@ public class PessoaDTO {
         }
 
         return PessoaDTO.builder()
-            .id(pessoa.id())
-            .nome(pessoa.nome())
-            .email(pessoa.email())
-            .dataNascimento(pessoa.dataNascimento())
-            .sexo(pessoa.sexo())
-            .build();
+                .id(pessoa.id())
+                .nome(pessoa.nome())
+                .email(pessoa.email())
+                .dataNascimento(pessoa.dataNascimento())
+                .sexo(pessoa.sexo())
+                .build();
     }
 
     // Method to convert from DTO to entity
     public Pessoa toEntity() {
         return Pessoa.builder()
-            .id(id)
-            .nome(nome)
-            .email(email)
-            .dataNascimento(dataNascimento)
-            .sexo(sexo)
-            .build();
+                .id(id)
+                .nome(nome)
+                .email(email)
+                .dataNascimento(dataNascimento)
+                .sexo(sexo)
+                .build();
     }
 }

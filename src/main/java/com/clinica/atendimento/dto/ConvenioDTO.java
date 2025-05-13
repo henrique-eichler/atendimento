@@ -21,9 +21,9 @@ public class ConvenioDTO {
         }
 
         return ConvenioDTO.builder()
-            .id(convenio.id())
-            .nome(convenio.nome())
-            .build();
+                .id(convenio.id())
+                .nome(convenio.nome())
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -40,7 +40,7 @@ public class ConvenioDTO {
         }
 
         return builder
-            .nome(nome)
-            .build();
+                .nome(nome)
+                .build();
     }
 }

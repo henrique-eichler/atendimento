@@ -36,23 +36,23 @@
         <div class="content">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Ações</th>
-              </tr>
+            <tr>
+              <th>Nome</th>
+              <th>Ações</th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="terapia in terapias" :key="terapia.id">
-                <td>{{ terapia.nome }}</td>
-                <td class="actions">
-                  <button class="btn-icon" @click="editar(terapia)">
-                    <span class="icon">📝</span>
-                  </button>
-                  <button class="btn-icon" @click="remover(terapia.id)">
-                    <span class="icon">🗑️</span>
-                  </button>
-                </td>
-              </tr>
+            <tr v-for="terapia in terapias" :key="terapia.id">
+              <td>{{ terapia.nome }}</td>
+              <td class="actions">
+                <button class="btn-icon" @click="editar(terapia)">
+                  <span class="icon">📝</span>
+                </button>
+                <button class="btn-icon" @click="remover(terapia.id)">
+                  <span class="icon">🗑️</span>
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed} from "vue"
+import {computed, onMounted, onUnmounted, ref} from "vue"
 import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
@@ -80,19 +80,19 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
   )
 
   // Send initialization message

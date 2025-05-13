@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -20,6 +23,16 @@ public class AudioService {
 
     public AudioService(TranscreverProducer transcreverProducer) {
         this.transcreverProducer = transcreverProducer;
+    }
+
+    private static byte[] join(byte[] a, byte[] b) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byteArrayOutputStream.writeBytes(a);
+            byteArrayOutputStream.writeBytes(b);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void iniciarSessao(String sessao) {
@@ -39,16 +52,6 @@ public class AudioService {
                 .map(Chunk::getAudio)
                 .reduce(AudioService::join)
                 .ifPresent(audio -> transcreverProducer.enviar(sessao, audio));
-    }
-
-    private static byte[] join(byte[] a, byte[] b) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            byteArrayOutputStream.writeBytes(a);
-            byteArrayOutputStream.writeBytes(b);
-            return byteArrayOutputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @PreDestroy

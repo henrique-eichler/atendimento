@@ -22,9 +22,9 @@ public class ResponsavelDTO {
         }
 
         return ResponsavelDTO.builder()
-            .id(responsavel.pessoa().id())
-            .pessoa(PessoaDTO.fromEntity(responsavel.pessoa()))
-            .build();
+                .id(responsavel.pessoa().id())
+                .pessoa(PessoaDTO.fromEntity(responsavel.pessoa()))
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -37,7 +37,7 @@ public class ResponsavelDTO {
         }
 
         return Responsavel.builder()
-            .pessoa(pessoaEntity)
-            .build();
+                .pessoa(pessoaEntity)
+                .build();
     }
 }

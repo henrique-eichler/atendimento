@@ -11,12 +11,12 @@ import java.util.List;
 public interface SalaRepository extends JpaRepository<Sala, Long> {
 
     @Query("""
-        select s
-        from Sala s
-            left join fetch s.terapias ts
-            left join fetch ts.terapia
-            left join fetch s.cronogramas cs
-            left join fetch s.recursos rs
-            left join fetch rs.recurso""")
+            select s
+            from Sala s
+                left join fetch s.terapias ts
+                left join fetch ts.terapia
+                left join fetch s.cronogramas cs
+                left join fetch s.recursos rs
+                left join fetch rs.recurso""")
     List<Sala> findAllSalas();
 }

@@ -3,9 +3,11 @@ package com.clinica.atendimento.controller;
 import com.clinica.atendimento.dto.RecursoDTO;
 import com.clinica.atendimento.model.Recurso;
 import com.clinica.atendimento.repository.RecursoRepository;
-import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
 import java.util.stream.Collectors;
 
 @Controller

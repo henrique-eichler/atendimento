@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-overlay" v-if="isOpen" @click.self="closeModal">
+  <div v-if="isOpen" class="modal-overlay" @click.self="closeModal">
     <div class="modal-container">
       <div class="modal-header">
         <h2>{{ title }}</h2>
@@ -8,7 +8,7 @@
       <div class="modal-content">
         <slot></slot>
       </div>
-      <div class="modal-footer" v-if="$slots.footer">
+      <div v-if="$slots.footer" class="modal-footer">
         <slot name="footer"></slot>
       </div>
     </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import {defineEmits, defineProps} from 'vue';
 
 const props = defineProps({
   isOpen: {

@@ -1,11 +1,11 @@
 <template>
-  <div class="status-badge" :class="{ 'connected': connected, 'disconnected': !connected }">
+  <div :class="{ 'connected': connected, 'disconnected': !connected }" class="status-badge">
     {{ connected ? 'Conectado' : 'Desconectado' }}
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import {computed} from 'vue'
 import WebSocketService from '../services/WebSocketService'
 
 // Get the connection status from the WebSocket service

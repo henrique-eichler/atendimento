@@ -22,9 +22,9 @@ public class ProfissionalDTO {
         }
 
         return ProfissionalDTO.builder()
-            .id(profissional.pessoa().id())
-            .pessoa(PessoaDTO.fromEntity(profissional.pessoa()))
-            .build();
+                .id(profissional.pessoa().id())
+                .pessoa(PessoaDTO.fromEntity(profissional.pessoa()))
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -37,7 +37,7 @@ public class ProfissionalDTO {
         }
 
         return Profissional.builder()
-            .pessoa(pessoaEntity)
-            .build();
+                .pessoa(pessoaEntity)
+                .build();
     }
 }

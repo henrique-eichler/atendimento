@@ -19,6 +19,7 @@ public class ProfissionalTerapiaDTO {
     private ProfissionalDTO profissional;
     private TerapiaDTO terapia;
     private LocalDate dataValidade;
+
     // Static method to convert from entity to DTO
     public static ProfissionalTerapiaDTO fromEntity(ProfissionalTerapia profissionalTerapia) {
         if (profissionalTerapia == null) {
@@ -26,11 +27,11 @@ public class ProfissionalTerapiaDTO {
         }
 
         return ProfissionalTerapiaDTO.builder()
-            .id(profissionalTerapia.id())
-            .profissional(ProfissionalDTO.fromEntity(profissionalTerapia.profissional()))
-            .terapia(TerapiaDTO.fromEntity(profissionalTerapia.terapia()))
-            .dataValidade(profissionalTerapia.dataValidade())
-            .build();
+                .id(profissionalTerapia.id())
+                .profissional(ProfissionalDTO.fromEntity(profissionalTerapia.profissional()))
+                .terapia(TerapiaDTO.fromEntity(profissionalTerapia.terapia()))
+                .dataValidade(profissionalTerapia.dataValidade())
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -39,10 +40,10 @@ public class ProfissionalTerapiaDTO {
         Terapia terapiaEntity = terapia != null ? terapia.toEntity() : null;
 
         return ProfissionalTerapia.builder()
-            .id(id)
-            .profissional(profissionalEntity)
-            .terapia(terapiaEntity)
-            .dataValidade(dataValidade)
-            .build();
+                .id(id)
+                .profissional(profissionalEntity)
+                .terapia(terapiaEntity)
+                .dataValidade(dataValidade)
+                .build();
     }
 }

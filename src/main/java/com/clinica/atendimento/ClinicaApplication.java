@@ -1,4 +1,3 @@
-
 package com.clinica.atendimento;
 
 import org.springframework.boot.SpringApplication;

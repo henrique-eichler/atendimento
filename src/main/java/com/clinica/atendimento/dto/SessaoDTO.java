@@ -30,13 +30,13 @@ public class SessaoDTO {
         }
 
         return SessaoDTO.builder()
-            .id(sessao.id())
-            .agenda(AgendaDTO.fromEntity(sessao.agenda()))
-            .dataInicio(sessao.dataInicio())
-            .dataTermino(sessao.dataTermino())
-            .sala(SalaDTO.fromEntity(sessao.sala()))
-            .paciente(PacienteDTO.fromEntity(sessao.paciente()))
-            .build();
+                .id(sessao.id())
+                .agenda(AgendaDTO.fromEntity(sessao.agenda()))
+                .dataInicio(sessao.dataInicio())
+                .dataTermino(sessao.dataTermino())
+                .sala(SalaDTO.fromEntity(sessao.sala()))
+                .paciente(PacienteDTO.fromEntity(sessao.paciente()))
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -46,12 +46,12 @@ public class SessaoDTO {
         Paciente pacienteEntity = paciente != null ? paciente.toEntity() : null;
 
         return Sessao.builder()
-            .id(id)
-            .agenda(agendaEntity)
-            .dataInicio(dataInicio)
-            .dataTermino(dataTermino)
-            .sala(salaEntity)
-            .paciente(pacienteEntity)
-            .build();
+                .id(id)
+                .agenda(agendaEntity)
+                .dataInicio(dataInicio)
+                .dataTermino(dataTermino)
+                .sala(salaEntity)
+                .paciente(pacienteEntity)
+                .build();
     }
 }

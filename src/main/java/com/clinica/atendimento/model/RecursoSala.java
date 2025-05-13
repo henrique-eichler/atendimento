@@ -1,12 +1,17 @@
 package com.clinica.atendimento.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.Accessors;
 
+@Entity
 @Getter
 @Setter
-@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(fluent = true)
+@EqualsAndHashCode(of = {"id"})
 @Table(name = "recurso_sala")
 public class RecursoSala {
     @Id
@@ -22,5 +27,4 @@ public class RecursoSala {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "sala", nullable = false)
     private Sala sala;
-
 }

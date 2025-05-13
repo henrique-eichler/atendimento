@@ -34,14 +34,14 @@ public class PacienteDTO {
         }
 
         return new PacienteDTO(
-            paciente.pessoa().id(),
-            PessoaDTO.fromEntity(paciente.pessoa()),
-            paciente.convenios().stream()
-                .map(ConvenioPacienteDTO::fromEntity)
-                .collect(Collectors.toSet()),
-            paciente.responsaveis().stream()
-                .map(ResponsavelPacienteDTO::fromEntity)
-                .collect(Collectors.toSet())
+                paciente.pessoa().id(),
+                PessoaDTO.fromEntity(paciente.pessoa()),
+                paciente.convenios().stream()
+                        .map(ConvenioPacienteDTO::fromEntity)
+                        .collect(Collectors.toSet()),
+                paciente.responsaveis().stream()
+                        .map(ResponsavelPacienteDTO::fromEntity)
+                        .collect(Collectors.toSet())
         );
     }
 
@@ -57,7 +57,7 @@ public class PacienteDTO {
         // We need to create the Paciente first, then create the relationships
         // This is because of the circular dependency between Paciente and its relationships
         return Paciente.builder()
-            .pessoa(pessoaEntity)
-            .build();
+                .pessoa(pessoaEntity)
+                .build();
     }
 }

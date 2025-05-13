@@ -16,7 +16,7 @@
         </div>
         <div class="form-group">
           <label>Número de Propriedade</label>
-          <input v-model="numeroPropriedade" type="number" placeholder="Número de Propriedade" required/>
+          <input v-model="numeroPropriedade" placeholder="Número de Propriedade" required type="number"/>
         </div>
       </div>
       <template #footer>
@@ -44,27 +44,27 @@
         <div class="content">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Descrição</th>
-                <th>Número de Propriedade</th>
-                <th>Ações</th>
-              </tr>
+            <tr>
+              <th>Nome</th>
+              <th>Descrição</th>
+              <th>Número de Propriedade</th>
+              <th>Ações</th>
+            </tr>
             </thead>
             <tbody>
-              <tr v-for="recurso in recursos" :key="recurso.id">
-                <td>{{ recurso.nome }}</td>
-                <td>{{ recurso.descricao }}</td>
-                <td>{{ recurso.numeroPropriedade }}</td>
-                <td class="actions">
-                  <button class="btn-icon" @click="editar(recurso)">
-                    <span class="icon">📝</span>
-                  </button>
-                  <button class="btn-icon" @click="remover(recurso.id)">
-                    <span class="icon">🗑️</span>
-                  </button>
-                </td>
-              </tr>
+            <tr v-for="recurso in recursos" :key="recurso.id">
+              <td>{{ recurso.nome }}</td>
+              <td>{{ recurso.descricao }}</td>
+              <td>{{ recurso.numeroPropriedade }}</td>
+              <td class="actions">
+                <button class="btn-icon" @click="editar(recurso)">
+                  <span class="icon">📝</span>
+                </button>
+                <button class="btn-icon" @click="remover(recurso.id)">
+                  <span class="icon">🗑️</span>
+                </button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed} from "vue"
+import {computed, onMounted, onUnmounted, ref} from "vue"
 import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
@@ -94,19 +94,19 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-    WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/recurso/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/recurso/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
   )
 
   subscriptions.push(
-    WebSocketService.subscribe("/topic/recurso/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
   )
 
   // Send initialization message

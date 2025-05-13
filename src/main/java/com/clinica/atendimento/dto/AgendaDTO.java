@@ -28,14 +28,14 @@ public class AgendaDTO {
         }
 
         return AgendaDTO.builder()
-            .id(agenda.id())
-            .dataAgenda(agenda.dataAgenda())
-            .cronograma(CronogramaDTO.fromEntity(agenda.cronograma()))
-            .paciente(PacienteDTO.fromEntity(agenda.paciente()))
-            .terapia(TerapiaDTO.fromEntity(agenda.terapia()))
-            .convenio(ConvenioDTO.fromEntity(agenda.convenio()))
-            .profissional(ProfissionalDTO.fromEntity(agenda.profissional()))
-            .build();
+                .id(agenda.id())
+                .dataAgenda(agenda.dataAgenda())
+                .cronograma(CronogramaDTO.fromEntity(agenda.cronograma()))
+                .paciente(PacienteDTO.fromEntity(agenda.paciente()))
+                .terapia(TerapiaDTO.fromEntity(agenda.terapia()))
+                .convenio(ConvenioDTO.fromEntity(agenda.convenio()))
+                .profissional(ProfissionalDTO.fromEntity(agenda.profissional()))
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -47,13 +47,13 @@ public class AgendaDTO {
         Profissional profissionalEntity = profissional != null ? profissional.toEntity() : null;
 
         return Agenda.builder()
-            .id(id)
-            .dataAgenda(dataAgenda)
-            .cronograma(cronogramaEntity)
-            .paciente(pacienteEntity)
-            .terapia(terapiaEntity)
-            .convenio(convenioEntity)
-            .profissional(profissionalEntity)
-            .build();
+                .id(id)
+                .dataAgenda(dataAgenda)
+                .cronograma(cronogramaEntity)
+                .paciente(pacienteEntity)
+                .terapia(terapiaEntity)
+                .convenio(convenioEntity)
+                .profissional(profissionalEntity)
+                .build();
     }
 }

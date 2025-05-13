@@ -22,7 +22,7 @@ public enum DiaSemana {
         if (codigo == null) {
             return null;
         }
-        
+
         for (DiaSemana diaSemana : DiaSemana.values()) {
             if (diaSemana.getCodigo().equals(codigo)) {
                 return diaSemana;

@@ -26,12 +26,12 @@ public class TerapiaConvenioDTO {
         }
 
         return TerapiaConvenioDTO.builder()
-            .id(terapiaConvenio.id())
-            .terapia(TerapiaDTO.fromEntity(terapiaConvenio.terapia()))
-            .convenio(ConvenioDTO.fromEntity(terapiaConvenio.convenio()))
-            .valorTerapia(terapiaConvenio.valorTerapia())
-            .valorProfissional(terapiaConvenio.valorProfissional())
-            .build();
+                .id(terapiaConvenio.id())
+                .terapia(TerapiaDTO.fromEntity(terapiaConvenio.terapia()))
+                .convenio(ConvenioDTO.fromEntity(terapiaConvenio.convenio()))
+                .valorTerapia(terapiaConvenio.valorTerapia())
+                .valorProfissional(terapiaConvenio.valorProfissional())
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -40,11 +40,11 @@ public class TerapiaConvenioDTO {
         Convenio convenioEntity = convenio != null ? convenio.toEntity() : null;
 
         return TerapiaConvenio.builder()
-            .id(id)
-            .terapia(terapiaEntity)
-            .convenio(convenioEntity)
-            .valorTerapia(valorTerapia)
-            .valorProfissional(valorProfissional)
-            .build();
+                .id(id)
+                .terapia(terapiaEntity)
+                .convenio(convenioEntity)
+                .valorTerapia(valorTerapia)
+                .valorProfissional(valorProfissional)
+                .build();
     }
 }

@@ -1,7 +1,7 @@
 package com.clinica.atendimento.dto;
 
-import com.clinica.atendimento.model.ConvenioPaciente;
 import com.clinica.atendimento.model.Convenio;
+import com.clinica.atendimento.model.ConvenioPaciente;
 import com.clinica.atendimento.model.Paciente;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,22 +25,22 @@ public class ConvenioPacienteDTO {
         }
 
         return ConvenioPacienteDTO.builder()
-            .id(convenioPaciente.id())
-            .convenio(ConvenioDTO.fromEntity(convenioPaciente.convenio()))
-            .pacienteId(convenioPaciente.paciente().pessoa().id())
-            .numero(convenioPaciente.numero())
-            .build();
+                .id(convenioPaciente.id())
+                .convenio(ConvenioDTO.fromEntity(convenioPaciente.convenio()))
+                .pacienteId(convenioPaciente.paciente().pessoa().id())
+                .numero(convenioPaciente.numero())
+                .build();
     }
 
     // Method to convert from DTO to entity
     public ConvenioPaciente toEntity(Paciente paciente) {
         Convenio convenioEntity = convenio != null ? convenio.toEntity() : null;
         return ConvenioPaciente.builder()
-            .id(id)
-            .convenio(convenioEntity)
-            .paciente(paciente)
-            .numero(numero)
-            .build();
+                .id(id)
+                .convenio(convenioEntity)
+                .paciente(paciente)
+                .numero(numero)
+                .build();
     }
 
     // Overloaded method for use in PacienteDTO

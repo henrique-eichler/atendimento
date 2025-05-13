@@ -3,20 +3,16 @@ package com.clinica.atendimento.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
 
 @Entity
-@Table(name = "terapia_convenio", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_terapia_convenio", columnNames = {"terapia", "convenio"})
-})
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Accessors(fluent = true)
+@EqualsAndHashCode(of = {"id"})
+@Table(name = "terapia_convenio", uniqueConstraints = {@UniqueConstraint(name = "uk_terapia_convenio", columnNames = {"terapia", "convenio"})})
 public class TerapiaConvenio {
     @Id
     @SequenceGenerator(name = "terapia_convenio_seq", sequenceName = "terapia_convenio_seq", allocationSize = 1)
@@ -37,20 +33,4 @@ public class TerapiaConvenio {
 
     @Column(name = "valor_profissional", nullable = false)
     private Float valorProfissional;
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        TerapiaConvenio that = (TerapiaConvenio) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
 }

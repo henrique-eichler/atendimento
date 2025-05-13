@@ -6,19 +6,19 @@
     </div>
 
     <div class="controls">
-      <button 
-        class="btn btn-primary" 
-        @click="iniciarGravacao" 
-        :disabled="!conectado || recorder"
-        :class="{ 'disabled': !conectado || recorder }"
+      <button
+          :class="{ 'disabled': !conectado || recorder }"
+          :disabled="!conectado || recorder"
+          class="btn btn-primary"
+          @click="iniciarGravacao"
       >
         <span class="icon">▶️</span> Iniciar Gravação
       </button>
-      <button 
-        class="btn btn-danger" 
-        @click="pararGravacao" 
-        :disabled="!conectado || !recorder"
-        :class="{ 'disabled': !conectado || !recorder }"
+      <button
+          :class="{ 'disabled': !conectado || !recorder }"
+          :disabled="!conectado || !recorder"
+          class="btn btn-danger"
+          @click="pararGravacao"
       >
         <span class="icon">⏹️</span> Parar Gravação
       </button>
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted, ref, computed} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import WebSocketService from '../services/WebSocketService'
 
 const recorder = ref(null)
@@ -64,20 +64,20 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to user-specific destinations
   subscriptions.push(
-    WebSocketService.subscribe('/user/queue/transcricao/resultado', msg => {
-      try {
-        const data = JSON.parse(msg.body)
-        processarRetorno(data)
-      } catch (err) {
-        console.error('Error parsing message', err, msg.body)
-      }
-    })
+      WebSocketService.subscribe('/user/queue/transcricao/resultado', msg => {
+        try {
+          const data = JSON.parse(msg.body)
+          processarRetorno(data)
+        } catch (err) {
+          console.error('Error parsing message', err, msg.body)
+        }
+      })
   )
 
   subscriptions.push(
-    WebSocketService.subscribe('/user/queue/transcricao/error', msg => {
-      console.error('Error from server:', msg.body)
-    })
+      WebSocketService.subscribe('/user/queue/transcricao/error', msg => {
+        console.error('Error from server:', msg.body)
+      })
   )
 
 

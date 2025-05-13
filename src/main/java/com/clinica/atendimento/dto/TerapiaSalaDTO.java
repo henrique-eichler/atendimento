@@ -24,10 +24,10 @@ public class TerapiaSalaDTO {
         }
 
         return TerapiaSalaDTO.builder()
-            .id(terapiaSala.id())
-            .terapia(TerapiaDTO.fromEntity(terapiaSala.terapia()))
-            .sala(SalaDTO.fromEntity(terapiaSala.sala()))
-            .build();
+                .id(terapiaSala.id())
+                .terapia(TerapiaDTO.fromEntity(terapiaSala.terapia()))
+                .sala(SalaDTO.fromEntity(terapiaSala.sala()))
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -36,9 +36,9 @@ public class TerapiaSalaDTO {
         Sala salaEntity = sala != null ? sala.toEntity() : null;
 
         return TerapiaSala.builder()
-            .id(id)
-            .terapia(terapiaEntity)
-            .sala(salaEntity)
-            .build();
+                .id(id)
+                .terapia(terapiaEntity)
+                .sala(salaEntity)
+                .build();
     }
 }

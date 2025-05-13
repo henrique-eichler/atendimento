@@ -21,9 +21,9 @@ public class TerapiaDTO {
         }
 
         return TerapiaDTO.builder()
-            .id(terapia.id())
-            .nome(terapia.nome())
-            .build();
+                .id(terapia.id())
+                .nome(terapia.nome())
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -40,7 +40,7 @@ public class TerapiaDTO {
         }
 
         return builder
-            .nome(nome)
-            .build();
+                .nome(nome)
+                .build();
     }
 }

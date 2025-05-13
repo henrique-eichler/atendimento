@@ -25,6 +25,7 @@ public class WebSocketTranscricaoController {
 
     /**
      * Extract client UUID from headers or fallback to session ID
+     *
      * @param headerAccessor the message headers
      * @return client UUID or session ID as fallback
      */

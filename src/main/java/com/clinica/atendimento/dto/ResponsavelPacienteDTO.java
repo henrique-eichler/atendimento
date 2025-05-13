@@ -26,22 +26,22 @@ public class ResponsavelPacienteDTO {
         }
 
         return ResponsavelPacienteDTO.builder()
-            .id(responsavelPaciente.id())
-            .responsavel(ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()))
-            .pacienteId(responsavelPaciente.paciente().pessoa().id())
-            .grauParentesco(responsavelPaciente.grauParentesco())
-            .build();
+                .id(responsavelPaciente.id())
+                .responsavel(ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()))
+                .pacienteId(responsavelPaciente.paciente().pessoa().id())
+                .grauParentesco(responsavelPaciente.grauParentesco())
+                .build();
     }
 
     // Method to convert from DTO to entity
     public ResponsavelPaciente toEntity(Paciente paciente) {
         Responsavel responsavelEntity = responsavel != null ? responsavel.toEntity() : null;
         return ResponsavelPaciente.builder()
-            .id(id)
-            .responsavel(responsavelEntity)
-            .paciente(paciente)
-            .grauParentesco(grauParentesco)
-            .build();
+                .id(id)
+                .responsavel(responsavelEntity)
+                .paciente(paciente)
+                .grauParentesco(grauParentesco)
+                .build();
     }
 
     // Overloaded method for use in PacienteDTO

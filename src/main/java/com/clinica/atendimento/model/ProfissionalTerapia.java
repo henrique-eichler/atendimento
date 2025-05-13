@@ -3,21 +3,18 @@ package com.clinica.atendimento.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 @Entity
-@Table(name = "profissional_terapia", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_profissional_terapia", columnNames = {"profissional", "terapia", "data_validade"})
-})
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Accessors(fluent = true)
+@EqualsAndHashCode(of = {"id"})
+@Table(name = "profissional_terapia", uniqueConstraints = {@UniqueConstraint(name = "uk_profissional_terapia", columnNames = {"profissional", "terapia", "data_validade"})})
 public class ProfissionalTerapia {
     @Id
     @SequenceGenerator(name = "profissional_terapia_seq", sequenceName = "profissional_terapia_seq", allocationSize = 1)
@@ -35,20 +32,4 @@ public class ProfissionalTerapia {
 
     @Column(name = "data_validade", nullable = false)
     private LocalDate dataValidade;
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        ProfissionalTerapia that = (ProfissionalTerapia) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
-    }
 }

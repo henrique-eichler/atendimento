@@ -20,6 +20,7 @@ public class CronogramaDTO {
     private DiaSemana diaSemana;
     private Instant horaInicio;
     private Instant horaTermino;
+
     // Static method to convert from entity to DTO
     public static CronogramaDTO fromEntity(Cronograma cronograma) {
         if (cronograma == null) {
@@ -27,12 +28,12 @@ public class CronogramaDTO {
         }
 
         return CronogramaDTO.builder()
-            .id(cronograma.id())
-            .sala(SalaDTO.fromEntity(cronograma.sala()))
-            .diaSemana(cronograma.diaSemana())
-            .horaInicio(cronograma.horaInicio())
-            .horaTermino(cronograma.horaTermino())
-            .build();
+                .id(cronograma.id())
+                .sala(SalaDTO.fromEntity(cronograma.sala()))
+                .diaSemana(cronograma.diaSemana())
+                .horaInicio(cronograma.horaInicio())
+                .horaTermino(cronograma.horaTermino())
+                .build();
     }
 
     // Method to convert from DTO to entity
@@ -40,11 +41,11 @@ public class CronogramaDTO {
         Sala salaEntity = sala != null ? sala.toEntity() : null;
 
         return Cronograma.builder()
-            .id(id)
-            .sala(salaEntity)
-            .diaSemana(diaSemana)
-            .horaInicio(horaInicio)
-            .horaTermino(horaTermino)
-            .build();
+                .id(id)
+                .sala(salaEntity)
+                .diaSemana(diaSemana)
+                .horaInicio(horaInicio)
+                .horaTermino(horaTermino)
+                .build();
     }
 }

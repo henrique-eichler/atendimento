@@ -36,31 +36,31 @@ public class DeepSeekService {
 
     public String extrair(String transcricao) {
         String prompt = """
-            Você é um assistente de IA especialista em preencher formulários estruturados com base em transcrições de entrevistas clínicas.
-        
-            Leia a transcrição abaixo e preencha o seguinte JSON com as informações extraídas:
-        
-            {
-                "entrevistador": "",
-                "paciente": "",
-                "sintomas": [],
-                "diagnostico_presuntivo": "",
-                "recomendacoes": [],
-                "atestado": {
-                   "dias": 0,
-                   "cid": ""
-                },
-                "prescricao_medicamento": [
-                    {
-                        "medicamento": "",
-                        "posologia": ""
-                    }
-                ]
-            }
-        
-            Transcrição:
-            "%s"
-            """.formatted(transcricao);
+                Você é um assistente de IA especialista em preencher formulários estruturados com base em transcrições de entrevistas clínicas.
+                
+                Leia a transcrição abaixo e preencha o seguinte JSON com as informações extraídas:
+                
+                {
+                    "entrevistador": "",
+                    "paciente": "",
+                    "sintomas": [],
+                    "diagnostico_presuntivo": "",
+                    "recomendacoes": [],
+                    "atestado": {
+                       "dias": 0,
+                       "cid": ""
+                    },
+                    "prescricao_medicamento": [
+                        {
+                            "medicamento": "",
+                            "posologia": ""
+                        }
+                    ]
+                }
+                
+                Transcrição:
+                "%s"
+                """.formatted(transcricao);
         var deepSeekRequest = new DeepSeekRequest(prompt);
 
         try {
