@@ -30,7 +30,7 @@ public class SalaDTO {
                 .collect(Collectors.toList());
 
         List<RecursoDTO> recursoDTOs = sala.recursos().stream()
-                .map(recursoSala -> RecursoDTO.fromEntity(recursoSala.getRecurso()))
+                .map(recursoSala -> RecursoDTO.fromEntity(recursoSala.recurso()))
                 .collect(Collectors.toList());
 
         return SalaDTO.builder()

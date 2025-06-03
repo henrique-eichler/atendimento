@@ -1,15 +1,16 @@
-import SockJS from 'sockjs-client'
-import {Client} from '@stomp/stompjs'
 import {readonly, ref} from 'vue'
 
 // Shared connection status that will be accessible to all components
 const connected = ref(false)
 
-// Create a single STOMP client instance
-let stompClient = null
+// Create a single WebSocket client instance
+let socket = null
 
 // Message queue for storing messages during disconnection
 const messageQueue = []
+
+// Subscription callbacks
+const subscriptions = new Map()
 
 // Generate or retrieve client UUID
 function getClientUuid() {
@@ -33,36 +34,32 @@ function generateUuid() {
 // Client UUID
 const clientUuid = getClientUuid()
 
+// Reconnection settings
+const reconnectSettings = {
+    delay: 1000, // Start with a 1 second delay
+    maxDelay: 30000, // Max delay of 30 seconds
+    backoffMultiplier: 1.5, // Exponential backoff
+    maxRetries: 10, // Maximum number of reconnect attempts
+    count: 0 // Current reconnect count
+}
+
 // Initialize the WebSocket connection
 function initWebSocket() {
-    if (stompClient) {
+    if (socket) {
         try {
-            stompClient.deactivate()
+            socket.close()
         } catch (e) {
-            console.error('Error deactivating STOMP client', e)
+            console.error('Error closing WebSocket', e)
         }
     }
 
-    stompClient = new Client({
-        webSocketFactory: () => new SockJS(`/ws-cadastro?clientUuid=${encodeURIComponent(clientUuid)}`),
-        maxWebSocketFrameSize: 16 * 1024,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
-        // Configure reconnect behavior
-        reconnectDelay: 1000, // Start with a 1 second delay
-        reconnectDelayMax: 30000, // Max delay of 30 seconds
-        reconnectBackoffMultiplier: 1.5, // Exponential backoff
-        maxRetries: 10, // Maximum number of reconnect attempts
-        connectHeaders: {
-            clientUuid: clientUuid // Also include client UUID in connection headers as backup
-        },
-        debug: function (str) {
-            console.log('STOMP Debug:', str);
-        }
-    })
+    // Create a new WebSocket connection
+    const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws-cadastro?clientUuid=${encodeURIComponent(clientUuid)}`
+    socket = new WebSocket(wsUrl)
 
-    stompClient.onConnect = (frame) => {
-        console.log('WebSocket connection established', frame)
+    // Set up event handlers
+    socket.onopen = (event) => {
+        console.log('WebSocket connection established', event)
         connected.value = true
 
         // Process any queued messages
@@ -72,53 +69,86 @@ function initWebSocket() {
         }
 
         // Reset reconnect counter on successful connection
-        reconnectCount = 0
+        reconnectSettings.count = 0
     }
 
-    stompClient.onDisconnect = (frame) => {
-        console.log('WebSocket connection closed', frame)
+    socket.onclose = (event) => {
+        console.log('WebSocket connection closed', event)
         connected.value = false
+
+        // Attempt to reconnect if not a clean close
+        if (!event.wasClean && reconnectSettings.count < reconnectSettings.maxRetries) {
+            const delay = Math.min(
+                reconnectSettings.delay * Math.pow(reconnectSettings.backoffMultiplier, reconnectSettings.count),
+                reconnectSettings.maxDelay
+            )
+
+            console.log(`Attempting to reconnect (${reconnectSettings.count + 1}) in ${delay}ms...`)
+            reconnectSettings.count++
+
+            setTimeout(initWebSocket, delay)
+        }
     }
 
-    stompClient.onStompError = frame => {
-        console.error('STOMP error', frame)
-    }
-
-    // Handle WebSocket errors
-    stompClient.onWebSocketError = (event) => {
+    socket.onerror = (event) => {
         console.error('WebSocket error', event)
     }
 
-    // Handle WebSocket close events
-    stompClient.onWebSocketClose = (event) => {
-        console.log('WebSocket closed', event)
-    }
+    socket.onmessage = (event) => {
+        try {
+            const message = JSON.parse(event.data)
+            const { destination, body } = message
 
-    // Handle reconnect attempts
-    let reconnectCount = 0
-    stompClient.beforeConnect = () => {
-        if (reconnectCount > 0) {
-            console.log(`Attempting to reconnect (${reconnectCount})...`)
+            // Find and call all callbacks for this destination
+            if (subscriptions.has(destination)) {
+                const callbacks = subscriptions.get(destination)
+                callbacks.forEach(callback => {
+                    try {
+                        callback({ body: body })
+                    } catch (err) {
+                        console.error(`Error in subscription callback for ${destination}`, err)
+                    }
+                })
+            }
+        } catch (err) {
+            console.error('Error processing incoming message', err)
         }
-        reconnectCount++
     }
-
-    stompClient.activate()
 }
 
 // Subscribe to a topic
 function subscribe(destination, callback) {
-    if (!stompClient || !stompClient.connected) {
-        console.warn('Cannot subscribe: STOMP client is not connected')
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.warn('Cannot subscribe: WebSocket is not connected')
         return null
     }
 
-    return stompClient.subscribe(destination, callback)
+    // Add callback to the subscription map
+    if (!subscriptions.has(destination)) {
+        subscriptions.set(destination, [])
+    }
+
+    const callbacks = subscriptions.get(destination)
+    callbacks.push(callback)
+
+    // Return an object with an unsubscribe method to mimic STOMP API
+    return {
+        id: generateUuid(),
+        unsubscribe: () => {
+            const index = callbacks.indexOf(callback)
+            if (index !== -1) {
+                callbacks.splice(index, 1)
+            }
+            if (callbacks.length === 0) {
+                subscriptions.delete(destination)
+            }
+        }
+    }
 }
 
 // Process queued messages
 function processMessageQueue() {
-    if (messageQueue.length > 0 && stompClient && stompClient.connected) {
+    if (messageQueue.length > 0 && socket && socket.readyState === WebSocket.OPEN) {
         console.log(`Processing message queue (${messageQueue.length} messages)`)
 
         // Create a copy of the queue and clear the original
@@ -128,7 +158,7 @@ function processMessageQueue() {
         // Process each message
         queueCopy.forEach(message => {
             try {
-                stompClient.publish(message)
+                socket.send(JSON.stringify(message))
                 console.log('Queued message sent successfully', message.destination)
             } catch (err) {
                 console.error('Error sending queued message', err)
@@ -150,14 +180,14 @@ function publish(destination, body = null) {
     }
 
     // If not connected, queue the message
-    if (!stompClient || !stompClient.connected) {
-        console.warn('Cannot publish: STOMP client is not connected, message queued')
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.warn('Cannot publish: WebSocket is not connected, message queued')
         messageQueue.push(message)
         return false
     }
 
     try {
-        stompClient.publish(message)
+        socket.send(JSON.stringify(message))
         return true
     } catch (err) {
         console.error('Error publishing message', err)
@@ -169,19 +199,22 @@ function publish(destination, body = null) {
 
 // Clean up resources
 function disconnect() {
-    if (stompClient) {
+    if (socket) {
         try {
-            stompClient.deactivate()
+            socket.close()
         } catch (err) {
-            console.error('Error deactivating STOMP client', err)
+            console.error('Error closing WebSocket', err)
         }
-        stompClient = null
+        socket = null
     }
+
+    // Clear subscriptions
+    subscriptions.clear()
 }
 
 // Get the client instance (for advanced usage)
 function getClient() {
-    return stompClient
+    return socket
 }
 
 // Export the WebSocket service

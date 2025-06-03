@@ -23,24 +23,24 @@ public class RecursoSalaDTO {
         }
 
         return RecursoSalaDTO.builder()
-                .id(recursoSala.getId())
-                .recurso(RecursoDTO.fromEntity(recursoSala.getRecurso()))
-                .sala(SalaDTO.fromEntity(recursoSala.getSala()))
+                .id(recursoSala.id())
+                .recurso(RecursoDTO.fromEntity(recursoSala.recurso()))
+                .sala(SalaDTO.fromEntity(recursoSala.sala()))
                 .build();
     }
 
     // Method to convert from DTO to entity
     public RecursoSala toEntity() {
         RecursoSala recursoSala = new RecursoSala();
-        recursoSala.setId(id);
+        recursoSala.id(id);
 
         if (recurso != null) {
-            recursoSala.setRecurso(recurso.toEntity());
+            recursoSala.recurso(recurso.toEntity());
         }
 
         if (sala != null) {
             Sala salaEntity = sala.toEntity();
-            recursoSala.setSala(salaEntity);
+            recursoSala.sala(salaEntity);
         }
 
         return recursoSala;

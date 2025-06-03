@@ -23,20 +23,20 @@ public class RecursoDTO {
         }
 
         return RecursoDTO.builder()
-                .id(recurso.getId())
-                .nome(recurso.getNome())
-                .descricao(recurso.getDescricao())
-                .numeroPropriedade(recurso.getNumeroPropriedade())
+                .id(recurso.id())
+                .nome(recurso.nome())
+                .descricao(recurso.descricao())
+                .numeroPropriedade(recurso.numeroPropriedade())
                 .build();
     }
 
     // Method to convert from DTO to entity
     public Recurso toEntity() {
         Recurso recurso = new Recurso();
-        recurso.setId(id);
-        recurso.setNome(nome);
-        recurso.setDescricao(descricao);
-        recurso.setNumeroPropriedade(numeroPropriedade);
+        recurso.id(id);
+        recurso.nome(nome);
+        recurso.descricao(descricao);
+        recurso.numeroPropriedade(numeroPropriedade);
         return recurso;
     }
 }
