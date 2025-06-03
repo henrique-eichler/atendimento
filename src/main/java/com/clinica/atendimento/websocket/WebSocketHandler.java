@@ -45,6 +45,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
+    /**
+     * Get all active WebSocket sessions
+     * @return Map of client IDs to WebSocketSession objects
+     */
+    public Map<String, WebSocketSession> getSessions() {
+        return sessions;
+    }
+
     public WebSocketHandler(RecursoRepository recursoRepository,
                            SalaRepository salaRepository,
                            TerapiaSalaRepository terapiaSalaRepository,

@@ -27,6 +27,8 @@ const app = createApp({
           |
           <router-link to="/transcricao">Transcrição</router-link>
           |
+          <router-link to="/connections">Clientes Conectados</router-link>
+          |
         </nav>
         <div class="content">
           <router-view></router-view>

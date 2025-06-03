@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/vite build",
+    "build:debug": "node_modules/.bin/vite build --mode debug",
     "serve": "node_modules/.bin/vite preview"
   },
   "dependencies": {

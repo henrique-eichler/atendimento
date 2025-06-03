@@ -123,12 +123,19 @@ function subscribe(destination, callback) {
         return null
     }
 
-    // Add callback to the subscription map
-    if (!subscriptions.has(destination)) {
-        subscriptions.set(destination, [])
+    // Automatically append client UUID to user queue destinations
+    let actualDestination = destination
+    if (destination.startsWith('/user/queue/')) {
+        actualDestination = `/user/${clientUuid}/queue/${destination.substring('/user/queue/'.length)}`
+        console.log(`Modified destination: ${destination} -> ${actualDestination}`)
     }
 
-    const callbacks = subscriptions.get(destination)
+    // Add callback to the subscription map
+    if (!subscriptions.has(actualDestination)) {
+        subscriptions.set(actualDestination, [])
+    }
+
+    const callbacks = subscriptions.get(actualDestination)
     callbacks.push(callback)
 
     // Return an object with an unsubscribe method to mimic STOMP API
@@ -140,7 +147,7 @@ function subscribe(destination, callback) {
                 callbacks.splice(index, 1)
             }
             if (callbacks.length === 0) {
-                subscriptions.delete(destination)
+                subscriptions.delete(actualDestination)
             }
         }
     }
@@ -158,6 +165,7 @@ function processMessageQueue() {
         // Process each message
         queueCopy.forEach(message => {
             try {
+                // No need to modify destination here as it was already modified when added to the queue
                 socket.send(JSON.stringify(message))
                 console.log('Queued message sent successfully', message.destination)
             } catch (err) {
@@ -171,8 +179,15 @@ function processMessageQueue() {
 
 // Publish a message
 function publish(destination, body = null) {
+    // Automatically append client UUID to user queue destinations
+    let actualDestination = destination
+    if (destination.startsWith('/user/queue/')) {
+        actualDestination = `/user/${clientUuid}/queue/${destination.substring('/user/queue/'.length)}`
+        console.log(`Modified publish destination: ${destination} -> ${actualDestination}`)
+    }
+
     const message = {
-        destination: destination
+        destination: actualDestination
     }
 
     if (body) {

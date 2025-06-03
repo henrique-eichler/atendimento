@@ -3,6 +3,7 @@ import CadastroTerapia from './components/CadastroTerapia.vue'
 import TranscricaoAudio from './components/TranscricaoAudio.vue'
 import CadastroSala from './components/CadastroSala.vue'
 import CadastroRecurso from './components/CadastroRecurso.vue'
+import ConnectedClients from './components/ConnectedClients.vue'
 
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         path: '/recursos',
         name: 'Recursos',
         component: CadastroRecurso
+    },
+    {
+        path: '/connections',
+        name: 'Clientes Conectados',
+        component: ConnectedClients
     }
 ]
 

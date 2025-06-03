@@ -8,6 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 @Service
 public class WhisperService {
 
@@ -19,6 +23,10 @@ public class WhisperService {
     public String transcrever(byte[] audio) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream("/home/henrique/Downloads/audio.wav")) {
+            fileOutputStream.write(audio);
+        } catch (IOException ignored) {}
 
         HttpEntity<byte[]> requestEntity = new HttpEntity<>(audio, headers);
         try {

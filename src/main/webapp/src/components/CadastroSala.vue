@@ -342,27 +342,27 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/listar", msg => retornoListar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/listar", msg => retornoListar(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListarRecursos(JSON.parse(msg.body)))
+      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListarRecursos(msg.body))
   )
 
   // Send initialization messages
