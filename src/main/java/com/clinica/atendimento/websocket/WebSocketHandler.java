@@ -12,6 +12,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,6 +54,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
             Object object = jsonNode.has("body") ? objectMapper.readValue(jsonNode.get("body").asText(), clazz) : null;
             processGeneric(abstractServiceHandler, session, object);
         }
+
+        session.getAttributes().put("updatedAt", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
     }
 
     @SuppressWarnings("unchecked")
@@ -61,13 +65,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String clientUuid = getClientUuid(session);
-        sessions.remove(clientUuid);
+        session.getAttributes().put("disconectedAt", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
     }
 
     public String getClientUuid(WebSocketSession session) {
-        Map<String, Object> attributes = session.getAttributes();
-        return (String) attributes.getOrDefault("clientUuid", session.getId());
+        return (String) session.getAttributes().getOrDefault("clientUuid", session.getId());
     }
 
     @SneakyThrows

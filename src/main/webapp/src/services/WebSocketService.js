@@ -36,10 +36,10 @@ const clientUuid = getClientUuid()
 
 // Reconnection settings
 const reconnectSettings = {
-    delay: 1000, // Start with a 1 second delay
+    delay: 5000, // Start with a 1 second delay
     maxDelay: 30000, // Max delay of 30 seconds
     backoffMultiplier: 1.5, // Exponential backoff
-    maxRetries: 10, // Maximum number of reconnect attempts
+    maxRetries: 100, // Maximum number of reconnect attempts
     count: 0 // Current reconnect count
 }
 
@@ -54,7 +54,7 @@ function initWebSocket() {
     }
 
     // Create a new WebSocket connection
-    const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws-cadastro?clientUuid=${encodeURIComponent(clientUuid)}`
+    const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws-atendimento?clientUuid=${encodeURIComponent(clientUuid)}`
     socket = new WebSocket(wsUrl)
 
     // Set up event handlers

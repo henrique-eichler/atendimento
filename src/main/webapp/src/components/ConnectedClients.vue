@@ -1,117 +1,93 @@
 <template>
   <div class="connected-clients">
     <h1>Clientes Conectados</h1>
-    
+
     <div class="refresh-controls">
       <button @click="fetchClients" class="refresh-button">Atualizar</button>
       <label>
-        <input type="checkbox" v-model="autoRefresh"> Auto-atualizar (10s)
+        <input type="checkbox" @input="togleAutoRefresh"> Auto-atualizar (1s)
       </label>
     </div>
-    
-    <div v-if="loading" class="loading">
-      Carregando...
-    </div>
-    
-    <div v-else-if="error" class="error">
-      Erro ao carregar clientes: {{ error }}
-    </div>
-    
-    <div v-else-if="clients.length === 0" class="no-clients">
-      Nenhum cliente conectado no momento.
-    </div>
-    
-    <table v-else class="clients-table">
+
+    <table class="clients-table">
       <thead>
-        <tr>
-          <th>ID do Cliente</th>
-          <th>Endereço Remoto</th>
-          <th>Status</th>
-          <th>Última Atividade</th>
-        </tr>
+      <tr>
+        <th>ID do Cliente</th>
+        <th>Status</th>
+        <th>Conectado desde</th>
+        <th>Ultima Mensagem</th>
+        <th>Desconectado em</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="client in clients" :key="client.clientId">
-          <td>{{ client.clientId }}</td>
-          <td>{{ client.remoteAddress }}</td>
-          <td>
-            <span :class="client.connected ? 'status-connected' : 'status-disconnected'">
-              {{ client.connected ? 'Conectado' : 'Desconectado' }}
+      <tr v-for="session in sessions" :key="session.clientId">
+        <td>{{ session.clientId }}</td>
+        <td>
+            <span :class="session.connected ? 'status-connected' : 'status-disconnected'">
+              {{ session.connected ? 'Conectado' : 'Desconectado' }}
             </span>
-          </td>
-          <td>{{ formatDate(client.lastActivity) }}</td>
-        </tr>
+        </td>
+        <td>{{ session.startedAt }}</td>
+        <td>{{ session.updatedAt }}</td>
+        <td>{{ session.disconectedAt }}</td>
+      </tr>
       </tbody>
     </table>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ConnectedClients',
-  data() {
-    return {
-      clients: [],
-      loading: true,
-      error: null,
-      autoRefresh: false,
-      refreshInterval: null
-    }
-  },
-  mounted() {
-    this.fetchClients()
-  },
-  watch: {
-    autoRefresh(newValue) {
-      if (newValue) {
-        this.startAutoRefresh()
-      } else {
-        this.stopAutoRefresh()
-      }
-    }
-  },
-  beforeUnmount() {
-    this.stopAutoRefresh()
-  },
-  methods: {
-    async fetchClients() {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await fetch('/api/connections')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        this.clients = await response.json()
-      } catch (e) {
-        console.error('Error fetching clients:', e)
-        this.error = e.message
-      } finally {
-        this.loading = false
-      }
-    },
-    formatDate(dateString) {
-      try {
-        const date = new Date(dateString)
-        return date.toLocaleString()
-      } catch (e) {
-        return dateString
-      }
-    },
-    startAutoRefresh() {
-      this.refreshInterval = setInterval(() => {
-        this.fetchClients()
-      }, 10000) // Refresh every 10 seconds
-    },
-    stopAutoRefresh() {
-      if (this.refreshInterval) {
-        clearInterval(this.refreshInterval)
-        this.refreshInterval = null
-      }
-    }
+<script setup>
+import {onMounted, onUnmounted, ref, watch} from "vue"
+import WebSocketService from '../services/WebSocketService'
+
+const sessions = ref([])
+
+const autoRefresh = watch()
+const refreshInterval = ref(null)
+
+// Subscriptions
+let subscriptions = []
+
+onMounted(() => {
+  // Subscribe to topics
+  subscriptions.push(
+      WebSocketService.subscribe("/topic/sessions/response/list", msg => listed(msg.body))
+  )
+
+  // Send initialization message
+  WebSocketService.publish("/topic/sessions/request/list")
+})
+
+const fetchClients = () => {
+  WebSocketService.publish("/topic/sessions/request/list")
+}
+
+const listed = list => {
+  sessions.value = list
+}
+
+const togleAutoRefresh = () => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value)
+    refreshInterval.value = null
+  } else {
+    refreshInterval.value = setInterval(fetchClients, 1000)
   }
 }
+
+onUnmounted(() => {
+  // Unsubscribe from all subscriptions
+  subscriptions.forEach(subscription => {
+    if (subscription) {
+      try {
+        subscription.unsubscribe()
+      } catch (err) {
+        console.error('Error unsubscribing', err)
+      }
+    }
+  })
+  subscriptions = []
+})
 </script>
 
 <style scoped>

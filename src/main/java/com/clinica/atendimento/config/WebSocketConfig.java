@@ -11,21 +11,23 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    private final com.clinica.atendimento.websocket.WebSocketHandler webSocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
-    public WebSocketConfig(com.clinica.atendimento.websocket.WebSocketHandler webSocketHandler) {
+    public WebSocketConfig(WebSocketHandler webSocketHandler) {
         this.webSocketHandler = webSocketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(webSocketHandler, "/ws-cadastro")
+        registry.addHandler(webSocketHandler, "/ws-atendimento")
                 .setAllowedOrigins("*")
                 .addInterceptors(clientUuidHandshakeInterceptor());
     }
@@ -33,9 +35,14 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Bean
     public HandshakeInterceptor clientUuidHandshakeInterceptor() {
         return new HandshakeInterceptor() {
+
             @Override
-            public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                           WebSocketHandler wsHandler, Map<String, Object> attributes) {
+            public boolean beforeHandshake(
+                    ServerHttpRequest request,
+                    ServerHttpResponse response,
+                    WebSocketHandler wsHandler,
+                    Map<String, Object> attributes) {
+
                 // Extract client UUID from query parameters if available
                 String query = request.getURI().getQuery();
                 if (query != null && query.contains("clientUuid=")) {
@@ -48,12 +55,17 @@ public class WebSocketConfig implements WebSocketConfigurer {
                         }
                     }
                 }
+
+                attributes.put("startedAt", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
                 return true;
             }
 
             @Override
-            public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-                                       WebSocketHandler wsHandler, Exception exception) {
+            public void afterHandshake(
+                    ServerHttpRequest request,
+                    ServerHttpResponse response,
+                    WebSocketHandler wsHandler,
+                    Exception exception) {
                 // Nothing to do after handshake
             }
         };
@@ -61,9 +73,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
-        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(1024 * 1024); // 1 MB
-        container.setMaxBinaryMessageBufferSize(1024 * 1024); // if using binary
-        return container;
+        ServletServerContainerFactoryBean servletServerContainerFactoryBean = new ServletServerContainerFactoryBean();
+        servletServerContainerFactoryBean.setMaxTextMessageBufferSize(1024 * 1024); // 1 MB
+        servletServerContainerFactoryBean.setMaxBinaryMessageBufferSize(1024 * 1024); // if using binary
+        return servletServerContainerFactoryBean;
     }
 }
