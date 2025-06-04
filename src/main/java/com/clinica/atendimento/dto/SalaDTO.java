@@ -1,6 +1,7 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Sala;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +18,13 @@ import java.util.stream.Collectors;
 @Builder
 public class SalaDTO {
 
+    @JsonProperty
     private Long id;
+    @JsonProperty
     private Long numero;
+    @JsonProperty
     private List<TerapiaDTO> terapias;
+    @JsonProperty
     private List<RecursoDTO> recursos;
 
     // Static method to convert from entity to DTO

@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
@@ -19,11 +20,17 @@ import java.time.Instant;
 @Builder
 public class SessaoDTO {
 
+    @JsonProperty
     private Long id;
+    @JsonProperty
     private AgendaDTO agenda;
+    @JsonProperty
     private Instant dataInicio;
+    @JsonProperty
     private Instant dataTermino;
+    @JsonProperty
     private SalaDTO sala;
+    @JsonProperty
     private PacienteDTO paciente;
 
     // Static method to convert from entity to DTO

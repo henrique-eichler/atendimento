@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 
@@ -17,11 +18,11 @@ import java.time.LocalDate;
 @Builder
 public class PessoaDTO {
 
-    private Long id;
-    private String nome;
-    private String email;
-    private LocalDate dataNascimento;
-    private Sexo sexo;
+    @JsonProperty private Long id;
+    @JsonProperty private String nome;
+    @JsonProperty private String email;
+    @JsonProperty private LocalDate dataNascimento;
+    @JsonProperty private Sexo sexo;
 
     // Static method to convert from entity to DTO
     public static PessoaDTO fromEntity(Pessoa pessoa) {

@@ -66,8 +66,7 @@ onMounted(() => {
   subscriptions.push(
       WebSocketService.subscribe('/topic/transcricao/resultado', msg => {
         try {
-          const data = JSON.parse(msg.body)
-          processarRetorno(data)
+          processarRetorno(msg.body)
         } catch (err) {
           console.error('Error parsing message', err, msg.body)
         }
@@ -79,10 +78,6 @@ onMounted(() => {
         console.error('Error from server:', msg.body)
       })
   )
-
-
-  // Send initialization message
-  WebSocketService.publish("/app/transcricao/iniciar")
 })
 
 const iniciarGravacao = async () => {
@@ -92,16 +87,18 @@ const iniciarGravacao = async () => {
         recorder.value = new MediaRecorder(stream)
         recorder.value.ondataavailable = event => event.data.arrayBuffer().then(buffer => enviarAudio(indice++, buffer))
         recorder.value.onstop = _ => finalizar()
-        recorder.value.start(250)
+        recorder.value.start(500)
       })
       .catch(err => console.error('mic error', err))
 }
 
 const processarRetorno = dado => {
-  if (dado.tipo === 'transcricao') {
+  if (dado.tipo === 'transcrito') {
     transcricao.value = dado.conteudo
+
   } else if (dado.tipo === 'resumo') {
     resumo.value = dado.conteudo
+
   } else if (dado.tipo === 'extrato') {
     extrato.value = dado.conteudo
   }
@@ -119,7 +116,7 @@ const enviarAudio = (indice, audio) => {
         indice,
         base64: btoa(String.fromCharCode(...new Uint8Array(audio)))
       }
-      WebSocketService.publish("/app/transcricao/chunk", chunk)
+      WebSocketService.publish("/topic/transcricao/chunk", chunk)
     } catch (err) {
       console.error('Error sending audio chunk', err)
     }
@@ -131,7 +128,7 @@ const enviarAudio = (indice, audio) => {
 const finalizar = () => {
   if (conectado.value) {
     try {
-      WebSocketService.publish("/app/transcricao/finalizar")
+      WebSocketService.publish("/topic/transcricao/finalizar")
     } catch (err) {
       console.error('Error sending finalizar message', err)
     }

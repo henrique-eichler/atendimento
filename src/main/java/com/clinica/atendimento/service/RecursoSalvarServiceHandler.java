@@ -4,6 +4,7 @@ import com.clinica.atendimento.dto.RecursoDTO;
 import com.clinica.atendimento.repository.RecursoRepository;
 import com.clinica.atendimento.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class RecursoSalvarServiceHandler extends AbstractServiceHandler<RecursoD
     }
 
     @Override
+    @Transactional()
     public void process(WebSocketSession session, RecursoDTO recursoDTO) throws IOException {
         RecursoDTO recursoSaved = RecursoDTO.fromEntity(recursoRepository.save(recursoDTO.toEntity()));
         this.webSocketHandler.sendToSession(session, "/topic/recurso/response/save", recursoSaved);

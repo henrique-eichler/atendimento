@@ -4,6 +4,7 @@ import com.clinica.atendimento.dto.SalaDTO;
 import com.clinica.atendimento.repository.SalaRepository;
 import com.clinica.atendimento.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class SalaListarServiceHandler extends AbstractServiceHandler<Void> {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void process(WebSocketSession session, Void unused) throws IOException {
         List<SalaDTO> list = salaRepository.findAllSalas().stream().map(SalaDTO::fromEntity).toList();
         this.webSocketHandler.sendToSession(session, "/topic/sala/response/list", list);

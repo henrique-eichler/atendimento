@@ -4,6 +4,7 @@ import com.clinica.atendimento.dto.TerapiaDTO;
 import com.clinica.atendimento.repository.TerapiaRepository;
 import com.clinica.atendimento.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class TerapiaListarServiceHandler extends AbstractServiceHandler<Void> {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void process(WebSocketSession session, Void unused) throws IOException {
         List<TerapiaDTO> list = terapiaRepository.findAll().stream().map(TerapiaDTO::fromEntity).toList();
         this.webSocketHandler.sendToSession(session, "/topic/terapia/response/list", list);

@@ -1,6 +1,7 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Terapia;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +15,8 @@ import lombok.experimental.Accessors;
 @Builder
 public class TerapiaDTO {
 
-    private Long id;
-    private String nome;
+    @JsonProperty private Long id;
+    @JsonProperty private String nome;
 
     // Static method to convert from entity to DTO
     public static TerapiaDTO fromEntity(Terapia terapia) {

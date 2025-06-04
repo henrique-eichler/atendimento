@@ -3,6 +3,7 @@ package com.clinica.atendimento.service;
 import com.clinica.atendimento.repository.RecursoRepository;
 import com.clinica.atendimento.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ public class RecursoExcluirServiceHandler extends AbstractServiceHandler<Long> {
     }
 
     @Override
+    @Transactional()
     public void process(WebSocketSession session, Long id) throws IOException {
         recursoRepository.deleteById(id);
         this.webSocketHandler.sendToSession(session, "/topic/recurso/response/delete", id);

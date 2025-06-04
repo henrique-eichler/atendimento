@@ -1,6 +1,7 @@
 package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,13 +17,13 @@ import java.time.LocalDate;
 @Builder
 public class AgendaDTO {
 
-    private Long id;
-    private LocalDate dataAgenda;
-    private CronogramaDTO cronograma;
-    private PacienteDTO paciente;
-    private TerapiaDTO terapia;
-    private ConvenioDTO convenio;
-    private ProfissionalDTO profissional;
+    @JsonProperty private Long id;
+    @JsonProperty private LocalDate dataAgenda;
+    @JsonProperty private CronogramaDTO cronograma;
+    @JsonProperty private PacienteDTO paciente;
+    @JsonProperty private TerapiaDTO terapia;
+    @JsonProperty private ConvenioDTO convenio;
+    @JsonProperty private ProfissionalDTO profissional;
 
     // Static method to convert from entity to DTO
     public static AgendaDTO fromEntity(Agenda agenda) {

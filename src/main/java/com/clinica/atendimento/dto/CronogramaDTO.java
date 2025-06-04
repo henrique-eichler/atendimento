@@ -3,6 +3,7 @@ package com.clinica.atendimento.dto;
 import com.clinica.atendimento.model.Cronograma;
 import com.clinica.atendimento.model.Sala;
 import com.clinica.atendimento.model.enums.DiaSemana;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,11 +19,11 @@ import java.time.Instant;
 @Builder
 public class CronogramaDTO {
 
-    private Long id;
-    private SalaDTO sala;
-    private DiaSemana diaSemana;
-    private Instant horaInicio;
-    private Instant horaTermino;
+    @JsonProperty private Long id;
+    @JsonProperty private SalaDTO sala;
+    @JsonProperty private DiaSemana diaSemana;
+    @JsonProperty private Instant horaInicio;
+    @JsonProperty private Instant horaTermino;
 
     // Static method to convert from entity to DTO
     public static CronogramaDTO fromEntity(Cronograma cronograma) {

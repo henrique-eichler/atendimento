@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @NoArgsConstructor
@@ -17,9 +18,13 @@ import lombok.experimental.Accessors;
 @Builder
 public class ResponsavelPacienteDTO {
 
+    @JsonProperty
     private Long id;
+    @JsonProperty
     private ResponsavelDTO responsavel;
+    @JsonProperty
     private Long pacienteId;
+    @JsonProperty
     private GrauParentesco grauParentesco;
 
     // Static method to convert from entity to DTO

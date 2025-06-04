@@ -1,5 +1,6 @@
 package com.clinica.atendimento.service.consumer;
 
+import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -39,6 +40,7 @@ public abstract class AbstractConsumer<K, V> implements DisposableBean {
         executorService.submit(this::listem);
     }
 
+    @SneakyThrows
     private void listem() {
         try {
             while (running.get()) {

@@ -3,6 +3,8 @@ package com.clinica.atendimento.repository;
 import com.clinica.atendimento.model.Sala;
 import com.clinica.atendimento.model.TerapiaSala;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,7 +12,8 @@ import java.util.List;
 @Repository
 public interface TerapiaSalaRepository extends JpaRepository<TerapiaSala, Long> {
 
-    List<TerapiaSala> findBySala(Sala sala);
+    @Query("select ts from TerapiaSala ts left join fetch ts.terapia where ts.sala = :sala")
+    List<TerapiaSala> findBySala(@Param("sala") Sala sala);
 
     void deleteBySala(Sala sala);
 }

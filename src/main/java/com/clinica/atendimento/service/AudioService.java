@@ -1,6 +1,5 @@
 package com.clinica.atendimento.service;
 
-import com.clinica.atendimento.service.producer.TranscreverProducer;
 import jakarta.annotation.PreDestroy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,30 +15,25 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AudioService {
 
     private final Map<String, List<Chunk>> sessoes = new ConcurrentHashMap<>();
-    private final TranscreverProducer transcreverProducer;
-
-    public AudioService(TranscreverProducer transcreverProducer) {
-        this.transcreverProducer = transcreverProducer;
-    }
-
-    public void iniciarSessao(String sessao) {
-        sessoes.put(sessao, new ArrayList<>());
-    }
 
     public void receberChunk(String sessao, Chunk chunk) {
-        Objects.requireNonNull(sessoes.putIfAbsent(sessao, new ArrayList<>()))
-                .add(chunk);
+        if (!sessoes.containsKey(sessao)) {
+            sessoes.put(sessao, new ArrayList<>());
+        }
+        sessoes.get(sessao).add(chunk);
     }
 
-    public void finalizarSessao(String sessao) {
+    public byte[] finalizarSessao(String sessao) {
         List<Chunk> chunks = sessoes.get(sessao);
         sessoes.put(sessao, new ArrayList<>());
 
-        chunks.stream()
-                .sorted(Comparator.comparingInt(Chunk::getIndice))
-                .map(Chunk::getAudio)
-                .reduce(AudioService::join)
-                .ifPresent(audio -> transcreverProducer.enviar(sessao, audio));
+        return chunks != null
+                ? chunks.stream()
+                    .sorted(Comparator.comparingInt(Chunk::getIndice))
+                    .map(Chunk::getAudio)
+                    .reduce(AudioService::join)
+                    .orElse(new byte[0])
+                : new byte[0];
     }
 
     @PreDestroy

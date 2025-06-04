@@ -3,6 +3,7 @@ package com.clinica.atendimento.dto;
 import com.clinica.atendimento.model.Convenio;
 import com.clinica.atendimento.model.ConvenioPaciente;
 import com.clinica.atendimento.model.Paciente;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,10 +17,10 @@ import lombok.experimental.Accessors;
 @Builder
 public class ConvenioPacienteDTO {
 
-    private Long id;
-    private ConvenioDTO convenio;
-    private Long pacienteId;
-    private String numero;
+    @JsonProperty private Long id;
+    @JsonProperty private ConvenioDTO convenio;
+    @JsonProperty private Long pacienteId;
+    @JsonProperty private String numero;
 
     // Static method to convert from entity to DTO
     public static ConvenioPacienteDTO fromEntity(ConvenioPaciente convenioPaciente) {

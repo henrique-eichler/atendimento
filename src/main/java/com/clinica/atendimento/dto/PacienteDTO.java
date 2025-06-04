@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,10 +19,10 @@ import java.util.stream.Collectors;
 @Builder
 public class PacienteDTO {
 
-    private Long id;
-    private PessoaDTO pessoa;
-    private Set<ConvenioPacienteDTO> convenios;
-    private Set<ResponsavelPacienteDTO> responsaveis;
+    @JsonProperty private Long id;
+    @JsonProperty private PessoaDTO pessoa;
+    @JsonProperty private Set<ConvenioPacienteDTO> convenios;
+    @JsonProperty private Set<ResponsavelPacienteDTO> responsaveis;
 
     // Static method to convert from entity to DTO
     public static PacienteDTO fromEntity(Paciente paciente) {
