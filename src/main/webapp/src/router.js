@@ -1,15 +1,15 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import CadastroTerapia from './components/CadastroTerapia.vue'
+import TerapiaCadastro from './components/TerapiaCadastro.vue'
 import TranscricaoAudio from './components/TranscricaoAudio.vue'
 import CadastroSala from './components/CadastroSala.vue'
-import CadastroRecurso from './components/CadastroRecurso.vue'
+import RecursoCadastro from './components/RecursoCadastro.vue'
 import ConnectedClients from './components/ConnectedClients.vue'
 
 const routes = [
     {
         path: '/terapias',
         name: 'Terapias',
-        component: CadastroTerapia
+        component: TerapiaCadastro
     },
     {
         path: '/transcricao',
@@ -24,7 +24,7 @@ const routes = [
     {
         path: '/recursos',
         name: 'Recursos',
-        component: CadastroRecurso
+        component: RecursoCadastro
     },
     {
         path: '/connections',

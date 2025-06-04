@@ -7,14 +7,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(fluent = true)
 @Builder
 public class CronogramaDTO {
+
     private Long id;
     private SalaDTO sala;
     private DiaSemana diaSemana;

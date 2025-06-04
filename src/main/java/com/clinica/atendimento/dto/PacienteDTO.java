@@ -2,30 +2,26 @@ package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Paciente;
 import com.clinica.atendimento.model.Pessoa;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Getter
-@EqualsAndHashCode
-@ToString
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(fluent = true)
+@Builder
 public class PacienteDTO {
-    private final Long id;
-    private final PessoaDTO pessoa;
-    private final Set<ConvenioPacienteDTO> convenios;
-    private final Set<ResponsavelPacienteDTO> responsaveis;
 
-    // Constructor with default values for collections
-    public PacienteDTO(Long id, PessoaDTO pessoa, Set<ConvenioPacienteDTO> convenios, Set<ResponsavelPacienteDTO> responsaveis) {
-        this.id = id;
-        this.pessoa = pessoa;
-        this.convenios = convenios != null ? convenios : Collections.emptySet();
-        this.responsaveis = responsaveis != null ? responsaveis : Collections.emptySet();
-    }
+    private Long id;
+    private PessoaDTO pessoa;
+    private Set<ConvenioPacienteDTO> convenios;
+    private Set<ResponsavelPacienteDTO> responsaveis;
 
     // Static method to convert from entity to DTO
     public static PacienteDTO fromEntity(Paciente paciente) {

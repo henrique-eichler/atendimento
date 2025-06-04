@@ -64,7 +64,7 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to user-specific destinations
   subscriptions.push(
-      WebSocketService.subscribe('/user/queue/transcricao/resultado', msg => {
+      WebSocketService.subscribe('/topic/transcricao/resultado', msg => {
         try {
           const data = JSON.parse(msg.body)
           processarRetorno(data)
@@ -75,7 +75,7 @@ onMounted(() => {
   )
 
   subscriptions.push(
-      WebSocketService.subscribe('/user/queue/transcricao/error', msg => {
+      WebSocketService.subscribe('/topic/transcricao/error', msg => {
         console.error('Error from server:', msg.body)
       })
   )

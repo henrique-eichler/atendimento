@@ -8,14 +8,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(fluent = true)
 @Builder
 public class SessaoDTO {
+
     private Long id;
     private AgendaDTO agenda;
     private Instant dataInicio;

@@ -22,16 +22,6 @@ public class AudioService {
         this.transcreverProducer = transcreverProducer;
     }
 
-    private static byte[] join(byte[] a, byte[] b) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            byteArrayOutputStream.writeBytes(a);
-            byteArrayOutputStream.writeBytes(b);
-            return byteArrayOutputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void iniciarSessao(String sessao) {
         sessoes.put(sessao, new ArrayList<>());
     }
@@ -55,6 +45,16 @@ public class AudioService {
     @PreDestroy
     public void cleanup() {
         sessoes.clear();
+    }
+
+    private static byte[] join(byte[] a, byte[] b) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byteArrayOutputStream.writeBytes(a);
+            byteArrayOutputStream.writeBytes(b);
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Data

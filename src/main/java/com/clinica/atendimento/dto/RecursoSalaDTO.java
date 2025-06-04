@@ -6,12 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(fluent = true)
 @Builder
 public class RecursoSalaDTO {
+
     private Long id;
     private RecursoDTO recurso;
     private SalaDTO sala;

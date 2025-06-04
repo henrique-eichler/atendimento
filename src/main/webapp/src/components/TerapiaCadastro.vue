@@ -7,8 +7,12 @@
     <ModalForm :isOpen="isEditing" title="Cadastro de Terapia" @close="cancelar">
       <div class="form-content">
         <div class="form-group">
-          <label>Nome da Terapia</label>
-          <input v-model="nome" placeholder="Nome da Terapia" required/>
+          <label>Id</label>
+          <input v-model="terapia.id" placeholder="Id da Terapia" readonly/>
+        </div>
+        <div class="form-group">
+          <label>Nome</label>
+          <input v-model="terapia.nome" placeholder="Nome da Terapia" required/>
         </div>
       </div>
       <template #footer>
@@ -67,12 +71,8 @@ import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
 const terapias = ref([])
+const terapia = ref({id: null, nome: ""})
 const isEditing = ref(false)
-const id = ref(null)
-const nome = ref("")
-
-// Get the connection status from the WebSocket service
-const conectado = computed(() => WebSocketService.connected)
 
 // Subscriptions
 let subscriptions = []
@@ -80,43 +80,39 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListar(msg.body))
+      WebSocketService.subscribe("/topic/terapia/response/list", msg => listed(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/salvar", msg => retornoSalvar(msg.body))
+      WebSocketService.subscribe("/topic/terapia/response/save", msg => saved(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/editar", msg => retornoEditar(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/excluir", msg => retornoExcluir(msg.body))
+      WebSocketService.subscribe("/topic/terapia/response/delete", msg => deleted(msg.body))
   )
 
   // Send initialization message
-  WebSocketService.publish("/app/terapia/listar")
+  WebSocketService.publish("/topic/terapia/request/list")
 })
 
-const retornoListar = lista => {
-  terapias.value = lista
-}
-
 const listarTerapias = () => {
-  WebSocketService.publish("/app/terapia/listar")
+  WebSocketService.publish("/topic/terapia/request/list")
 }
 
-const retornoSalvar = terapia => {
-  terapias.value.push(terapia)
+const listed = list => {
+  terapias.value = list
 }
 
-const retornoEditar = terapia => {
-  const i = terapias.value.findIndex(p => p.id === terapia.id)
-  if (i >= 0) terapias.value.splice(i, 1, terapia)
+const saved = terapia => {
+  const index = terapias.value.findIndex(t => t.id === terapia.id);
+  if (index !== -1) {
+    terapias.value[index] = terapia; // Replace
+  } else {
+    terapias.value.push(terapia);    // Add
+  }
 }
 
-const retornoExcluir = id => {
+const deleted = id => {
   terapias.value = terapias.value.filter(p => p.id !== id)
 }
 
@@ -125,24 +121,20 @@ const novo = () => {
   isEditing.value = true;
 }
 
-const editar = terapia => {
-  id.value = terapia.id;
-  nome.value = terapia.nome;
+const editar = t => {
+  terapia.value.id = t.id;
+  terapia.value.nome = t.nome;
   isEditing.value = true;
 }
 
 const salvar = () => {
-  const terapiaData = {
-    id: id.value,
-    nome: nome.value
-  };
-  WebSocketService.publish("/app/terapia/salvar", terapiaData)
+  WebSocketService.publish("/topic/terapia/request/save", terapia.value)
   reset();
 }
 
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
-    WebSocketService.publish("/app/terapia/excluir", idToRemove)
+    WebSocketService.publish("/topic/terapia/request/delete", idToRemove)
   }
 }
 
@@ -152,8 +144,8 @@ const cancelar = () => {
 
 const reset = () => {
   isEditing.value = false
-  id.value = null;
-  nome.value = "";
+  terapia.value.id = null;
+  terapia.value.nome = "";
 }
 
 onUnmounted(() => {

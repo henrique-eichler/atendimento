@@ -6,28 +6,19 @@
 
     <ModalForm :isOpen="isEditing" title="Cadastro de Sala" @close="cancelar">
       <div class="form-content">
-        <!-- Basic Information (Fixed) -->
         <div class="form-group">
-          <label>Número da Sala</label>
-          <input v-model="numero" placeholder="Número da Sala" required type="number"/>
+          <label>Id</label>
+          <input v-model="sala.id" placeholder="Id da Sala" readonly type="number"/>
+        </div>
+        <div class="form-group">
+          <label>Número</label>
+          <input v-model="sala.numero" placeholder="Número da Sala" required type="number"/>
         </div>
 
         <!-- Tab Navigation -->
         <div class="tab-navigation">
-          <button
-              :class="{ active: activeTab === 'terapias' }"
-              class="tab-button"
-              @click="activeTab = 'terapias'"
-          >
-            Terapias
-          </button>
-          <button
-              :class="{ active: activeTab === 'recursos' }"
-              class="tab-button"
-              @click="activeTab = 'recursos'"
-          >
-            Recursos
-          </button>
+          <button :class="{ active: activeTab === 'terapias' }" class="tab-button" @click="activeTab = 'terapias'">Terapias</button>
+          <button :class="{ active: activeTab === 'recursos' }" class="tab-button" @click="activeTab = 'recursos'">Recursos</button>
         </div>
 
         <!-- Tab Content -->
@@ -37,92 +28,27 @@
             <div class="form-group">
               <label>Terapias</label>
               <div class="dual-list-container">
-                <div class="list-box">
-                  <div class="list-header">
-                    <h3>Terapias Disponíveis</h3>
-                    <input
-                        v-model="availableTerapiaSearch"
-                        class="search-input"
-                        placeholder="Buscar..."
-                        @input="filterAvailableTerapias"
-                    />
-                  </div>
-                  <div ref="availableListRef" class="list-content">
-                    <div
-                        v-for="terapia in filteredAvailableTerapias"
-                        :key="terapia.id"
-                        class="list-item"
-                        draggable="true"
-                        @click="moveToSelected(terapia.id)"
-                        @dragstart="dragStart($event, terapia.id, 'available')"
-                        @drop="drop($event, 'available')"
-                        @dragover.prevent
-                    >
-                      {{ terapia.nome }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="list-controls">
-                  <button
-                      :disabled="availableTerapias.length === 0"
-                      class="control-btn"
-                      title="Mover todos para selecionados"
-                      @click="moveAllToSelected()"
-                  >
-                    ≫
-                  </button>
-                  <button
-                      :disabled="selectedAvailableIds.length === 0"
-                      class="control-btn"
-                      title="Mover selecionados para selecionados"
-                      @click="moveSelectedToSelected()"
-                  >
-                    &gt;
-                  </button>
-                  <button
-                      :disabled="selectedSelectedIds.length === 0"
-                      class="control-btn"
-                      title="Mover selecionados para disponíveis"
-                      @click="moveSelectedToAvailable()"
-                  >
-                    &lt;
-                  </button>
-                  <button
-                      :disabled="selectedTerapiaIds.length === 0"
-                      class="control-btn"
-                      title="Mover todos para disponíveis"
-                      @click="moveAllToAvailable()"
-                  >
-                    ≪
-                  </button>
-                </div>
 
                 <div class="list-box">
                   <div class="list-header">
-                    <h3>Terapias Selecionadas</h3>
-                    <input
-                        v-model="selectedTerapiaSearch"
-                        class="search-input"
-                        placeholder="Buscar..."
-                        @input="filterSelectedTerapias"
-                    />
+                    <h3>Selecionadas</h3>
+                    <input v-model="search.terapias.selecionadas" class="search-input" placeholder="Buscar..."/>
                   </div>
                   <div ref="selectedListRef" class="list-content">
-                    <div
-                        v-for="terapiaId in filteredSelectedTerapiaIds"
-                        :key="terapiaId"
-                        class="list-item"
-                        draggable="true"
-                        @click="moveToAvailable(terapiaId)"
-                        @dragstart="dragStart($event, terapiaId, 'selected')"
-                        @drop="drop($event, 'selected')"
-                        @dragover.prevent
-                    >
-                      {{ getTerapiaNomeById(terapiaId) }}
-                    </div>
+                    <div v-for="terapia in terapiasSelecionadas" :key="terapia.id" class="list-item" @click="sala.terapias = sala.terapias.filter(t => t.id !== terapia.id)">{{ terapia.nome }}</div>
                   </div>
                 </div>
+
+                <div class="list-box">
+                  <div class="list-header">
+                    <h3>Disponíveis</h3>
+                    <input v-model="search.terapias.disponiveis" class="search-input" placeholder="Buscar..."/>
+                  </div>
+                  <div ref="availableListRef" class="list-content">
+                    <div v-for="terapia in terapiasDisponiveis" :key="terapia.id" class="list-item" @click="sala.terapias.push(terapia)">{{ terapia.nome }}</div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -132,92 +58,27 @@
             <div class="form-group">
               <label>Recursos</label>
               <div class="dual-list-container">
+
                 <div class="list-box">
                   <div class="list-header">
-                    <h3>Recursos Disponíveis</h3>
-                    <input
-                        v-model="availableRecursoSearch"
-                        class="search-input"
-                        placeholder="Buscar..."
-                        @input="filterAvailableRecursos"
-                    />
+                    <h3>Selecionados</h3>
+                    <input v-model="search.recursos.selecionados" class="search-input" placeholder="Buscar..."/>
                   </div>
-                  <div ref="availableRecursosListRef" class="list-content">
-                    <div
-                        v-for="recurso in filteredAvailableRecursos"
-                        :key="recurso.id"
-                        class="list-item"
-                        draggable="true"
-                        @click="moveToSelectedRecurso(recurso.id)"
-                        @dragstart="dragStartRecurso($event, recurso.id, 'availableRecurso')"
-                        @drop="dropRecurso($event, 'availableRecurso')"
-                        @dragover.prevent
-                    >
-                      {{ recurso.nome }}
-                    </div>
+                  <div ref="selectedListRef" class="list-content">
+                    <div v-for="recurso in recursosSelecionados" :key="recurso.id" class="list-item" @click="sala.recursos = sala.recursos.filter(t => t.id !== recurso.id)">{{ recurso.nome }}</div>
                   </div>
-                </div>
-
-                <div class="list-controls">
-                  <button
-                      :disabled="availableRecursos.length === 0"
-                      class="control-btn"
-                      title="Mover todos para selecionados"
-                      @click="moveAllToSelectedRecurso()"
-                  >
-                    ≫
-                  </button>
-                  <button
-                      :disabled="selectedAvailableRecursoIds.length === 0"
-                      class="control-btn"
-                      title="Mover selecionados para selecionados"
-                      @click="moveSelectedToSelectedRecurso()"
-                  >
-                    &gt;
-                  </button>
-                  <button
-                      :disabled="selectedSelectedRecursoIds.length === 0"
-                      class="control-btn"
-                      title="Mover selecionados para disponíveis"
-                      @click="moveSelectedToAvailableRecurso()"
-                  >
-                    &lt;
-                  </button>
-                  <button
-                      :disabled="selectedRecursoIds.length === 0"
-                      class="control-btn"
-                      title="Mover todos para disponíveis"
-                      @click="moveAllToAvailableRecurso()"
-                  >
-                    ≪
-                  </button>
                 </div>
 
                 <div class="list-box">
                   <div class="list-header">
-                    <h3>Recursos Selecionados</h3>
-                    <input
-                        v-model="selectedRecursoSearch"
-                        class="search-input"
-                        placeholder="Buscar..."
-                        @input="filterSelectedRecursos"
-                    />
+                    <h3>Disponíveis</h3>
+                    <input v-model="search.recursos.disponiveis" class="search-input" placeholder="Buscar..."/>
                   </div>
-                  <div ref="selectedRecursosListRef" class="list-content">
-                    <div
-                        v-for="recursoId in filteredSelectedRecursoIds"
-                        :key="recursoId"
-                        class="list-item"
-                        draggable="true"
-                        @click="moveToAvailableRecurso(recursoId)"
-                        @dragstart="dragStartRecurso($event, recursoId, 'selectedRecurso')"
-                        @drop="dropRecurso($event, 'selectedRecurso')"
-                        @dragover.prevent
-                    >
-                      {{ getRecursoNomeById(recursoId) }}
-                    </div>
+                  <div ref="availableListRef" class="list-content">
+                    <div v-for="recurso in recursosDisponiveis" :key="recurso.id" class="list-item" @click="sala.recursos.push(recurso)">{{ recurso.nome }}</div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -262,17 +123,13 @@
               <td>
                 <div class="terapias-list">
                   <span v-if="!sala.terapias || sala.terapias.length === 0" class="no-terapias">Nenhuma terapia associada</span>
-                  <div v-for="terapia in sala.terapias" v-else :key="terapia.id" class="terapia-tag">
-                    {{ terapia.nome }}
-                  </div>
+                  <div v-for="terapia in sala.terapias" v-else :key="terapia.id" class="terapia-tag">{{ terapia.nome }}</div>
                 </div>
               </td>
               <td>
                 <div class="recursos-list">
                   <span v-if="!sala.recursos || sala.recursos.length === 0" class="no-recursos">Nenhum recurso associado</span>
-                  <div v-for="recurso in sala.recursos" v-else :key="recurso.id" class="recurso-tag">
-                    {{ recurso.nome }}
-                  </div>
+                  <div v-for="recurso in sala.recursos" v-else :key="recurso.id" class="recurso-tag">{{ recurso.nome }}</div>
                 </div>
               </td>
               <td class="actions">
@@ -298,43 +155,18 @@ import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
 const salas = ref([])
+const sala = ref({id: null, numero: null, terapias: [], recursos: []})
+const isEditing = ref(false)
+
+const activeTab = ref("terapias")
 const terapias = ref([])
 const recursos = ref([])
-const selectedTerapiaIds = ref([])
-const selectedRecursoIds = ref([])
-const isEditing = ref(false)
-const id = ref(null)
-const numero = ref("")
-const activeTab = ref("terapias")
 
-// Refs for terapias dual-list selection
-const availableTerapiaSearch = ref("")
-const selectedTerapiaSearch = ref("")
-const availableTerapias = ref([])
-const filteredAvailableTerapias = ref([])
-const filteredSelectedTerapiaIds = ref([])
-const selectedAvailableIds = ref([])
-const selectedSelectedIds = ref([])
-const draggedItem = ref(null)
-const draggedList = ref(null)
-const availableListRef = ref(null)
-const selectedListRef = ref(null)
-
-// Refs for recursos dual-list selection
-const availableRecursoSearch = ref("")
-const selectedRecursoSearch = ref("")
-const availableRecursos = ref([])
-const filteredAvailableRecursos = ref([])
-const filteredSelectedRecursoIds = ref([])
-const selectedAvailableRecursoIds = ref([])
-const selectedSelectedRecursoIds = ref([])
-const draggedRecursoItem = ref(null)
-const draggedRecursoList = ref(null)
-const availableRecursosListRef = ref(null)
-const selectedRecursosListRef = ref(null)
-
-// Get the connection status from the WebSocket service
-const conectado = computed(() => WebSocketService.connected)
+const search = ref({terapias: {disponiveis: "", selecionadas: ""}, recursos:{disponiveis: "", selecionados: ""}})
+const terapiasDisponiveis = computed(() => terapias.value.filter(t => t.nome.toLowerCase().includes(search.value.terapias.disponiveis) && !sala.value.terapias.some(s => s.id === t.id)))
+const terapiasSelecionadas = computed(() => terapias.value.filter(t => t.nome.toLowerCase().includes(search.value.terapias.selecionadas) && sala.value.terapias.some(s => s.id === t.id)))
+const recursosDisponiveis = computed(() => recursos.value.filter(t => t.nome.toLowerCase().includes(search.value.recursos.disponiveis) && !sala.value.recursos.some(s => s.id === t.id)))
+const recursosSelecionados = computed(() => recursos.value.filter(t => t.nome.toLowerCase().includes(search.value.recursos.selecionados) && sala.value.recursos.some(s => s.id === t.id)))
 
 // Subscriptions
 let subscriptions = []
@@ -342,64 +174,58 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/listar", msg => retornoListar(msg.body))
+      WebSocketService.subscribe("/topic/sala/response/list", msg => listed(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/salvar", msg => retornoSalvar(msg.body))
+      WebSocketService.subscribe("/topic/sala/response/save", msg => saved(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/editar", msg => retornoEditar(msg.body))
+      WebSocketService.subscribe("/topic/sala/response/delete", msg => deleted(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/retorno/excluir", msg => retornoExcluir(msg.body))
+      WebSocketService.subscribe("/topic/terapia/response/list", msg => listedTerapias(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/retorno/listar", msg => retornoListarTerapias(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListarRecursos(msg.body))
+      WebSocketService.subscribe("/topic/recurso/response/list", msg => listedRecursos(msg.body))
   )
 
   // Send initialization messages
-  WebSocketService.publish("/app/sala/listar")
-  WebSocketService.publish("/app/terapia/listar")
-  WebSocketService.publish("/app/recurso/listar")
+  WebSocketService.publish("/topic/sala/request/list")
+  WebSocketService.publish("/topic/terapia/request/list")
+  WebSocketService.publish("/topic/recurso/request/list")
 })
 
-const retornoListar = lista => {
-  salas.value = lista
-}
-
 const listarSalas = () => {
-  WebSocketService.publish("/app/sala/listar")
+  WebSocketService.publish("/topic/sala/request/list")
 }
 
-const retornoSalvar = sala => {
-  salas.value.push(sala)
+const listed = list => {
+  salas.value = list
 }
 
-const retornoEditar = sala => {
-  const i = salas.value.findIndex(p => p.id === sala.id)
-  if (i >= 0) salas.value.splice(i, 1, sala)
+const saved = sala => {
+  const index = salas.value.findIndex(t => t.id === sala.id);
+  if (index !== -1) {
+    salas.value[index] = sala; // Replace
+  } else {
+    salas.value.push(sala);    // Add
+  }
 }
 
-const retornoExcluir = id => {
+const deleted = id => {
   salas.value = salas.value.filter(p => p.id !== id)
 }
 
-const retornoListarTerapias = lista => {
-  terapias.value = lista
-  updateAvailableTerapias()
+const listedTerapias = list => {
+  terapias.value = list
 }
 
-const retornoListarRecursos = lista => {
-  recursos.value = lista
-  updateAvailableRecursos()
+const listedRecursos = list => {
+  recursos.value = list
 }
 
 const novo = () => {
@@ -407,40 +233,22 @@ const novo = () => {
   isEditing.value = true;
 }
 
-const editar = sala => {
-  id.value = sala.id;
-  numero.value = sala.numero;
-  // Load the sala's terapias IDs (backend now always includes this)
-  selectedTerapiaIds.value = sala.terapias ? sala.terapias.map(terapia => terapia.id) : [];
-  // Load the sala's recursos IDs
-  selectedRecursoIds.value = sala.recursos ? sala.recursos.map(recurso => recurso.id) : [];
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-  updateAvailableRecursos();
-  filterSelectedRecursos();
+const editar = s => {
+  sala.value.id = s.id;
+  sala.value.numero = s.numero;
+  sala.value.terapias = [...s.terapias]
+  sala.value.recursos = [...s.recursos]
   isEditing.value = true;
 }
 
 const salvar = () => {
-  // Convert terapia IDs to terapia objects with only id property
-  const terapiaObjects = selectedTerapiaIds.value.map(id => ({id}));
-
-  // Convert recurso IDs to recurso objects with only id property
-  const recursoObjects = selectedRecursoIds.value.map(id => ({id}));
-
-  const salaData = {
-    id: id.value,
-    numero: parseInt(numero.value),
-    terapias: terapiaObjects,
-    recursos: recursoObjects
-  };
-  WebSocketService.publish("/app/sala/salvar", salaData)
+  WebSocketService.publish("/topic/sala/request/save", sala.value)
   reset();
 }
 
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
-    WebSocketService.publish("/app/sala/excluir", idToRemove)
+    WebSocketService.publish("/topic/sala/request/delete", idToRemove)
   }
 }
 
@@ -448,285 +256,15 @@ const cancelar = () => {
   reset()
 }
 
-const getTerapiaNomeById = (terapiaId) => {
-  const terapia = terapias.value.find(t => t.id === terapiaId);
-  return terapia ? terapia.nome : 'Terapia não encontrada';
-}
-
-const removeTerapiaById = (terapiaId) => {
-  selectedTerapiaIds.value = selectedTerapiaIds.value.filter(id => id !== terapiaId);
-}
-
-const getRecursoNomeById = (recursoId) => {
-  const recurso = recursos.value.find(r => r.id === recursoId);
-  return recurso ? recurso.nome : 'Recurso não encontrado';
-}
-
-const removeRecursoById = (recursoId) => {
-  selectedRecursoIds.value = selectedRecursoIds.value.filter(id => id !== recursoId);
-}
-
-// Update available terapias list (terapias not in selectedTerapiaIds)
-const updateAvailableTerapias = () => {
-  availableTerapias.value = terapias.value.filter(terapia =>
-      !selectedTerapiaIds.value.includes(terapia.id)
-  );
-  filterAvailableTerapias();
-}
-
-// Filter available terapias based on search term
-const filterAvailableTerapias = () => {
-  if (!availableTerapiaSearch.value) {
-    filteredAvailableTerapias.value = availableTerapias.value;
-  } else {
-    const searchTerm = availableTerapiaSearch.value.toLowerCase();
-    filteredAvailableTerapias.value = availableTerapias.value.filter(terapia =>
-        terapia.nome.toLowerCase().includes(searchTerm)
-    );
-  }
-}
-
-// Filter selected terapias based on search term
-const filterSelectedTerapias = () => {
-  if (!selectedTerapiaSearch.value) {
-    filteredSelectedTerapiaIds.value = selectedTerapiaIds.value;
-  } else {
-    const searchTerm = selectedTerapiaSearch.value.toLowerCase();
-    filteredSelectedTerapiaIds.value = selectedTerapiaIds.value.filter(terapiaId => {
-      const terapia = terapias.value.find(t => t.id === terapiaId);
-      return terapia && terapia.nome.toLowerCase().includes(searchTerm);
-    });
-  }
-}
-
-// Update available recursos list (recursos not in selectedRecursoIds)
-const updateAvailableRecursos = () => {
-  availableRecursos.value = recursos.value.filter(recurso =>
-      !selectedRecursoIds.value.includes(recurso.id)
-  );
-  filterAvailableRecursos();
-}
-
-// Filter available recursos based on search term
-const filterAvailableRecursos = () => {
-  if (!availableRecursoSearch.value) {
-    filteredAvailableRecursos.value = availableRecursos.value;
-  } else {
-    const searchTerm = availableRecursoSearch.value.toLowerCase();
-    filteredAvailableRecursos.value = availableRecursos.value.filter(recurso =>
-        recurso.nome.toLowerCase().includes(searchTerm)
-    );
-  }
-}
-
-// Filter selected recursos based on search term
-const filterSelectedRecursos = () => {
-  if (!selectedRecursoSearch.value) {
-    filteredSelectedRecursoIds.value = selectedRecursoIds.value;
-  } else {
-    const searchTerm = selectedRecursoSearch.value.toLowerCase();
-    filteredSelectedRecursoIds.value = selectedRecursoIds.value.filter(recursoId => {
-      const recurso = recursos.value.find(r => r.id === recursoId);
-      return recurso && recurso.nome.toLowerCase().includes(searchTerm);
-    });
-  }
-}
-
-// Move a terapia from available to selected
-const moveToSelected = (terapiaId) => {
-  if (!selectedTerapiaIds.value.includes(terapiaId)) {
-    selectedTerapiaIds.value.push(terapiaId);
-    updateAvailableTerapias();
-    filterSelectedTerapias();
-  }
-}
-
-// Move a terapia from selected to available
-const moveToAvailable = (terapiaId) => {
-  const index = selectedTerapiaIds.value.indexOf(terapiaId);
-  if (index !== -1) {
-    selectedTerapiaIds.value.splice(index, 1);
-    updateAvailableTerapias();
-    filterSelectedTerapias();
-  }
-}
-
-// Move all available terapias to selected
-const moveAllToSelected = () => {
-  availableTerapias.value.forEach(terapia => {
-    if (!selectedTerapiaIds.value.includes(terapia.id)) {
-      selectedTerapiaIds.value.push(terapia.id);
-    }
-  });
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-}
-
-// Move all selected terapias to available
-const moveAllToAvailable = () => {
-  selectedTerapiaIds.value = [];
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-}
-
-// Move a recurso from available to selected
-const moveToSelectedRecurso = (recursoId) => {
-  if (!selectedRecursoIds.value.includes(recursoId)) {
-    selectedRecursoIds.value.push(recursoId);
-    updateAvailableRecursos();
-    filterSelectedRecursos();
-  }
-}
-
-// Move a recurso from selected to available
-const moveToAvailableRecurso = (recursoId) => {
-  const index = selectedRecursoIds.value.indexOf(recursoId);
-  if (index !== -1) {
-    selectedRecursoIds.value.splice(index, 1);
-    updateAvailableRecursos();
-    filterSelectedRecursos();
-  }
-}
-
-// Move all available recursos to selected
-const moveAllToSelectedRecurso = () => {
-  availableRecursos.value.forEach(recurso => {
-    if (!selectedRecursoIds.value.includes(recurso.id)) {
-      selectedRecursoIds.value.push(recurso.id);
-    }
-  });
-  updateAvailableRecursos();
-  filterSelectedRecursos();
-}
-
-// Move all selected recursos to available
-const moveAllToAvailableRecurso = () => {
-  selectedRecursoIds.value = [];
-  updateAvailableRecursos();
-  filterSelectedRecursos();
-}
-
-// Move selected items from available to selected
-const moveSelectedToSelected = () => {
-  selectedAvailableIds.value.forEach(terapiaId => {
-    if (!selectedTerapiaIds.value.includes(terapiaId)) {
-      selectedTerapiaIds.value.push(terapiaId);
-    }
-  });
-  selectedAvailableIds.value = [];
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-}
-
-// Move selected items from selected to available
-const moveSelectedToAvailable = () => {
-  selectedSelectedIds.value.forEach(terapiaId => {
-    const index = selectedTerapiaIds.value.indexOf(terapiaId);
-    if (index !== -1) {
-      selectedTerapiaIds.value.splice(index, 1);
-    }
-  });
-  selectedSelectedIds.value = [];
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-}
-
-// Handle drag start event
-const dragStart = (event, id, listType) => {
-  draggedItem.value = id;
-  draggedList.value = listType;
-  event.dataTransfer.effectAllowed = 'move';
-}
-
-// Handle drop event
-const drop = (event, targetList) => {
-  event.preventDefault();
-
-  if (!draggedItem.value || draggedList.value === targetList) return;
-
-  if (draggedList.value === 'available' && targetList === 'selected') {
-    moveToSelected(draggedItem.value);
-  } else if (draggedList.value === 'selected' && targetList === 'available') {
-    moveToAvailable(draggedItem.value);
-  }
-
-  draggedItem.value = null;
-  draggedList.value = null;
-}
-
-// Move selected items from available to selected for recursos
-const moveSelectedToSelectedRecurso = () => {
-  selectedAvailableRecursoIds.value.forEach(recursoId => {
-    if (!selectedRecursoIds.value.includes(recursoId)) {
-      selectedRecursoIds.value.push(recursoId);
-    }
-  });
-  selectedAvailableRecursoIds.value = [];
-  updateAvailableRecursos();
-  filterSelectedRecursos();
-}
-
-// Move selected items from selected to available for recursos
-const moveSelectedToAvailableRecurso = () => {
-  selectedSelectedRecursoIds.value.forEach(recursoId => {
-    const index = selectedRecursoIds.value.indexOf(recursoId);
-    if (index !== -1) {
-      selectedRecursoIds.value.splice(index, 1);
-    }
-  });
-  selectedSelectedRecursoIds.value = [];
-  updateAvailableRecursos();
-  filterSelectedRecursos();
-}
-
-// Handle drag start event for recursos
-const dragStartRecurso = (event, id, listType) => {
-  draggedRecursoItem.value = id;
-  draggedRecursoList.value = listType;
-  event.dataTransfer.effectAllowed = 'move';
-}
-
-// Handle drop event for recursos
-const dropRecurso = (event, targetList) => {
-  event.preventDefault();
-
-  if (!draggedRecursoItem.value || draggedRecursoList.value === targetList) return;
-
-  if (draggedRecursoList.value === 'availableRecurso' && targetList === 'selectedRecurso') {
-    moveToSelectedRecurso(draggedRecursoItem.value);
-  } else if (draggedRecursoList.value === 'selectedRecurso' && targetList === 'availableRecurso') {
-    moveToAvailableRecurso(draggedRecursoItem.value);
-  }
-
-  draggedRecursoItem.value = null;
-  draggedRecursoList.value = null;
-}
-
 const reset = () => {
   isEditing.value = false
-  id.value = null;
-  numero.value = "";
+  sala.value.id = null
+  sala.value.numero = null
+  sala.value.terapias = []
+  sala.value.recursos = []
 
   // Reset to the terapias tab
   activeTab.value = "terapias";
-
-  // Reset terapias
-  selectedTerapiaIds.value = [];
-  availableTerapiaSearch.value = "";
-  selectedTerapiaSearch.value = "";
-  selectedAvailableIds.value = [];
-  selectedSelectedIds.value = [];
-  updateAvailableTerapias();
-  filterSelectedTerapias();
-
-  // Reset recursos
-  selectedRecursoIds.value = [];
-  availableRecursoSearch.value = "";
-  selectedRecursoSearch.value = "";
-  selectedAvailableRecursoIds.value = [];
-  selectedSelectedRecursoIds.value = [];
-  updateAvailableRecursos();
-  filterSelectedRecursos();
 }
 
 

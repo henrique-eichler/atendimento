@@ -118,17 +118,9 @@ function initWebSocket() {
 
 // Subscribe to a topic
 function subscribe(destination, callback) {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.warn('Cannot subscribe: WebSocket is not connected')
-        return null
-    }
 
     // Automatically append client UUID to user queue destinations
     let actualDestination = destination
-    if (destination.startsWith('/user/queue/')) {
-        actualDestination = `/user/${clientUuid}/queue/${destination.substring('/user/queue/'.length)}`
-        console.log(`Modified destination: ${destination} -> ${actualDestination}`)
-    }
 
     // Add callback to the subscription map
     if (!subscriptions.has(actualDestination)) {
@@ -180,14 +172,9 @@ function processMessageQueue() {
 // Publish a message
 function publish(destination, body = null) {
     // Automatically append client UUID to user queue destinations
-    let actualDestination = destination
-    if (destination.startsWith('/user/queue/')) {
-        actualDestination = `/user/${clientUuid}/queue/${destination.substring('/user/queue/'.length)}`
-        console.log(`Modified publish destination: ${destination} -> ${actualDestination}`)
-    }
 
     const message = {
-        destination: actualDestination
+        destination
     }
 
     if (body) {

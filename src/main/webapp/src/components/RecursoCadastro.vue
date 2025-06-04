@@ -7,16 +7,20 @@
     <ModalForm :isOpen="isEditing" title="Cadastro de Recurso" @close="cancelar">
       <div class="form-content">
         <div class="form-group">
-          <label>Nome do Recurso</label>
-          <input v-model="nome" placeholder="Nome do Recurso" required/>
+          <label>Id</label>
+          <input v-model="recurso.id" placeholder="Nome do Recurso" readonly/>
+        </div>
+        <div class="form-group">
+          <label>Nome</label>
+          <input v-model="recurso.nome" placeholder="Nome do Recurso" required/>
         </div>
         <div class="form-group">
           <label>Descrição</label>
-          <input v-model="descricao" placeholder="Descrição do Recurso"/>
+          <input v-model="recurso.descricao" placeholder="Descrição do Recurso"/>
         </div>
         <div class="form-group">
           <label>Número de Propriedade</label>
-          <input v-model="numeroPropriedade" placeholder="Número de Propriedade" required type="number"/>
+          <input v-model="recurso.numeroPropriedade" placeholder="Número de Propriedade" required type="number"/>
         </div>
       </div>
       <template #footer>
@@ -79,14 +83,8 @@ import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
 const recursos = ref([])
+const recurso = ref({id: null, nome: "", descricao: "", numeroPropriedade: null})
 const isEditing = ref(false)
-const id = ref(null)
-const nome = ref("")
-const descricao = ref("")
-const numeroPropriedade = ref(null)
-
-// Get the connection status from the WebSocket service
-const conectado = computed(() => WebSocketService.connected)
 
 // Subscriptions
 let subscriptions = []
@@ -94,43 +92,39 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to topics
   subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/listar", msg => retornoListar(msg.body))
+      WebSocketService.subscribe("/topic/recurso/response/list", msg => listed(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/salvar", msg => retornoSalvar(msg.body))
+      WebSocketService.subscribe("/topic/recurso/response/save", msg => saved(msg.body))
   )
 
   subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/editar", msg => retornoEditar(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/retorno/excluir", msg => retornoExcluir(msg.body))
+      WebSocketService.subscribe("/topic/recurso/response/deleted", msg => deleted(msg.body))
   )
 
   // Send initialization message
-  WebSocketService.publish("/app/recurso/listar")
+  WebSocketService.publish("/topic/recurso/request/list")
 })
 
-const retornoListar = lista => {
-  recursos.value = lista
-}
-
 const listarRecursos = () => {
-  WebSocketService.publish("/app/recurso/listar")
+  WebSocketService.publish("/topic/recurso/request/list")
 }
 
-const retornoSalvar = recurso => {
-  recursos.value.push(recurso)
+const listed = list => {
+  recursos.value = list
 }
 
-const retornoEditar = recurso => {
-  const i = recursos.value.findIndex(p => p.id === recurso.id)
-  if (i >= 0) recursos.value.splice(i, 1, recurso)
+const saved = recurso => {
+  const index = recursos.value.findIndex(t => t.id === recurso.id);
+  if (index !== -1) {
+    recursos.value[index] = recurso; // Replace
+  } else {
+    recursos.value.push(recurso);    // Add
+  }
 }
 
-const retornoExcluir = id => {
+const deleted = id => {
   recursos.value = recursos.value.filter(p => p.id !== id)
 }
 
@@ -139,28 +133,22 @@ const novo = () => {
   isEditing.value = true;
 }
 
-const editar = recurso => {
-  id.value = recurso.id;
-  nome.value = recurso.nome;
-  descricao.value = recurso.descricao;
-  numeroPropriedade.value = recurso.numeroPropriedade;
+const editar = r => {
+  recurso.value.id = r.id;
+  recurso.value.nome = r.nome;
+  recurso.value.descricao = r.descricao;
+  recurso.value.numeroPropriedade = r.numeroPropriedade;
   isEditing.value = true;
 }
 
 const salvar = () => {
-  const recursoData = {
-    id: id.value,
-    nome: nome.value,
-    descricao: descricao.value,
-    numeroPropriedade: numeroPropriedade.value
-  };
-  WebSocketService.publish("/app/recurso/salvar", recursoData)
+  WebSocketService.publish("/topic/recurso/request/save", recurso.value)
   reset();
 }
 
 const remover = idToRemove => {
   if (confirm("Excluir?")) {
-    WebSocketService.publish("/app/recurso/excluir", idToRemove)
+    WebSocketService.publish("/topic/recurso/request/delete", idToRemove)
   }
 }
 
@@ -170,10 +158,10 @@ const cancelar = () => {
 
 const reset = () => {
   isEditing.value = false
-  id.value = null;
-  nome.value = "";
-  descricao.value = "";
-  numeroPropriedade.value = null;
+  recurso.value.id = null;
+  recurso.value.nome = "";
+  recurso.value.descricao = "";
+  recurso.value.numeroPropriedade = null;
 }
 
 onUnmounted(() => {
