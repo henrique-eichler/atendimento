@@ -5,11 +5,16 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
+import {ref, watchEffect} from 'vue'
 import WebSocketService from '../services/WebSocketService'
 
 // Get the connection status from the WebSocket service
-const connected = computed(() => WebSocketService.connected)
+const connected = ref(false)
+
+// Watch for changes in the WebSocketService.connected property
+watchEffect(() => {
+  connected.value = WebSocketService.connected.value
+})
 </script>
 
 <style scoped>
