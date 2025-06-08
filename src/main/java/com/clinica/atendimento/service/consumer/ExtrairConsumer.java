@@ -13,9 +13,11 @@ public class ExtrairConsumer extends AbstractConsumer<String, String> {
     private final DeepSeekService deepSeekService;
     private final WebSocketHandler webSocketHandler;
 
-    public ExtrairConsumer(DeepSeekService deepSeekService,
-                           @Value("${kafka.url}") String bootstrapServer,
-                           @Value("${kafka.topico.extrair}") String topico, WebSocketHandler webSocketHandler) {
+    public ExtrairConsumer(
+            @Value("${kafka.url}") String bootstrapServer,
+            @Value("${kafka.topico.extrair}") String topico,
+            DeepSeekService deepSeekService,
+            WebSocketHandler webSocketHandler) {
         super(bootstrapServer, topico, StringDeserializer.class, StringDeserializer.class);
         this.deepSeekService = deepSeekService;
         this.webSocketHandler = webSocketHandler;
@@ -27,9 +29,6 @@ public class ExtrairConsumer extends AbstractConsumer<String, String> {
         String texto = record.value();
         String extrato = deepSeekService.extrair(texto);
 
-        System.out.println("extrato: " + extrato);
-
-        TranscreverConsumer.Response response = new TranscreverConsumer.Response("extrato", extrato);
-        webSocketHandler.sendToClientId(sessao, "/topic/transcricao/resultado", response);
+        webSocketHandler.sendToClientId(sessao, "/topic/transcricao/response/extrato", extrato);
     }
 }

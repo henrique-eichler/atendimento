@@ -6,20 +6,10 @@
     </div>
 
     <div class="controls">
-      <button
-          :class="{ 'disabled': !conectado || recorder }"
-          :disabled="!conectado || recorder"
-          class="btn btn-primary"
-          @click="iniciarGravacao"
-      >
+      <button :class="{ 'disabled': !conectado || recorder }" :disabled="!conectado || recorder" class="btn btn-primary" @click="iniciarGravacao">
         <span class="icon">▶️</span> Iniciar Gravação
       </button>
-      <button
-          :class="{ 'disabled': !conectado || !recorder }"
-          :disabled="!conectado || !recorder"
-          class="btn btn-danger"
-          @click="pararGravacao"
-      >
+      <button :class="{ 'disabled': !conectado || !recorder }" :disabled="!conectado || !recorder" class="btn btn-danger" @click="pararGravacao">
         <span class="icon">⏹️</span> Parar Gravação
       </button>
     </div>
@@ -27,7 +17,7 @@
     <div class="results-container">
       <div class="result-card">
         <h2>🧠 Transcrição</h2>
-        <div class="content">{{ transcricao }}</div>
+        <div class="content">{{ transcrito }}</div>
       </div>
 
       <div class="result-card">
@@ -48,12 +38,12 @@ import {computed, onMounted, onUnmounted, ref} from 'vue'
 import WebSocketService from '../services/WebSocketService'
 
 const recorder = ref(null)
-const transcricao = ref('Aguardando transcrição...')
+const transcrito = ref('Aguardando transcrição...')
 const resumo = ref('Aguardando resumo...')
 const extrato = ref('Aguardando extrato...')
 
 // Get the connection status from the WebSocket service
-const conectado = computed(() => WebSocketService.connected)
+const conectado = computed(() => WebSocketService.connected.value)
 
 // Get the client UUID from the WebSocket service
 const clientUuid = computed(() => WebSocketService.clientUuid)
@@ -64,13 +54,9 @@ let subscriptions = []
 onMounted(() => {
   // Subscribe to user-specific destinations
   subscriptions.push(
-      WebSocketService.subscribe('/topic/transcricao/resultado', msg => {
-        try {
-          processarRetorno(msg.body)
-        } catch (err) {
-          console.error('Error parsing message', err, msg.body)
-        }
-      })
+      WebSocketService.subscribe('/topic/transcricao/response/transcrito', msg => transcrito.value = msg.body),
+      WebSocketService.subscribe('/topic/transcricao/response/resumo', msg => resumo.value = msg.body),
+      WebSocketService.subscribe('/topic/transcricao/response/extrato', msg => extrato.value = msg.body)
   )
 
   subscriptions.push(
@@ -90,18 +76,6 @@ const iniciarGravacao = async () => {
         recorder.value.start(500)
       })
       .catch(err => console.error('mic error', err))
-}
-
-const processarRetorno = dado => {
-  if (dado.tipo === 'transcrito') {
-    transcricao.value = dado.conteudo
-
-  } else if (dado.tipo === 'resumo') {
-    resumo.value = dado.conteudo
-
-  } else if (dado.tipo === 'extrato') {
-    extrato.value = dado.conteudo
-  }
 }
 
 const pararGravacao = () => {
