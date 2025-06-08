@@ -2,6 +2,7 @@ package com.clinica.atendimento.service;
 
 import com.clinica.atendimento.dto.SalaDTO;
 import com.clinica.atendimento.model.*;
+import com.clinica.atendimento.repository.CronogramaRepository;
 import com.clinica.atendimento.repository.RecursoSalaRepository;
 import com.clinica.atendimento.repository.SalaRepository;
 import com.clinica.atendimento.repository.TerapiaSalaRepository;
@@ -20,13 +21,15 @@ public class SalaSalvarServiceHandler extends AbstractServiceHandler<SalaDTO> {
     private final SalaRepository salaRepository;
     private final TerapiaSalaRepository terapiaSalaRepository;
     private final RecursoSalaRepository recursoSalaRepository;
+    private final CronogramaRepository cronogramaRepository;
 
-    SalaSalvarServiceHandler(WebSocketHandler webSocketHandler, SalaRepository salaRepository, TerapiaSalaRepository terapiaSalaRepository, RecursoSalaRepository recursoSalaRepository) {
+    SalaSalvarServiceHandler(WebSocketHandler webSocketHandler, SalaRepository salaRepository, TerapiaSalaRepository terapiaSalaRepository, RecursoSalaRepository recursoSalaRepository, CronogramaRepository cronogramaRepository) {
         super(SalaDTO.class);
         this.webSocketHandler = webSocketHandler;
         this.salaRepository = salaRepository;
         this.terapiaSalaRepository = terapiaSalaRepository;
         this.recursoSalaRepository = recursoSalaRepository;
+        this.cronogramaRepository = cronogramaRepository;
 
         this.webSocketHandler.register("/topic/sala/request/save", this);
     }
@@ -43,6 +46,16 @@ public class SalaSalvarServiceHandler extends AbstractServiceHandler<SalaDTO> {
         List<RecursoSala> recursos = recursoSalaRepository.findBySala(sala);
         recursos.stream().filter(rs -> salaDTO.recursos().stream().noneMatch(r -> r.id().equals(rs.recurso().id()))).forEach(recursoSalaRepository::delete);
         salaDTO.recursos().stream().filter(r -> recursos.stream().noneMatch(rs -> rs.recurso().id().equals(r.id()))).map(r -> RecursoSala.builder().sala(sala).recurso(Recurso.builder().id(r.id()).build()).build()).forEach(recursoSalaRepository::save);
+
+        // Handle cronogramas
+        List<Cronograma> cronogramas = cronogramaRepository.findBySala(sala);
+        cronogramas.stream().filter(c -> salaDTO.cronogramas() == null || salaDTO.cronogramas().stream().noneMatch(dto -> dto.id() != null && dto.id().equals(c.id()))).forEach(cronogramaRepository::delete);
+        salaDTO.cronogramas().stream().filter(dto -> dto.id() == null || cronogramas.stream().noneMatch(c -> c.id().equals(dto.id()))).map(dto -> {
+                    Cronograma cronograma = dto.toEntity();
+                    cronograma.sala(sala);
+                    return cronograma;
+                })
+                .forEach(cronogramaRepository::save);
 
         SalaDTO salaSaved = SalaDTO.fromEntity(salaRepository.findSalaById(sala.id()));
 

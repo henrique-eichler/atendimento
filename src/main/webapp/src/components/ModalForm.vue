@@ -55,7 +55,7 @@ const closeModal = () => {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 80%;
-  max-width: 800px;
+  max-width: 1200px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;

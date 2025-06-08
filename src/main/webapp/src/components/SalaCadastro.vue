@@ -19,6 +19,7 @@
         <div class="tab-navigation">
           <button :class="{ active: activeTab === 'terapias' }" class="tab-button" @click="activeTab = 'terapias'">Terapias</button>
           <button :class="{ active: activeTab === 'recursos' }" class="tab-button" @click="activeTab = 'recursos'">Recursos</button>
+          <button :class="{ active: activeTab === 'cronograma' }" class="tab-button" @click="activeTab = 'cronograma'">Cronograma</button>
         </div>
 
         <!-- Tab Content -->
@@ -79,6 +80,29 @@
                   </div>
                 </div>
 
+              </div>
+            </div>
+          </div>
+
+          <!-- Cronograma Tab -->
+          <div v-if="activeTab === 'cronograma'" class="tab-pane">
+            <div class="form-group">
+              <label>Cronograma</label>
+              <div class="cronograma-grid-container">
+                <table class="cronograma-grid">
+                  <thead>
+                    <tr>
+                      <th>Horário</th>
+                      <th v-for="dia in diasSemana" :key="dia.value">{{ dia.label }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="hora in horas" :key="hora.value">
+                      <td>{{ hora.label }}</td>
+                      <td v-for="dia in diasSemana" :key="dia.value" :class="{ 'selected': isCronogramaSelected(dia.value, hora.value) }" @click="toggleCronograma(dia.value, hora.value)"></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -155,12 +179,32 @@ import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 
 const salas = ref([])
-const sala = ref({id: null, numero: null, terapias: [], recursos: []})
+const sala = ref({id: null, numero: null, terapias: [], recursos: [], cronogramas: []})
 const isEditing = ref(false)
 
 const activeTab = ref("terapias")
 const terapias = ref([])
 const recursos = ref([])
+
+// Cronograma data
+const diasSemana = [
+  { value: 'DOMINGO', label: 'Domingo' },
+  { value: 'SEGUNDA', label: 'Segunda' },
+  { value: 'TERCA', label: 'Terça' },
+  { value: 'QUARTA', label: 'Quarta' },
+  { value: 'QUINTA', label: 'Quinta' },
+  { value: 'SEXTA', label: 'Sexta' },
+  { value: 'SABADO', label: 'Sábado' }
+]
+
+const horas = []
+// Generate hours from 7:00 AM to 7:00 PM
+for (let i = 7; i <= 19; i++) {
+  horas.push({
+    value: i,
+    label: `${i}:00`
+  })
+}
 
 const search = ref({terapias: {disponiveis: "", selecionadas: ""}, recursos:{disponiveis: "", selecionados: ""}})
 const terapiasDisponiveis = computed(() => terapias.value.filter(t => t.nome.toLowerCase().includes(search.value.terapias.disponiveis) && !sala.value.terapias.some(s => s.id === t.id)))
@@ -238,6 +282,7 @@ const editar = s => {
   sala.value.numero = s.numero;
   sala.value.terapias = [...s.terapias]
   sala.value.recursos = [...s.recursos]
+  sala.value.cronogramas = s.cronogramas ? [...s.cronogramas] : []
   isEditing.value = true;
 }
 
@@ -256,12 +301,49 @@ const cancelar = () => {
   reset()
 }
 
+// Cronograma methods
+const isCronogramaSelected = (diaSemana, hora) => {
+  return sala.value.cronogramas.some(c => 
+    c.diaSemana === diaSemana && 
+    new Date(c.horaInicio).getHours() === hora
+  );
+}
+
+const toggleCronograma = (diaSemana, hora) => {
+  // Check if this time slot is already selected
+  const existingIndex = sala.value.cronogramas.findIndex(c => 
+    c.diaSemana === diaSemana && 
+    new Date(c.horaInicio).getHours() === hora
+  );
+
+  if (existingIndex !== -1) {
+    // If already selected, remove it
+    sala.value.cronogramas.splice(existingIndex, 1);
+  } else {
+    // If not selected, add it
+    const horaInicio = new Date();
+    horaInicio.setHours(hora, 0, 0, 0);
+
+    const horaTermino = new Date();
+    horaTermino.setHours(hora + 1, 0, 0, 0);
+
+    sala.value.cronogramas.push({
+      id: null,
+      sala: { id: sala.value.id },
+      diaSemana: diaSemana,
+      horaInicio: horaInicio.toISOString(),
+      horaTermino: horaTermino.toISOString()
+    });
+  }
+}
+
 const reset = () => {
   isEditing.value = false
   sala.value.id = null
   sala.value.numero = null
   sala.value.terapias = []
   sala.value.recursos = []
+  sala.value.cronogramas = []
 
   // Reset to the terapias tab
   activeTab.value = "terapias";
@@ -286,4 +368,47 @@ onUnmounted(() => {
 
 <style scoped>
 /* Component-specific styles would go here */
+
+/* Cronograma Grid Styles */
+.cronograma-grid-container {
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+.cronograma-grid {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+}
+
+.cronograma-grid th,
+.cronograma-grid td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.cronograma-grid th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.cronograma-grid td:not(:first-child) {
+  cursor: pointer;
+  width: 60px;
+  height: 30px;
+}
+
+.cronograma-grid td:not(:first-child):hover {
+  background-color: #f5f5f5;
+}
+
+.cronograma-grid td.selected {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cronograma-grid td.selected:hover {
+  background-color: #45a049;
+}
 </style>

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -26,6 +25,8 @@ public class SalaDTO {
     private List<TerapiaDTO> terapias;
     @JsonProperty
     private List<RecursoDTO> recursos;
+    @JsonProperty
+    private List<CronogramaDTO> cronogramas;
 
     // Static method to convert from entity to DTO
     public static SalaDTO fromEntity(Sala sala) {
@@ -35,17 +36,22 @@ public class SalaDTO {
 
         List<TerapiaDTO> terapiaDTOs = sala.terapias().stream()
                 .map(terapiaSala -> TerapiaDTO.fromEntity(terapiaSala.terapia()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<RecursoDTO> recursoDTOs = sala.recursos().stream()
                 .map(recursoSala -> RecursoDTO.fromEntity(recursoSala.recurso()))
-                .collect(Collectors.toList());
+                .toList();
+
+        List<CronogramaDTO> cronogramaDTOS = sala.cronogramas().stream()
+                .map(CronogramaDTO::fromEntity)
+                .toList();
 
         return SalaDTO.builder()
                 .id(sala.id())
                 .numero(sala.numero())
                 .terapias(terapiaDTOs)
                 .recursos(recursoDTOs)
+                .cronogramas(cronogramaDTOS)
                 .build();
     }
 
