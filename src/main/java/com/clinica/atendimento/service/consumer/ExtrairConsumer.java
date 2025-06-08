@@ -1,7 +1,7 @@
 package com.clinica.atendimento.service.consumer;
 
 import com.clinica.atendimento.service.deepseek.DeepSeekService;
-import com.clinica.atendimento.websocket.WebSocketHandler;
+import com.clinica.atendimento.service.websocket.WebSocketHandler;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;

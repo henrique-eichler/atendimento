@@ -3,7 +3,7 @@ package com.clinica.atendimento.service.consumer;
 import com.clinica.atendimento.service.producer.ExtrairProducer;
 import com.clinica.atendimento.service.producer.ResumirProducer;
 import com.clinica.atendimento.service.whisper.WhisperService;
-import com.clinica.atendimento.websocket.WebSocketHandler;
+import com.clinica.atendimento.service.websocket.WebSocketHandler;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

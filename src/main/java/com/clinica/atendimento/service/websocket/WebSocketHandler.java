@@ -1,4 +1,4 @@
-package com.clinica.atendimento.websocket;
+package com.clinica.atendimento.service.websocket;
 
 import com.clinica.atendimento.service.AbstractServiceHandler;
 import com.fasterxml.jackson.databind.JsonNode;

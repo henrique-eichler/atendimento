@@ -5,7 +5,7 @@ import com.clinica.atendimento.model.*;
 import com.clinica.atendimento.repository.RecursoSalaRepository;
 import com.clinica.atendimento.repository.SalaRepository;
 import com.clinica.atendimento.repository.TerapiaSalaRepository;
-import com.clinica.atendimento.websocket.WebSocketHandler;
+import com.clinica.atendimento.service.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;

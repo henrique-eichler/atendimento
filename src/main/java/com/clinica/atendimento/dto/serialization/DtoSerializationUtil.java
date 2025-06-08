@@ -1,4 +1,4 @@
-package com.clinica.atendimento.kafka.serialization;
+package com.clinica.atendimento.dto.serialization;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;

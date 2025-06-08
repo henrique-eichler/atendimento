@@ -1,6 +1,6 @@
 package com.clinica.atendimento.service;
 
-import com.clinica.atendimento.websocket.WebSocketHandler;
+import com.clinica.atendimento.service.websocket.WebSocketHandler;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

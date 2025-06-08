@@ -14,7 +14,7 @@ This package provides generic classes for serializing and deserializing DTO obje
 
 ```java
 import com.clinica.atendimento.dto.PacienteDTO;
-import com.clinica.atendimento.kafka.serialization.DtoSerializationUtil;
+import com.clinica.atendimento.dto.serialization.DtoSerializationUtil;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -50,7 +50,7 @@ public class ExampleProducer {
 
 ```java
 import com.clinica.atendimento.dto.PacienteDTO;
-import com.clinica.atendimento.kafka.serialization.DtoSerializationUtil;
+import com.clinica.atendimento.dto.serialization.DtoSerializationUtil;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -93,7 +93,7 @@ public class ExampleConsumer {
 ```java
 import com.clinica.atendimento.dto.PacienteDTO;
 import com.clinica.atendimento.service.producer.AbstractProducer;
-import com.clinica.atendimento.kafka.serialization.DtoSerializer;
+import com.clinica.atendimento.dto.serialization.DtoSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.stereotype.Component;
 
@@ -108,7 +108,7 @@ public class PacienteProducer extends AbstractProducer<String, PacienteDTO> {
 ```java
 import com.clinica.atendimento.dto.PacienteDTO;
 import com.clinica.atendimento.service.consumer.AbstractConsumer;
-import com.clinica.atendimento.kafka.serialization.DtoDeserializer;
+import com.clinica.atendimento.dto.serialization.DtoDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.stereotype.Component;

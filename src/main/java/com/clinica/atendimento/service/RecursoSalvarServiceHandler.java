@@ -2,7 +2,7 @@ package com.clinica.atendimento.service;
 
 import com.clinica.atendimento.dto.RecursoDTO;
 import com.clinica.atendimento.repository.RecursoRepository;
-import com.clinica.atendimento.websocket.WebSocketHandler;
+import com.clinica.atendimento.service.websocket.WebSocketHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.socket.WebSocketSession;
