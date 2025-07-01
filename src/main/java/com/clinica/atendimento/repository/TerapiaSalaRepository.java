@@ -12,8 +12,10 @@ import java.util.List;
 @Repository
 public interface TerapiaSalaRepository extends JpaRepository<TerapiaSala, Long> {
 
-    @Query("select ts from TerapiaSala ts left join fetch ts.terapia where ts.sala = :sala")
+    @Query("""
+            select ts
+            from TerapiaSala ts
+                left join fetch ts.terapia
+            where ts.sala = :sala""")
     List<TerapiaSala> findBySala(@Param("sala") Sala sala);
-
-    void deleteBySala(Sala sala);
 }

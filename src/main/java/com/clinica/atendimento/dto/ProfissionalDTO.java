@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,10 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Builder
 public class ProfissionalDTO {
 
-    @JsonProperty
-    private Long id;
-    @JsonProperty
-    private PessoaDTO pessoa;
+    @JsonProperty private Long id;
+    @JsonProperty private PessoaDTO pessoa;
+    @JsonProperty private List<TerapiaDTO> terapias;
 
     // Static method to convert from entity to DTO
     public static ProfissionalDTO fromEntity(Profissional profissional) {
@@ -27,9 +28,14 @@ public class ProfissionalDTO {
             return null;
         }
 
+        List<TerapiaDTO> terapiaDTOs = profissional.terapias().stream()
+                .map(profissionalTerapia -> TerapiaDTO.fromEntity(profissionalTerapia.terapia()))
+                .toList();
+
         return ProfissionalDTO.builder()
                 .id(profissional.pessoa().id())
                 .pessoa(PessoaDTO.fromEntity(profissional.pessoa()))
+                .terapias(terapiaDTOs)
                 .build();
     }
 

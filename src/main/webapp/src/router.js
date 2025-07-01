@@ -4,12 +4,18 @@ import TranscricaoAudio from './components/TranscricaoAudio.vue'
 import SalaCadastro from './components/SalaCadastro.vue'
 import RecursoCadastro from './components/RecursoCadastro.vue'
 import ConnectedClients from './components/ConnectedClients.vue'
+import ProfissionalCadastro from "./components/ProfissionalCadastro.vue";
 
 const routes = [
     {
         path: '/terapias',
         name: 'Terapias',
         component: TerapiaCadastro
+    },
+    {
+        path: '/profissionais',
+        name: 'Profissionais',
+        component: ProfissionalCadastro
     },
     {
         path: '/transcricao',

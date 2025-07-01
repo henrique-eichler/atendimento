@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @NoArgsConstructor
@@ -18,11 +19,13 @@ import java.time.LocalDate;
 @Builder
 public class PessoaDTO {
 
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_DATE;
+
     @JsonProperty private Long id;
     @JsonProperty private String nome;
     @JsonProperty private String email;
-    @JsonProperty private LocalDate dataNascimento;
-    @JsonProperty private Sexo sexo;
+    @JsonProperty private String dataNascimento;
+    @JsonProperty private String sexo;
 
     // Static method to convert from entity to DTO
     public static PessoaDTO fromEntity(Pessoa pessoa) {
@@ -34,8 +37,8 @@ public class PessoaDTO {
                 .id(pessoa.id())
                 .nome(pessoa.nome())
                 .email(pessoa.email())
-                .dataNascimento(pessoa.dataNascimento())
-                .sexo(pessoa.sexo())
+                .dataNascimento(pessoa.dataNascimento().format(DATE_TIME_FORMATTER))
+                .sexo(pessoa.sexo().getCodigo())
                 .build();
     }
 
@@ -45,8 +48,8 @@ public class PessoaDTO {
                 .id(id)
                 .nome(nome)
                 .email(email)
-                .dataNascimento(dataNascimento)
-                .sexo(sexo)
+                .dataNascimento(LocalDate.from(DATE_TIME_FORMATTER.parse(dataNascimento)))
+                .sexo(Sexo.fromCodigo(sexo))
                 .build();
     }
 }

@@ -9,21 +9,31 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class DeepSeekService {
 
+    private final String url;
+    private final String model;
     private final RestTemplate restTemplate;
 
-    @Value("${deepseek.url}")
-    private String deepseekUrl;
-
-    public DeepSeekService(RestTemplate restTemplate) {
+    public DeepSeekService(
+            @Value("${deepseek.url}") String url,
+            @Value("${deepseek.model}") String model,
+            RestTemplate restTemplate) {
+        this.url = url;
+        this.model = model;
         this.restTemplate = restTemplate;
     }
 
     public String resumir(String prompt) {
-        var texto = "Dado essa transcrição completa de uma sessão: \"" + prompt + "\". Responda: O que foi discutido durante a sessão?";
-        var deepSeekRequest = new DeepSeekRequest(texto);
+        var texto = """
+                Dado essa transcrição completa de uma sessão:
+                
+                "%s"
+                
+                Responda: Faça um resumo da transcrição enumerando as atividades realizadas.
+                """.formatted(prompt);
+        var deepSeekRequest = new DeepSeekRequest(model, texto);
 
         try {
-            var responseEntity = restTemplate.postForEntity(deepseekUrl, deepSeekRequest, DeepSeekResponse.class);
+            var responseEntity = restTemplate.postForEntity(url, deepSeekRequest, DeepSeekResponse.class);
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 return responseEntity.getBody().getResponse().trim();
             } else {
@@ -61,10 +71,10 @@ public class DeepSeekService {
                 Transcrição:
                 "%s"
                 """.formatted(transcricao);
-        var deepSeekRequest = new DeepSeekRequest(prompt);
+        var deepSeekRequest = new DeepSeekRequest(model, prompt);
 
         try {
-            var responseEntity = restTemplate.postForEntity(deepseekUrl, deepSeekRequest, DeepSeekResponse.class);
+            var responseEntity = restTemplate.postForEntity(url, deepSeekRequest, DeepSeekResponse.class);
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 return responseEntity.getBody().getResponse().trim();
             } else {

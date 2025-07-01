@@ -21,6 +21,8 @@ const app = createApp({
         <nav class="main-nav">
           <router-link to="/terapias">Terapias</router-link>
           |
+          <router-link to="/profissionais">Profissionais</router-link>
+          |
           <router-link to="/salas">Salas</router-link>
           |
           <router-link to="/recursos">Recursos</router-link>

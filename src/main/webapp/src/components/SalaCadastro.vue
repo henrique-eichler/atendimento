@@ -217,25 +217,11 @@ let subscriptions = []
 
 onMounted(() => {
   // Subscribe to topics
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/response/list", msg => listed(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/response/save", msg => saved(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/sala/response/delete", msg => deleted(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/terapia/response/list", msg => listedTerapias(msg.body))
-  )
-
-  subscriptions.push(
-      WebSocketService.subscribe("/topic/recurso/response/list", msg => listedRecursos(msg.body))
-  )
+  subscriptions.push(WebSocketService.subscribe("/topic/sala/response/save", msg => saved(msg.body)))
+  subscriptions.push(WebSocketService.subscribe("/topic/sala/response/delete", msg => deleted(msg.body)))
+  subscriptions.push(WebSocketService.subscribe("/topic/sala/response/list", msg => salas.value = msg.body))
+  subscriptions.push(WebSocketService.subscribe("/topic/terapia/response/list", msg => terapias.value = msg.body))
+  subscriptions.push(WebSocketService.subscribe("/topic/recurso/response/list", msg => recursos.value = msg.body))
 
   // Send initialization messages
   WebSocketService.publish("/topic/sala/request/list")
@@ -245,10 +231,6 @@ onMounted(() => {
 
 const listarSalas = () => {
   WebSocketService.publish("/topic/sala/request/list")
-}
-
-const listed = list => {
-  salas.value = list
 }
 
 const saved = sala => {
@@ -264,14 +246,6 @@ const deleted = id => {
   salas.value = salas.value.filter(p => p.id !== id)
 }
 
-const listedTerapias = list => {
-  terapias.value = list
-}
-
-const listedRecursos = list => {
-  recursos.value = list
-}
-
 const novo = () => {
   reset();
   isEditing.value = true;
@@ -284,6 +258,7 @@ const editar = s => {
   sala.value.recursos = [...s.recursos]
   sala.value.cronogramas = s.cronogramas ? [...s.cronogramas] : []
   isEditing.value = true;
+  activeTab.value = "cadastro"
 }
 
 const salvar = () => {
@@ -344,11 +319,7 @@ const reset = () => {
   sala.value.terapias = []
   sala.value.recursos = []
   sala.value.cronogramas = []
-
-  // Reset to the terapias tab
-  activeTab.value = "terapias";
 }
-
 
 onUnmounted(() => {
   // Unsubscribe from all subscriptions

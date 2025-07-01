@@ -12,19 +12,13 @@ public class DeepSeekRequest {
     private String prompt;
     private boolean stream;
 
-    public DeepSeekRequest() {
-        model = "deepseek-llm:latest";
+    public DeepSeekRequest(String model) {
+        this.model = model;
         stream = false;
     }
 
-    public DeepSeekRequest(String prompt) {
-        this();
+    public DeepSeekRequest(String model, String prompt) {
+        this(model);
         this.prompt = prompt;
-    }
-
-    public DeepSeekRequest(String model, String prompt, boolean stream) {
-        this.model = model;
-        this.prompt = prompt;
-        this.stream = stream;
     }
 }

@@ -10,9 +10,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 @Component
 public class TranscreverConsumer extends AbstractConsumer<String, byte[]> {
 
@@ -39,12 +36,6 @@ public class TranscreverConsumer extends AbstractConsumer<String, byte[]> {
     protected void receber(ConsumerRecord<String, byte[]> record) {
         String sessao = record.key();
         byte[] audio = record.value();
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream("/home/henrique/Downloads/" + sessao + ".wav")) {
-            fileOutputStream.write(audio);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
         String transcrito = transcreverService.transcrever(audio);
         resumirProducer.enviar(sessao, transcrito);
