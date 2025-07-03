@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -29,10 +32,10 @@ public class AudioService {
 
         return chunks != null
                 ? chunks.stream()
-                    .sorted(Comparator.comparingInt(Chunk::getIndice))
-                    .map(Chunk::getAudio)
-                    .reduce(AudioService::join)
-                    .orElse(new byte[0])
+                .sorted(Comparator.comparingInt(Chunk::getIndice))
+                .map(Chunk::getAudio)
+                .reduce(AudioService::join)
+                .orElse(new byte[0])
                 : new byte[0];
     }
 

@@ -56,10 +56,15 @@ public class SessionListServiceHandler extends AbstractServiceHandler<Void> {
     @Accessors(fluent = true)
     @Builder
     public static class ClientInfo {
-        @JsonProperty private String clientId;
-        @JsonProperty private boolean connected;
-        @JsonProperty private String startedAt;
-        @JsonProperty private String updatedAt;
-        @JsonProperty private String disconectedAt;
+        @JsonProperty
+        private String clientId;
+        @JsonProperty
+        private boolean connected;
+        @JsonProperty
+        private String startedAt;
+        @JsonProperty
+        private String updatedAt;
+        @JsonProperty
+        private String disconectedAt;
     }
 }

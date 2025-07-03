@@ -97,14 +97,14 @@ function initWebSocket() {
     socket.onmessage = (event) => {
         try {
             const message = JSON.parse(event.data)
-            const { destination, body } = message
+            const {destination, body} = message
 
             // Find and call all callbacks for this destination
             if (subscriptions.has(destination)) {
                 const callbacks = subscriptions.get(destination)
                 callbacks.forEach(callback => {
                     try {
-                        callback({ body: body })
+                        callback({body: body})
                     } catch (err) {
                         console.error(`Error in subscription callback for ${destination}`, err)
                     }

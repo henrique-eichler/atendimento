@@ -1,7 +1,10 @@
 package com.clinica.atendimento.service;
 
 import com.clinica.atendimento.dto.ProfissionalDTO;
-import com.clinica.atendimento.model.*;
+import com.clinica.atendimento.model.Pessoa;
+import com.clinica.atendimento.model.Profissional;
+import com.clinica.atendimento.model.ProfissionalTerapia;
+import com.clinica.atendimento.model.Terapia;
 import com.clinica.atendimento.repository.PessoaRepository;
 import com.clinica.atendimento.repository.ProfissionalRepository;
 import com.clinica.atendimento.repository.ProfissionalTerapiaRepository;

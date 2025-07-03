@@ -15,8 +15,10 @@ import lombok.experimental.Accessors;
 @Builder
 public class ConvenioDTO {
 
-    @JsonProperty private Long id;
-    @JsonProperty private String nome;
+    @JsonProperty
+    private Long id;
+    @JsonProperty
+    private String nome;
 
     // Static method to convert from entity to DTO
     public static ConvenioDTO fromEntity(Convenio convenio) {

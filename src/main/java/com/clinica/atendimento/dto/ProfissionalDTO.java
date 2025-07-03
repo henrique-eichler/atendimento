@@ -2,12 +2,12 @@ package com.clinica.atendimento.dto;
 
 import com.clinica.atendimento.model.Pessoa;
 import com.clinica.atendimento.model.Profissional;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -18,9 +18,12 @@ import java.util.List;
 @Builder
 public class ProfissionalDTO {
 
-    @JsonProperty private Long id;
-    @JsonProperty private PessoaDTO pessoa;
-    @JsonProperty private List<TerapiaDTO> terapias;
+    @JsonProperty
+    private Long id;
+    @JsonProperty
+    private PessoaDTO pessoa;
+    @JsonProperty
+    private List<TerapiaDTO> terapias;
 
     // Static method to convert from entity to DTO
     public static ProfissionalDTO fromEntity(Profissional profissional) {

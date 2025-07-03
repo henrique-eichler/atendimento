@@ -53,8 +53,8 @@ create table pessoa
     nome            varchar(255) not null,
     email           varchar(255) null
         constraint uk_usuario_email unique,
-    data_nascimento date         null,
-    sexo            char(1)      null
+    data_nascimento date null,
+    sexo            char(1) null
         constraint ch_pessoa_sexo check ( sexo in ('F', 'M') )
 );
 

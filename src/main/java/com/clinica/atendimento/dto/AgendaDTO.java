@@ -17,13 +17,20 @@ import java.time.LocalDate;
 @Builder
 public class AgendaDTO {
 
-    @JsonProperty private Long id;
-    @JsonProperty private LocalDate dataAgenda;
-    @JsonProperty private CronogramaDTO cronograma;
-    @JsonProperty private PacienteDTO paciente;
-    @JsonProperty private TerapiaDTO terapia;
-    @JsonProperty private ConvenioDTO convenio;
-    @JsonProperty private ProfissionalDTO profissional;
+    @JsonProperty
+    private Long id;
+    @JsonProperty
+    private LocalDate dataAgenda;
+    @JsonProperty
+    private CronogramaDTO cronograma;
+    @JsonProperty
+    private PacienteDTO paciente;
+    @JsonProperty
+    private TerapiaDTO terapia;
+    @JsonProperty
+    private ConvenioDTO convenio;
+    @JsonProperty
+    private ProfissionalDTO profissional;
 
     // Static method to convert from entity to DTO
     public static AgendaDTO fromEntity(Agenda agenda) {

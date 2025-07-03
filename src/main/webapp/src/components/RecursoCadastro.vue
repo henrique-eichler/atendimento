@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, onUnmounted, ref} from "vue"
+import {onMounted, onUnmounted, ref} from "vue"
 import WebSocketService from '../services/WebSocketService'
 import ModalForm from './ModalForm.vue'
 

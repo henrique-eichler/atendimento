@@ -3,12 +3,12 @@ package com.clinica.atendimento.dto;
 import com.clinica.atendimento.model.Profissional;
 import com.clinica.atendimento.model.ProfissionalTerapia;
 import com.clinica.atendimento.model.Terapia;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 

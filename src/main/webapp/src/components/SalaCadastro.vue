@@ -91,16 +91,16 @@
               <div class="cronograma-grid-container">
                 <table class="cronograma-grid">
                   <thead>
-                    <tr>
-                      <th>Horário</th>
-                      <th v-for="dia in diasSemana" :key="dia.value">{{ dia.label }}</th>
-                    </tr>
+                  <tr>
+                    <th>Horário</th>
+                    <th v-for="dia in diasSemana" :key="dia.value">{{ dia.label }}</th>
+                  </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="hora in horas" :key="hora.value">
-                      <td>{{ hora.label }}</td>
-                      <td v-for="dia in diasSemana" :key="dia.value" :class="{ 'selected': isCronogramaSelected(dia.value, hora.value) }" @click="toggleCronograma(dia.value, hora.value)"></td>
-                    </tr>
+                  <tr v-for="hora in horas" :key="hora.value">
+                    <td>{{ hora.label }}</td>
+                    <td v-for="dia in diasSemana" :key="dia.value" :class="{ 'selected': isCronogramaSelected(dia.value, hora.value) }" @click="toggleCronograma(dia.value, hora.value)"></td>
+                  </tr>
                   </tbody>
                 </table>
               </div>
@@ -188,13 +188,13 @@ const recursos = ref([])
 
 // Cronograma data
 const diasSemana = [
-  { value: 'DOMINGO', label: 'Domingo' },
-  { value: 'SEGUNDA', label: 'Segunda' },
-  { value: 'TERCA', label: 'Terça' },
-  { value: 'QUARTA', label: 'Quarta' },
-  { value: 'QUINTA', label: 'Quinta' },
-  { value: 'SEXTA', label: 'Sexta' },
-  { value: 'SABADO', label: 'Sábado' }
+  {value: 'DOMINGO', label: 'Domingo'},
+  {value: 'SEGUNDA', label: 'Segunda'},
+  {value: 'TERCA', label: 'Terça'},
+  {value: 'QUARTA', label: 'Quarta'},
+  {value: 'QUINTA', label: 'Quinta'},
+  {value: 'SEXTA', label: 'Sexta'},
+  {value: 'SABADO', label: 'Sábado'}
 ]
 
 const horas = []
@@ -206,7 +206,7 @@ for (let i = 7; i <= 19; i++) {
   })
 }
 
-const search = ref({terapias: {disponiveis: "", selecionadas: ""}, recursos:{disponiveis: "", selecionados: ""}})
+const search = ref({terapias: {disponiveis: "", selecionadas: ""}, recursos: {disponiveis: "", selecionados: ""}})
 const terapiasDisponiveis = computed(() => terapias.value.filter(t => t.nome.toLowerCase().includes(search.value.terapias.disponiveis) && !sala.value.terapias.some(s => s.id === t.id)))
 const terapiasSelecionadas = computed(() => terapias.value.filter(t => t.nome.toLowerCase().includes(search.value.terapias.selecionadas) && sala.value.terapias.some(s => s.id === t.id)))
 const recursosDisponiveis = computed(() => recursos.value.filter(t => t.nome.toLowerCase().includes(search.value.recursos.disponiveis) && !sala.value.recursos.some(s => s.id === t.id)))
@@ -278,17 +278,17 @@ const cancelar = () => {
 
 // Cronograma methods
 const isCronogramaSelected = (diaSemana, hora) => {
-  return sala.value.cronogramas.some(c => 
-    c.diaSemana === diaSemana && 
-    new Date(c.horaInicio).getHours() === hora
+  return sala.value.cronogramas.some(c =>
+      c.diaSemana === diaSemana &&
+      new Date(c.horaInicio).getHours() === hora
   );
 }
 
 const toggleCronograma = (diaSemana, hora) => {
   // Check if this time slot is already selected
-  const existingIndex = sala.value.cronogramas.findIndex(c => 
-    c.diaSemana === diaSemana && 
-    new Date(c.horaInicio).getHours() === hora
+  const existingIndex = sala.value.cronogramas.findIndex(c =>
+      c.diaSemana === diaSemana &&
+      new Date(c.horaInicio).getHours() === hora
   );
 
   if (existingIndex !== -1) {
@@ -304,7 +304,7 @@ const toggleCronograma = (diaSemana, hora) => {
 
     sala.value.cronogramas.push({
       id: null,
-      sala: { id: sala.value.id },
+      sala: {id: sala.value.id},
       diaSemana: diaSemana,
       horaInicio: horaInicio.toISOString(),
       horaTermino: horaTermino.toISOString()

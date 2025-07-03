@@ -4,7 +4,7 @@ import {NodeGlobalsPolyfillPlugin} from '@esbuild-plugins/node-globals-polyfill'
 import {resolve} from 'path'
 
 // Configuration factory that returns different configs based on mode
-export default defineConfig(({ mode }) => {
+export default defineConfig(({mode}) => {
     const isDebug = mode === 'debug';
 
     return {
