@@ -1,0 +1,33 @@
+package br.com.estimular.atendimento.service;
+
+import br.com.estimular.atendimento.dto.SalaDTO;
+import br.com.estimular.atendimento.repository.SalaRepository;
+import br.com.estimular.atendimento.service.websocket.WebSocketHandler;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+public class SalaListarServiceHandler extends AbstractServiceHandler<Void> {
+
+    private final WebSocketHandler webSocketHandler;
+    private final SalaRepository salaRepository;
+
+    public SalaListarServiceHandler(WebSocketHandler webSocketHandler, SalaRepository salaRepository) {
+        super(Void.class);
+        this.webSocketHandler = webSocketHandler;
+        this.salaRepository = salaRepository;
+
+        this.webSocketHandler.register("/topic/sala/request/list", this);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void process(WebSocketSession session, Void unused) throws IOException {
+        List<SalaDTO> list = salaRepository.findAllSalas().stream().map(SalaDTO::fromEntity).toList();
+        this.webSocketHandler.sendToSession(session, "/topic/sala/response/list", list);
+    }
+}

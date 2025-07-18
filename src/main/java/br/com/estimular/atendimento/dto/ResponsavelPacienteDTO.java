@@ -1,0 +1,59 @@
+package br.com.estimular.atendimento.dto;
+
+import br.com.estimular.atendimento.model.Paciente;
+import br.com.estimular.atendimento.model.Responsavel;
+import br.com.estimular.atendimento.model.ResponsavelPaciente;
+import br.com.estimular.atendimento.model.enums.GrauParentesco;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(fluent = true)
+@Builder
+public class ResponsavelPacienteDTO {
+
+    @JsonProperty
+    private Long id;
+    @JsonProperty
+    private ResponsavelDTO responsavel;
+    @JsonProperty
+    private Long pacienteId;
+    @JsonProperty
+    private GrauParentesco grauParentesco;
+
+    // Static method to convert from entity to DTO
+    public static ResponsavelPacienteDTO fromEntity(ResponsavelPaciente responsavelPaciente) {
+        if (responsavelPaciente == null) {
+            return null;
+        }
+
+        return ResponsavelPacienteDTO.builder()
+                .id(responsavelPaciente.id())
+                .responsavel(ResponsavelDTO.fromEntity(responsavelPaciente.responsavel()))
+                .pacienteId(responsavelPaciente.paciente().pessoa().id())
+                .grauParentesco(responsavelPaciente.grauParentesco())
+                .build();
+    }
+
+    // Method to convert from DTO to entity
+    public ResponsavelPaciente toEntity(Paciente paciente) {
+        Responsavel responsavelEntity = responsavel != null ? responsavel.toEntity() : null;
+        return ResponsavelPaciente.builder()
+                .id(id)
+                .responsavel(responsavelEntity)
+                .paciente(paciente)
+                .grauParentesco(grauParentesco)
+                .build();
+    }
+
+    // Overloaded method for use in PacienteDTO
+    public ResponsavelPaciente toEntity() {
+        throw new UnsupportedOperationException("Cannot convert ResponsavelPacienteDTO to entity without a Paciente instance");
+    }
+}

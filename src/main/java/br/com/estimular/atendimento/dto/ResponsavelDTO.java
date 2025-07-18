@@ -1,0 +1,49 @@
+package br.com.estimular.atendimento.dto;
+
+import br.com.estimular.atendimento.model.Pessoa;
+import br.com.estimular.atendimento.model.Responsavel;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(fluent = true)
+@Builder
+public class ResponsavelDTO {
+
+    @JsonProperty
+    private Long id;
+    @JsonProperty
+    private PessoaDTO pessoa;
+
+    // Static method to convert from entity to DTO
+    public static ResponsavelDTO fromEntity(Responsavel responsavel) {
+        if (responsavel == null) {
+            return null;
+        }
+
+        return ResponsavelDTO.builder()
+                .id(responsavel.pessoa().id())
+                .pessoa(PessoaDTO.fromEntity(responsavel.pessoa()))
+                .build();
+    }
+
+    // Method to convert from DTO to entity
+    public Responsavel toEntity() {
+        Pessoa pessoaEntity = pessoa != null ? pessoa.toEntity() : null;
+
+        // Set the ID on the Pessoa entity
+        if (pessoaEntity != null && id != null) {
+            pessoaEntity.id(id);
+        }
+
+        return Responsavel.builder()
+                .pessoa(pessoaEntity)
+                .build();
+    }
+}

@@ -1,0 +1,64 @@
+package br.com.estimular.atendimento.service;
+
+import br.com.estimular.atendimento.dto.SalaDTO;
+import br.com.estimular.atendimento.model.*;
+import br.com.estimular.atendimento.repository.CronogramaRepository;
+import br.com.estimular.atendimento.repository.RecursoSalaRepository;
+import br.com.estimular.atendimento.repository.SalaRepository;
+import br.com.estimular.atendimento.repository.TerapiaSalaRepository;
+import br.com.estimular.atendimento.service.websocket.WebSocketHandler;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.socket.WebSocketSession;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+public class SalaSalvarServiceHandler extends AbstractServiceHandler<SalaDTO> {
+
+    private final WebSocketHandler webSocketHandler;
+    private final SalaRepository salaRepository;
+    private final TerapiaSalaRepository terapiaSalaRepository;
+    private final RecursoSalaRepository recursoSalaRepository;
+    private final CronogramaRepository cronogramaRepository;
+
+    SalaSalvarServiceHandler(WebSocketHandler webSocketHandler, SalaRepository salaRepository, TerapiaSalaRepository terapiaSalaRepository, RecursoSalaRepository recursoSalaRepository, CronogramaRepository cronogramaRepository) {
+        super(SalaDTO.class);
+        this.webSocketHandler = webSocketHandler;
+        this.salaRepository = salaRepository;
+        this.terapiaSalaRepository = terapiaSalaRepository;
+        this.recursoSalaRepository = recursoSalaRepository;
+        this.cronogramaRepository = cronogramaRepository;
+
+        this.webSocketHandler.register("/topic/sala/request/save", this);
+    }
+
+    @Override
+    @Transactional()
+    public void process(WebSocketSession session, SalaDTO salaDTO) throws IOException {
+        Sala sala = salaRepository.save(salaDTO.toEntity());
+
+        List<TerapiaSala> terapias = terapiaSalaRepository.findBySala(sala);
+        terapias.stream().filter(ts -> salaDTO.terapias().stream().noneMatch(t -> t.id().equals(ts.terapia().id()))).forEach(terapiaSalaRepository::delete);
+        salaDTO.terapias().stream().filter(t -> terapias.stream().noneMatch(ts -> ts.terapia().id().equals(t.id()))).map(t -> TerapiaSala.builder().sala(sala).terapia(Terapia.builder().id(t.id()).build()).build()).forEach(terapiaSalaRepository::save);
+
+        List<RecursoSala> recursos = recursoSalaRepository.findBySala(sala);
+        recursos.stream().filter(rs -> salaDTO.recursos().stream().noneMatch(r -> r.id().equals(rs.recurso().id()))).forEach(recursoSalaRepository::delete);
+        salaDTO.recursos().stream().filter(r -> recursos.stream().noneMatch(rs -> rs.recurso().id().equals(r.id()))).map(r -> RecursoSala.builder().sala(sala).recurso(Recurso.builder().id(r.id()).build()).build()).forEach(recursoSalaRepository::save);
+
+        // Handle cronogramas
+        List<Cronograma> cronogramas = cronogramaRepository.findBySala(sala);
+        cronogramas.stream().filter(c -> salaDTO.cronogramas() == null || salaDTO.cronogramas().stream().noneMatch(dto -> dto.id() != null && dto.id().equals(c.id()))).forEach(cronogramaRepository::delete);
+        salaDTO.cronogramas().stream().filter(dto -> dto.id() == null || cronogramas.stream().noneMatch(c -> c.id().equals(dto.id()))).map(dto -> {
+                    Cronograma cronograma = dto.toEntity();
+                    cronograma.sala(sala);
+                    return cronograma;
+                })
+                .forEach(cronogramaRepository::save);
+
+        SalaDTO salaSaved = SalaDTO.fromEntity(salaRepository.findSalaById(sala.id()));
+
+        this.webSocketHandler.sendToSession(session, "/topic/sala/response/save", salaSaved);
+    }
+}
